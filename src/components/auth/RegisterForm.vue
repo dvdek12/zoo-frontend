@@ -143,8 +143,10 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import AuthService from '../../services/auth.service';
+import { useAuthStore } from '../../stores/auth';
 import { Mail, KeyRound, ArrowRight, Eye, EyeOff, User as UserIcon, Calendar as CalendarIcon, Phone as PhoneIcon } from 'lucide-vue-next';
+
+const auth = useAuthStore();
 
 const regFirstName = ref('');
 const regLastName = ref('');
@@ -197,7 +199,7 @@ const handleRegister = async () => {
   isLoading.value = true;
 
   try {
-    await AuthService.register(
+    await auth.register(
       regFirstName.value,
       regLastName.value,
       regBirthDate.value,

@@ -45,11 +45,24 @@
 
       <button
         type="submit"
-        class="w-full flex items-center justify-center gap-2 bg-[#1b4324] hover:bg-[#113118] text-white py-4 rounded-full font-semibold transition-colors duration-200 mt-2"
+        :disabled="isLoading"
+        class="w-full flex items-center justify-center gap-2 bg-[#1b4324] hover:bg-[#113118] disabled:opacity-60 disabled:cursor-not-allowed text-white py-4 rounded-full font-semibold transition-colors duration-200 mt-2"
       >
-        Login
-        <ArrowRight class="w-5 h-5" />
+        <span v-if="isLoading" class="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+        <template v-else>
+          Login
+          <ArrowRight class="w-5 h-5" />
+        </template>
       </button>
+
+      <Transition name="msg-fade">
+        <div
+          v-if="errorMessage"
+          class="mt-4 px-4 py-3 rounded-lg text-sm font-medium bg-red-50 border border-red-200 text-red-800"
+        >
+          {{ errorMessage }}
+        </div>
+      </Transition>
     </form>
   </div>
 </template>
@@ -58,20 +71,30 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Mail, KeyRound, Eye, EyeOff, ArrowRight } from 'lucide-vue-next';
-import AuthService from '../../services/auth.service';
+import { useAuthStore } from '../../stores/auth';
 
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
+const isLoading = ref(false);
+const errorMessage = ref('');
 const router = useRouter();
+const auth = useAuthStore();
 
 const handleLogin = async () => {
+  errorMessage.value = '';
+  isLoading.value = true;
   try {
-    const response = await AuthService.login(email.value, password.value);
-    console.log(response)
-    router.push("/map")
+    await auth.login(email.value, password.value);
+    router.push('/map');
   } catch (error) {
-    console.error('An error occurred during login:', error);
+    const data = error?.response?.data;
+    if (data?.message) errorMessage.value = data.message;
+    else if (typeof data === 'string' && data.trim()) errorMessage.value = data.trim();
+    else errorMessage.value = 'Nieprawidłowy email lub hasło.';
+    console.error('Login error:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
