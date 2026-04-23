@@ -3,6 +3,9 @@ import './style.css'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+import { createPinia } from 'pinia'
+
+const pinia = createPinia()
 
 axios.interceptors.request.use(
     (config) => {
@@ -17,4 +20,4 @@ axios.interceptors.request.use(
         return Promise.reject(error);
     }
 )
-createApp(App).use(router).mount('#app')
+createApp(App).use(router).use(pinia).mount('#app')
