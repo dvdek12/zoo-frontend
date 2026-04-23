@@ -64,8 +64,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import LoginForm from '../components/auth/LoginForm.vue';
-import RegisterForm from '../components/auth/RegisterForm.vue';
+import LoginForm from '../components/forms/auth/LoginForm.vue';
+import RegisterForm from '../components/forms/auth/RegisterForm.vue';
 
 const mode = ref('login');
 </script>

@@ -71,7 +71,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Mail, KeyRound, Eye, EyeOff, ArrowRight } from 'lucide-vue-next';
-import { useAuthStore } from '../../stores/auth';
+import { useAuthStore } from '../../../stores/auth';
 
 const email = ref('');
 const password = ref('');

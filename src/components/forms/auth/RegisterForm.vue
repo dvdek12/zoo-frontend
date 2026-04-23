@@ -143,7 +143,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../../stores/auth';
+import { useAuthStore } from '../../../stores/auth';
 import { Mail, KeyRound, ArrowRight, Eye, EyeOff, User as UserIcon, Calendar as CalendarIcon, Phone as PhoneIcon } from 'lucide-vue-next';
 
 const auth = useAuthStore();
