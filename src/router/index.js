@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
+import TaskDetailView from '../views/TaskDetailView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import LoginView from '../views/LoginView.vue'
 import ReportsView from '../views/ReportsView.vue'
 import MapView from '../views/MapView.vue'
@@ -18,6 +20,16 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView
+    },
+    {
+      path: '/dashboard/:taskId',
+      name: 'taskDetail',
+      component: TaskDetailView
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView
     },
     {
       path: '/map',
