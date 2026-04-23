@@ -6,10 +6,10 @@
         <p class="text-[10px] uppercase font-bold tracking-widest text-[#9e9a8f] mt-1 pl-1">Employee Dashboard</p>
       </div>
       <nav class="mt-4 px-4 space-y-2">
-        <router-link to="/" class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors" :class="route.path === '/' ? 'bg-white text-[#1a3b22] font-semibold shadow-sm' : 'text-gray-500 hover:text-[#1a3b22] hover:bg-white/50'">
+        <router-link to="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors" :class="route.path === '/dashboard' ? 'bg-white text-[#1a3b22] font-semibold shadow-sm' : 'text-gray-500 hover:text-[#1a3b22] hover:bg-white/50'">
           <LayoutDashboard class="w-5 h-5 shrink-0" />
           Home
-          <div v-if="route.path === '/'" class="ml-auto w-1 h-6 bg-[#1a3b22] rounded-full"></div>
+          <div v-if="route.path === '/dashboard'" class="ml-auto w-1 h-6 bg-[#1a3b22] rounded-full"></div>
         </router-link>
         <router-link to="/map" class="flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors" :class="route.path === '/map' ? 'bg-white text-[#1a3b22] font-semibold shadow-sm' : 'text-gray-500 hover:text-[#1a3b22] hover:bg-white/50'">
           <MapIcon class="w-5 h-5 shrink-0" />
