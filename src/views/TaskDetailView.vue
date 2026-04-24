@@ -1,7 +1,7 @@
 <template>
   <div class="p-8 h-full flex flex-col">
     <div class="mb-6 flex items-center">
-      <router-link to="/dashboard" class="text-[#2d6a4f] hover:text-[#1a3b22] font-semibold flex items-center gap-2 transition-colors">
+      <router-link to="/dashboard" class="text-[#2d6a4f] dark:text-green-400 hover:text-[#1a3b22] dark:hover:text-green-300 font-semibold flex items-center gap-2 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -9,10 +9,10 @@
       </router-link>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm p-8 flex-1 max-w-4xl">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 flex-1 max-w-4xl transition-colors duration-200">
       <div v-if="task">
         <div class="flex justify-between items-start mb-6">
-          <h2 class="text-3xl font-bold text-[#1a3b22]">{{ task.title }}</h2>
+          <h2 class="text-3xl font-bold text-[#1a3b22] dark:text-green-400">{{ task.title }}</h2>
           <div 
             :class="[
               'px-4 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase whitespace-nowrap',
@@ -23,7 +23,7 @@
           </div>
         </div>
         
-        <p class="text-gray-500 mb-8 flex items-center gap-2 text-lg">
+        <p class="text-gray-500 dark:text-gray-400 mb-8 flex items-center gap-2 text-lg">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
@@ -31,25 +31,25 @@
         </p>
 
         <div class="prose max-w-none mb-10">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">Opis i instrukcje</h3>
-          <p class="text-gray-600 leading-relaxed text-lg mb-4">
+          <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">Opis i instrukcje</h3>
+          <p class="text-gray-600 dark:text-gray-400 leading-relaxed text-lg mb-4">
             Szczegółowe instrukcje i uwagi merytoryczne dotyczące wybranego zadania w ogrodzie zoologicznym. Ze względu na bezpieczeństwo i specyfikę pracy zwierząt każda praca musi zostać udokumentowana.
           </p>
-          <ul class="list-disc pl-5 text-gray-600 mb-6 space-y-2">
+          <ul class="list-disc pl-5 text-gray-600 dark:text-gray-400 mb-6 space-y-2">
             <li>Należy przestrzegać rygorystycznych norm BHP przed przystąpieniem do czynności.</li>
             <li>Upewnić się, że sektor jest odpowiednio zabezpieczony.</li>
             <li>Po wykonaniu pracy należy zgłosić ewentualne nieprawidłowości kierownikowi sekcji.</li>
           </ul>
         </div>
         
-        <div class="flex gap-4 border-t pt-8 border-gray-100">
+        <div class="flex gap-4 border-t pt-8 border-gray-100 dark:border-gray-700">
           <button v-if="task.status !== 'Zakończone'" class="px-6 py-3 bg-[#2d6a4f] text-white rounded-lg font-bold hover:bg-[#1a3b22] transition-colors shadow-md flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
             Oznacz jako zakończone
           </button>
-          <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors shadow-sm focus:ring-2 focus:ring-gray-300">
+          <button class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600">
             Zgłoś problem / Potrzebna pomoc
           </button>
         </div>
@@ -58,8 +58,8 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <h2 class="text-2xl font-bold text-gray-400 mb-2">Nie znaleziono zadania</h2>
-        <p class="text-gray-500">Zadanie o podanym identyfikatorze nie istnieje lub zostało usunięte.</p>
+        <h2 class="text-2xl font-bold text-gray-400 dark:text-gray-500 mb-2">Nie znaleziono zadania</h2>
+        <p class="text-gray-500 dark:text-gray-400">Zadanie o podanym identyfikatorze nie istnieje lub zostało usunięte.</p>
       </div>
     </div>
   </div>

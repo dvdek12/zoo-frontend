@@ -2,10 +2,10 @@
   <div class="p-8 h-full flex flex-col">
     <h2 
       v-if="auth.isLoggedIn"
-      class="text-[2.5rem] font-bold text-[#1a3b22] tracking-tight mb-8">Good morning, {{ auth.userEmail }}!</h2>
+      class="text-[2.5rem] font-bold text-[#1a3b22] dark:text-green-400 tracking-tight mb-8">Good morning, {{ auth.userEmail }}!</h2>
     
-    <div class="bg-white rounded-xl shadow-sm p-6 flex-1 max-w-4xl">
-      <h3 class="text-2xl font-bold text-[#1a3b22] mb-6">Twoje zadania</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex-1 max-w-4xl transition-colors duration-200">
+      <h3 class="text-2xl font-bold text-[#1a3b22] dark:text-green-400 mb-6">Twoje zadania</h3>
       <!-- Kontener z maksymalną wysokością dopasowaną mniej więcej do 4 elementów z opcją scrolowania -->
       <ul class="space-y-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
         <li 
@@ -14,9 +14,9 @@
           @click="goToTask(task.id)"
           :class="[
             'p-5 rounded-xl border transition-all duration-300 shrink-0 cursor-pointer hover:shadow-lg hover:-translate-y-0.5',
-            isToday(task.date) ? 'bg-[#f0f9f4] border-[#2d6a4f] shadow-md border-l-4 border-l-[#2d6a4f]' : '',
-            isPast(task.date) ? 'opacity-40 grayscale border-gray-200 bg-gray-50' : '',
-            !isToday(task.date) && !isPast(task.date) ? 'border-gray-200 bg-white hover:border-gray-300' : ''
+            isToday(task.date) ? 'bg-[#f0f9f4] dark:bg-[#132a1e] border-[#2d6a4f] dark:border-green-500 shadow-md border-l-4 border-l-[#2d6a4f] dark:border-l-green-500' : '',
+            isPast(task.date) ? 'opacity-40 grayscale border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900' : '',
+            !isToday(task.date) && !isPast(task.date) ? 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600' : ''
           ]"
         >
           <div class="flex justify-between items-center leading-relaxed">
@@ -25,13 +25,13 @@
                 <h4 
                   :class="[
                     'font-bold text-lg',
-                    isToday(task.date) ? 'text-[#1a3b22]' : 'text-gray-800'
+                    isToday(task.date) ? 'text-[#1a3b22] dark:text-green-400' : 'text-gray-800 dark:text-gray-100'
                   ]"
                 >{{ task.title }}</h4>
                 <span v-if="isToday(task.date)" class="bg-[#2d6a4f] text-white text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Dzisiaj</span>
                 <span v-if="isYesterday(task.date)" class="bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Wczoraj</span>
               </div>
-              <p class="text-sm text-gray-500 flex items-center gap-2">
+              <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>

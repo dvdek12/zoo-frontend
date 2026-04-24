@@ -3,8 +3,14 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from './layouts/MainLayout.vue';
 import ClientLayout from './layouts/ClientLayout.vue';
+import { useThemeStore } from './stores/theme';
 
 const route = useRoute();
+
+onMounted(() => {
+  const themeStore = useThemeStore();
+  themeStore.init();
+});
 
 const layout = computed(() => {
   if (route.path === '/login') return 'none';
