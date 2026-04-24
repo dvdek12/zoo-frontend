@@ -4,12 +4,17 @@ import { useRoute } from 'vue-router';
 import MainLayout from './layouts/MainLayout.vue';
 import ClientLayout from './layouts/ClientLayout.vue';
 import { useThemeStore } from './stores/theme';
+import { useAuthStore } from './stores/auth';
 
 const route = useRoute();
+const auth = useAuthStore();
 
 onMounted(() => {
   const themeStore = useThemeStore();
   themeStore.init();
+
+  const role = auth.user.role;
+  console.log(role)
 });
 
 const layout = computed(() => {
