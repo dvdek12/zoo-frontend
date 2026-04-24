@@ -29,8 +29,13 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = {
         role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
       }
+    } else {
+      user.value = null;
     }
   }
+
+  // Initialize immediately from token
+  setUser();
    
   function logout() {
     AuthService.logout();

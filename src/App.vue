@@ -13,8 +13,8 @@ onMounted(() => {
   const themeStore = useThemeStore();
   themeStore.init();
 
-  const role = auth.user.role;
-  console.log(role)
+  const role = auth.user?.role;
+  console.log(role);
 });
 
 const layout = computed(() => {

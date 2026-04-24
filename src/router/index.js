@@ -6,7 +6,7 @@ import LoginView from '../views/LoginView.vue'
 import ReportsView from '../views/ReportsView.vue'
 import MapView from '../views/MapView.vue'
 import ClientHomeView from '../views/ClientHomeView.vue'
-import AnimalDetailView from '../views/AnimalDetailsView.vue'
+import BestiaryView from '../views/BestiaryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,9 +48,10 @@ const router = createRouter({
       component: LoginView
     },
     {
-      path: '/animaldetail',
-      name: 'animaldetail',
-      component: AnimalDetailView
+      path: '/bestiary/:animalName',
+      name: 'bestiary',
+      component: BestiaryView,
+      meta: { layout: 'client' }
     }
   ]
 })
