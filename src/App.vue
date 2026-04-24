@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from './layouts/MainLayout.vue';
 import ClientLayout from './layouts/ClientLayout.vue';
