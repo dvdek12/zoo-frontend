@@ -1,32 +1,20 @@
 <template>
-<div>
-    <input v-model="animalName" placeholder="Wpisz zwierzę (np. Lion)" />
-    <button @click="fetchAnimal">Szukaj</button>
+  <div>
+    <input v-model="animalName" placeholder="Wpisz zwierzę (np. Lion)" @keyup.enter="search" />
+    <button @click="search">Szukaj</button>
 
-    <div v-if="loading">Ładowanie...</div>
-    <pre v-if="result">{{ result }}</pre>
+    <div v-if="isLoading">Ładowanie...</div>
+    <div v-if="error" style="color: red">{{ error }}</div>
+    <pre v-if="results.length">{{ results }}</pre>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import { useAnimalSearch } from '../composables/useAnimalSearch';
 
 const animalName = ref('');
-const result = ref(null);
-const loading = ref(false);
+const { results, isLoading, error, searchAnimals } = useAnimalSearch();
 
-const fetchAnimal = async () => {
-  loading.value = true;
-  try {
-    // Adres Twojego lokalnego API .NET
-    const response = await axios.get(`https://localhost:7293/api/external-animals/${animalName.value}`);
-    result.value = response.data;
-    console.log(result.value)
-  } catch (error) {
-    console.error("Błąd:", error);
-  } finally {
-    loading.value = false;
-  }
-};
+const search = () => searchAnimals(animalName.value);
 </script>

@@ -76,10 +76,11 @@ const links = computed(() => {
     { name: 'Map', path: '/map', icon: MapIcon },
     { name: 'Reports', path: '/reports', icon: Activity },
     { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Animals', path: '/animals', icon: PawPrint }
   ];
-  if (auth.hasRole('Manager')) {
-    allLinks.push({ name: 'Animals', path: '/animals', icon: PawPrint });
-  }
+  // if (auth.hasRole('Manager')) {
+  //   allLinks.push({ name: 'Animals', path: '/animals', icon: PawPrint });
+  // }
   return allLinks;
 });
 
