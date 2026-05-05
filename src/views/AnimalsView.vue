@@ -89,6 +89,29 @@
       @save="onAttributeSaved"
       @close="showAttrModal = false"
     />
+
+    <!-- Dialog potwierdzenia usunięcia -->
+    <ConfirmDialog
+      v-model="showDeleteConfirm"
+      title="Usuń zwierzę"
+      :message="`Czy na pewno chcesz usunąć ${pendingDeleteAnimal?.name ?? 'to zwierzę'}? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      cancel-label="Anuluj"
+      :loading="isDeletingAnimal"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
+
+    <!-- Dialog błędu usunięcia -->
+    <ConfirmDialog
+      v-model="showDeleteError"
+      title="Błąd usuwania"
+      :message="deleteError ?? 'Nie udało się usunąć zwierzęcia.'"
+      confirm-label="OK"
+      cancel-label=""
+      @confirm="showDeleteError = false"
+      @cancel="showDeleteError = false"
+    />
   </div>
 </template>
 
@@ -98,6 +121,7 @@ import AnimalTable      from '../components/animals/AnimalTable.vue';
 import AttributeTable   from '../components/animals/AttributeTable.vue';
 import AddAnimalModal   from '../components/animals/AddAnimalModal.vue';
 import AddAttributeModal from '../components/animals/AddAttributeModal.vue';
+import ConfirmDialog    from '../components/ConfirmDialog.vue';
 import animalService    from '../services/animal.service';
 
 // --- MODALS ---
@@ -159,23 +183,42 @@ const onAnimalSaved = async () => {
   await fetchAnimals();
 };
 
-const isDeletingAnimal = ref(false);
-const deleteError      = ref(null);
+const isDeletingAnimal    = ref(false);
+const deleteError         = ref(null);
+const showDeleteConfirm   = ref(false);
+const showDeleteError     = ref(false);
+const pendingDeleteAnimal = ref(null);
 
-const deleteAnimal = async (id) => {
-  if (!confirm('Czy na pewno chcesz usunąć to zwierzę?')) return;
+/** Otwiera dialog potwierdzenia — zapamiętuje zwierzę do usunięcia */
+const deleteAnimal = (id) => {
+  pendingDeleteAnimal.value = animals.value.find(a => a.id === id) ?? { id, name: '' };
+  showDeleteConfirm.value = true;
+};
+
+/** Wywoływane po kliknięciu "Usuń" w dialogu */
+const confirmDelete = async () => {
+  if (!pendingDeleteAnimal.value) return;
   isDeletingAnimal.value = true;
   deleteError.value = null;
   try {
-    await animalService.remove(id);
-    animals.value = animals.value.filter(a => a.id !== id);
+    await animalService.remove(pendingDeleteAnimal.value.id);
+    animals.value = animals.value.filter(a => a.id !== pendingDeleteAnimal.value.id);
+    showDeleteConfirm.value = false;
+    pendingDeleteAnimal.value = null;
   } catch (err) {
     console.error('[AnimalsView] deleteAnimal error:', err);
     deleteError.value = err?.response?.data?.message ?? 'Nie udało się usunąć zwierzęcia.';
-    alert(deleteError.value);
+    showDeleteConfirm.value = false;
+    showDeleteError.value = true;
   } finally {
     isDeletingAnimal.value = false;
   }
+};
+
+/** Wywoływane po kliknięciu "Anuluj" */
+const cancelDelete = () => {
+  showDeleteConfirm.value = false;
+  pendingDeleteAnimal.value = null;
 };
 
 // --- ATRYBUTY ---

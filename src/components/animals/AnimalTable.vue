@@ -1,6 +1,7 @@
 <template>
   <div class="flex-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col min-h-0">
-    <div class="flex-1 overflow-auto custom-scrollbar">
+    <!-- Tabela — widoczna tylko gdy są dane -->
+    <div v-if="animals.length > 0" class="flex-1 overflow-auto custom-scrollbar">
       <table class="w-full text-left border-collapse">
         <thead class="sticky top-0 bg-gray-50 dark:bg-gray-900/95 backdrop-blur-sm z-10 shadow-sm border-b border-gray-100 dark:border-gray-700">
           <tr>
@@ -56,16 +57,31 @@
               </button>
             </td>
           </tr>
-          <tr v-if="animals.length === 0">
-            <td colspan="6" class="py-8 text-center text-gray-500">Brak zwierząt pasujących do wyszukiwania.</td>
-          </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Empty state — poza scrollem, wypełnia całą kartę -->
+    <div v-else class="flex-1 flex flex-col items-center justify-center select-none overflow-hidden">
+      <img
+        :src="sadPandaImg"
+        alt="Smutna panda"
+        class="w-80 opacity-55 grayscale mb-4"
+        draggable="false"
+      />
+      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">
+        Brak zwierząt w zoo
+      </p>
+      <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
+        Nasza panda jest smutna — nie ma tu żadnych zwierząt.<br>Dodaj pierwsze, klikając przycisk powyżej.
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
+import sadPandaImg from '../../assets/sad_panda.png';
+
 defineProps({
   animals: {
     type: Array,
