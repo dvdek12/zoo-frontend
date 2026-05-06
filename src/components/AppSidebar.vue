@@ -53,7 +53,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
-import AuthService from '../services/auth.service';
+
 import ThemeToggle from './ThemeToggle.vue';
 import { useAuthStore } from '../stores/auth';
 const auth = useAuthStore();
@@ -71,17 +71,16 @@ const router = useRouter();
 const user_mail = ref("");
 
 const links = computed(() => {
-  const allLinks = [
+  const baseLinks = [
     { name: 'Home', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Map', path: '/map', icon: MapIcon },
     { name: 'Reports', path: '/reports', icon: Activity },
     { name: 'Profile', path: '/profile', icon: User },
-    { name: 'Animals', path: '/animals', icon: PawPrint }
   ];
-  // if (auth.hasRole('Manager')) {
-  //   allLinks.push({ name: 'Animals', path: '/animals', icon: PawPrint });
-  // }
-  return allLinks;
+  if (auth.hasAnyRole('Manager')) {
+    baseLinks.push({ name: 'Animals', path: '/animals', icon: PawPrint });
+  }
+  return baseLinks;
 });
 
 const activeIndex = computed(() => {
@@ -97,7 +96,7 @@ onMounted(() => {
 })
 
 function logout() {
-  AuthService.logout();
+  auth.logout();
   router.push('/login');
 }
 </script>

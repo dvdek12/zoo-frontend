@@ -86,7 +86,11 @@ const handleLogin = async () => {
   isLoading.value = true;
   try {
     await auth.login(email.value, password.value);
-    router.push('/map');
+    if (auth.hasRole('Employee')) {
+      router.push('/dashboard');
+    } else {
+      router.push('/');
+    }
   } catch (error) {
     const data = error?.response?.data;
     if (data?.message) errorMessage.value = data.message;
