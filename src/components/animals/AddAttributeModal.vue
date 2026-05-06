@@ -23,23 +23,32 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Typ danych</label>
           <select
-            v-model="form.type"
+            v-model.number="form.type"
             class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent outline-none transition-all appearance-none"
           >
-            <option value="Boolean (Tak/Nie)">Boolean (Tak/Nie)</option>
-            <option value="Tekst">Tekst</option>
-            <option value="Liczba">Liczba</option>
-            <option value="Wybór z listy">Wybór z listy</option>
+            <option :value="0">Tekst (String)</option>
+            <option :value="1">Liczba (Number)</option>
+            <option :value="2">Tak/Nie (Boolean)</option>
+            <option :value="3">Data (Date)</option>
           </select>
         </div>
       </div>
 
+      <div v-if="saveError" class="mx-6 mt-2 mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        {{ saveError }}
+      </div>
+
       <div class="p-6 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700">
-        <button @click="$emit('close')" class="px-5 py-2 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        <button type="button" :disabled="isSaving" @click="$emit('close')" class="px-5 py-2 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
           Anuluj
         </button>
-        <button @click="handleSave" class="bg-[#2d6a4f] hover:bg-[#1a3b22] text-white px-5 py-2 rounded-xl font-medium transition-colors shadow-sm">
-          Zapisz atrybut
+        <button :disabled="isSaving || !form.name" @click="handleSave" class="bg-[#2d6a4f] hover:bg-[#1a3b22] disabled:opacity-60 disabled:cursor-not-allowed text-white px-5 py-2 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2 min-w-[140px] justify-center">
+          <svg v-if="isSaving" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          {{ isSaving ? 'Zapisywanie…' : 'Zapisz atrybut' }}
         </button>
       </div>
     </div>
@@ -47,20 +56,41 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+import animalService from '../../services/animal.service';
 
 const emit = defineEmits(['save', 'close']);
 
 const form = reactive({
   name: '',
-  type: 'Boolean (Tak/Nie)',
+  type: 0,
 });
 
-const handleSave = () => {
-  if (!form.name) return;
-  emit('save', { name: form.name, type: form.type });
-  form.name = '';
-  form.type = 'Boolean (Tak/Nie)';
+const isSaving = ref(false);
+const saveError = ref(null);
+
+const handleSave = async () => {
+  if (!form.name || isSaving.value) return;
+  isSaving.value = true;
+  saveError.value = null;
+
+  const dto = {
+    AttributeName: form.name,
+    AnimalTypeId: null,
+    AttributeType: form.type // Wartość przesyłana jako Int (0, 1, 2), co zapobiegnie błędom konwersji enuma
+  };
+
+  try {
+    const saved = await animalService.createAttribute(dto);
+    emit('save', saved || { name: form.name, type: form.type });
+    form.name = '';
+    form.type = 0;
+  } catch (err) {
+    console.error('[AddAttributeModal] POST error:', err);
+    saveError.value = err?.response?.data?.message ?? err?.response?.data ?? 'Nie udało się dodać atrybutu.';
+  } finally {
+    isSaving.value = false;
+  }
 };
 </script>
 

@@ -112,6 +112,29 @@
       @confirm="showDeleteError = false"
       @cancel="showDeleteError = false"
     />
+
+    <!-- Dialog potwierdzenia usunięcia atrybutu -->
+    <ConfirmDialog
+      v-model="showAttrDeleteConfirm"
+      title="Usuń atrybut"
+      :message="`Czy na pewno chcesz usunąć atrybut ${pendingDeleteAttribute?.name ?? ''}? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      cancel-label="Anuluj"
+      :loading="isDeletingAttribute"
+      @confirm="confirmAttrDelete"
+      @cancel="cancelAttrDelete"
+    />
+
+    <!-- Dialog błędu usunięcia atrybutu -->
+    <ConfirmDialog
+      v-model="showAttrDeleteError"
+      title="Błąd usuwania"
+      :message="attrDeleteError ?? 'Nie udało się usunąć atrybutu.'"
+      confirm-label="OK"
+      cancel-label=""
+      @confirm="showAttrDeleteError = false"
+      @cancel="showAttrDeleteError = false"
+    />
   </div>
 </template>
 
@@ -175,7 +198,10 @@ const fetchAnimals = async () => {
   }
 };
 
-onMounted(fetchAnimals);
+onMounted(() => {
+  fetchAnimals();
+  fetchAttributes();
+});
 
 const onAnimalSaved = async () => {
   showAnimalModal.value = false;
@@ -222,20 +248,75 @@ const cancelDelete = () => {
 };
 
 // --- ATRYBUTY ---
-const attributes = ref([
-  { id: 1, name: 'Czy lata',              type: 'Boolean (Tak/Nie)' },
-  { id: 2, name: 'Czy pływa',             type: 'Boolean (Tak/Nie)' },
-  { id: 3, name: 'Dieta',                 type: 'Wybór z listy' },
-  { id: 4, name: 'Waga dorosłego osobnika', type: 'Liczba' },
-]);
+const attributes = ref([]);
+const isLoadingAttributes = ref(false);
 
-const onAttributeSaved = (data) => {
-  attributes.value.push({ id: Date.now(), ...data });
-  showAttrModal.value = false;
+const mapAttributeType = (typeEnum) => {
+  if (typeof typeEnum === 'string') return typeEnum;
+  switch (typeEnum) {
+    case 0: return 'Tekst (String)';
+    case 1: return 'Liczba (Number)';
+    case 2: return 'Tak/Nie (Boolean)';
+    case 3: return 'Data (Date)';
+    default: return String(typeEnum ?? 'Nieznany typ');
+  }
 };
 
+const fetchAttributes = async () => {
+  isLoadingAttributes.value = true;
+  try {
+    const data = await animalService.getAllAttributes();
+    attributes.value = (Array.isArray(data) ? data : [data]).map(a => ({
+      // Zabezpieczenie na wypadek braku konkretnego pola w zwrotce z API
+      id: a.id || a.attributeId || Math.random(),
+      name: a.attributeName || a.name || 'Nieznana nazwa',
+      type: mapAttributeType(a.attributeType ?? a.type)
+    }));
+  } catch (err) {
+    console.error('[AnimalsView] Błąd pobierania atrybutów:', err);
+  } finally {
+    isLoadingAttributes.value = false;
+  }
+};
+
+const onAttributeSaved = async () => {
+  showAttrModal.value = false;
+  await fetchAttributes();
+};
+
+const isDeletingAttribute    = ref(false);
+const attrDeleteError        = ref(null);
+const showAttrDeleteConfirm  = ref(false);
+const showAttrDeleteError    = ref(false);
+const pendingDeleteAttribute = ref(null);
+
 const deleteAttribute = (id) => {
-  attributes.value = attributes.value.filter(a => a.id !== id);
+  pendingDeleteAttribute.value = attributes.value.find(a => a.id === id) ?? { id, name: '' };
+  showAttrDeleteConfirm.value = true;
+};
+
+const confirmAttrDelete = async () => {
+  if (!pendingDeleteAttribute.value) return;
+  isDeletingAttribute.value = true;
+  attrDeleteError.value = null;
+  try {
+    await animalService.removeAttribute(pendingDeleteAttribute.value.id);
+    attributes.value = attributes.value.filter(a => a.id !== pendingDeleteAttribute.value.id);
+    showAttrDeleteConfirm.value = false;
+    pendingDeleteAttribute.value = null;
+  } catch (err) {
+    console.error('[AnimalsView] deleteAttribute error:', err);
+    attrDeleteError.value = err?.response?.data?.message ?? err?.response?.data ?? 'Nie udało się usunąć atrybutu.';
+    showAttrDeleteConfirm.value = false;
+    showAttrDeleteError.value = true;
+  } finally {
+    isDeletingAttribute.value = false;
+  }
+};
+
+const cancelAttrDelete = () => {
+  showAttrDeleteConfirm.value = false;
+  pendingDeleteAttribute.value = null;
 };
 
 // --- FILTROWANIE ---
