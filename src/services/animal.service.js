@@ -24,6 +24,15 @@ class AnimalService {
   }
 
   /**
+   * Pobiera szczegóły jednego zwierzęcia po ID.
+   * @param {number} id
+   */
+  async getById(id) {
+    const response = await axios.get(`${BASE_URL}getOne/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
    * Dodaje nowe zwierzę.
    * @param {{ Name, RaceName, Description, Origin, DateOfArrival, EnclosureId }} dto
    */

@@ -18,6 +18,7 @@
             v-for="animal in animals"
             :key="animal.id"
             class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-all duration-200 group cursor-pointer hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80]"
+            @click="$emit('row-click', animal.id)"
           >
             <td class="py-3 px-6">
               <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ animal.id }}</span>
@@ -49,7 +50,7 @@
               <button
                 class="text-gray-400 hover:text-red-500 transition-colors p-2"
                 title="Usuń"
-                @click="$emit('delete', animal.id)"
+                @click.stop="$emit('delete', animal.id)"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -89,7 +90,7 @@ defineProps({
   },
 });
 
-defineEmits(['delete']);
+defineEmits(['delete', 'row-click']);
 </script>
 
 <style scoped>

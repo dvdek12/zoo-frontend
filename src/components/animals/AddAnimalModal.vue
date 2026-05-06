@@ -157,7 +157,6 @@
                     : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-[#2d6a4f]/50 hover:bg-[#f8fdfb] dark:hover:bg-[#1a3b22]/30'
                 ]"
               >
-                <span class="text-xl mb-1">{{ enc.icon }}</span>
                 <span class="text-xs font-semibold leading-tight" :class="form.enclosureId === enc.id ? 'text-[#2d6a4f] dark:text-green-400' : 'text-gray-700 dark:text-gray-300'">{{ enc.name }}</span>
                 <span class="text-[10px] text-gray-400 leading-tight mt-0.5">ID: {{ enc.id }}</span>
                 <div v-if="form.enclosureId === enc.id" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#2d6a4f] rounded-full flex items-center justify-center shadow">
