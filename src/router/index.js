@@ -8,6 +8,7 @@ import MapView from '../views/MapView.vue'
 import ClientHomeView from '../views/ClientHomeView.vue'
 import AnimalDetailView from '../views/AnimalDetailsView.vue'
 import AnimalsView from '../views/AnimalsView.vue'
+import EmployeesView from '../views/EmployeesView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -64,6 +65,12 @@ const router = createRouter({
       path: '/animals/:id',
       name: 'animalDetail',
       component: AnimalDetailView,
+      meta: { requiresManager: true }
+    },
+    {
+      path: '/employees',
+      name: 'employees',
+      component: EmployeesView,
       meta: { requiresManager: true }
     }
   ]

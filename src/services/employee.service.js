@@ -1,0 +1,51 @@
+import axios from 'axios';
+import authService from './auth.service';
+
+const BASE_URL = 'https://localhost:7293';
+
+/**
+ * Tworzy nagłówki z tokenem JWT z localStorage.
+ */
+const authHeaders = () => ({
+  headers: {
+    'Authorization': `Bearer ${authService.getToken()}`,
+    'Content-Type': 'application/json',
+  },
+});
+
+class EmployeeService {
+  /**
+   * Pobiera listę wszystkich pracowników.
+   * @returns {Promise<Array>}
+   */
+  async getAll() {
+    const response = await axios.get(`${BASE_URL}/employee`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Rejestruje nowego pracownika.
+   * @param {{
+   *   FirstName: string,
+   *   LastName: string,
+   *   BirthDay: string,
+   *   Email: string,
+   *   PhoneNumber?: string,
+   *   SupervisorId?: number,
+   *   RoleId?: number,
+   *   Password: string
+   * }} dto
+   */
+  async register(dto) {
+    try {
+      const response = await axios.post(`${BASE_URL}/Account/RegisterEmployee`, dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[EmployeeService] register error status:', err?.response?.status);
+      console.error('[EmployeeService] register error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+}
+
+export default new EmployeeService();
