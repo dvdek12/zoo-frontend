@@ -8,6 +8,8 @@ import MapView from '../views/MapView.vue'
 import ClientHomeView from '../views/ClientHomeView.vue'
 import AnimalDetailView from '../views/AnimalDetailsView.vue'
 import AnimalsView from '../views/AnimalsView.vue'
+import EmployeesView from '../views/EmployeesView.vue'
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,27 +23,32 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: DashboardView
+      component: DashboardView,
+      meta: { requiresEmployee: true }
     },
     {
       path: '/dashboard/:taskId',
       name: 'taskDetail',
-      component: TaskDetailView
+      component: TaskDetailView,
+      meta: { requiresEmployee: true }
     },
     {
       path: '/profile',
       name: 'profile',
-      component: ProfileView
+      component: ProfileView,
+      meta: { requiresEmployee: true }
     },
     {
       path: '/map',
       name: 'map',
-      component: MapView
+      component: MapView,
+      meta: { requiresEmployee: true }
     },
     {
       path: '/reports',
       name: 'reports',
-      component: ReportsView
+      component: ReportsView,
+      meta: { requiresEmployee: true }
     },
     {
       path: '/login',
@@ -49,16 +56,47 @@ const router = createRouter({
       component: LoginView
     },
     {
-      path: '/animaldetail',
-      name: 'animaldetail',
-      component: AnimalDetailView
-    },
-    {
       path: '/animals',
       name: 'animals',
-      component: AnimalsView
+      component: AnimalsView,
+      meta: { requiresManager: true }
+    },
+    {
+      path: '/animals/:id',
+      name: 'animalDetail',
+      component: AnimalDetailView,
+      meta: { requiresManager: true }
+    },
+    {
+      path: '/employees',
+      name: 'employees',
+      component: EmployeesView,
+      meta: { requiresManager: true }
     }
   ]
+})
+
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+  const isEmployee = auth.hasAnyRole('Employee')
+  const isManager = auth.hasAnyRole('Manager')
+
+  // Zalogowany użytkownik próbuje wejść na /login → przekieruj wg roli
+  if (to.name === 'login' && auth.isLoggedIn) {
+    return (isEmployee || isManager) ? { name: 'dashboard' } : { name: 'home' }
+  }
+
+  // Trasa chroniona dla pracowników
+  if (to.meta.requiresEmployee) {
+    if (!auth.isLoggedIn) return { name: 'login' }
+    if (!isEmployee && !isManager) return { name: 'home' }
+  }
+
+  // Trasa chroniona tylko dla managerów
+  if (to.meta.requiresManager) {
+    if (!auth.isLoggedIn) return { name: 'login' }
+    if (!isManager) return { name: 'dashboard' } // Employee bez uprawnień → z powrotem do dashboard
+  }
 })
 
 export default router

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 h-full flex flex-col gap-6 overflow-hidden">
+  <div class="p-8 h-full min-h-full flex flex-col gap-6 overflow-hidden">
 
     <!-- Wyszukiwarka -->
     <div class="shrink-0 relative w-full mb-2">
@@ -56,7 +56,7 @@
       </div>
 
       <!-- Table -->
-      <AnimalTable v-else :animals="filteredAnimals" @delete="deleteAnimal" />
+      <AnimalTable v-else :animals="filteredAnimals" @delete="deleteAnimal" @row-click="goToAnimal" />
     </section>
 
     <!-- Atrybuty Sekcja (1/4) -->
@@ -140,6 +140,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import AnimalTable      from '../components/animals/AnimalTable.vue';
 import AttributeTable   from '../components/animals/AttributeTable.vue';
 import AddAnimalModal   from '../components/animals/AddAnimalModal.vue';
@@ -147,9 +148,14 @@ import AddAttributeModal from '../components/animals/AddAttributeModal.vue';
 import ConfirmDialog    from '../components/ConfirmDialog.vue';
 import animalService    from '../services/animal.service';
 
+const router = useRouter();
+
 // --- MODALS ---
 const showAnimalModal = ref(false);
 const showAttrModal   = ref(false);
+
+// --- NAWIGACJA ---
+const goToAnimal = (id) => router.push({ name: 'animalDetail', params: { id } });
 
 // --- SEARCH ---
 const searchQuery = ref('');

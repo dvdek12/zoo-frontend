@@ -1,5 +1,16 @@
 <script setup>
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 import ThemeToggle from '../components/ThemeToggle.vue';
+import { LogOut, UserCircle2 } from 'lucide-vue-next';
+
+const auth = useAuthStore();
+const router = useRouter();
+
+function handleLogout() {
+  auth.logout();
+  router.push('/login');
+}
 </script>
 
 <template>
@@ -19,15 +30,34 @@ import ThemeToggle from '../components/ThemeToggle.vue';
           <a href="#contact" class="hover:text-green-300 transition-colors">Kontakt</a>
         </nav>
 
-        <!-- Login Button -->
+        <!-- Right side -->
         <div class="flex items-center gap-4">
           <ThemeToggle />
-          <router-link 
-            to="/login"
-            class="bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 shadow-sm"
-          >
-            Zaloguj się
-          </router-link>
+
+          <!-- Zalogowany klient -->
+          <template v-if="auth.isLoggedIn">
+            <div class="flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full text-sm font-medium">
+              <UserCircle2 class="w-4 h-4 text-green-300 shrink-0" />
+              <span class="max-w-[180px] truncate">{{ auth.userEmail }}</span>
+            </div>
+            <button
+              @click="handleLogout"
+              class="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/40 border border-red-400/30 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+            >
+              <LogOut class="w-4 h-4" />
+              Wyloguj się
+            </button>
+          </template>
+
+          <!-- Niezalogowany -->
+          <template v-else>
+            <router-link 
+              to="/login"
+              class="bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 shadow-sm"
+            >
+              Zaloguj się
+            </router-link>
+          </template>
         </div>
       </div>
     </header>
@@ -47,3 +77,4 @@ import ThemeToggle from '../components/ThemeToggle.vue';
     </footer>
   </div>
 </template>
+

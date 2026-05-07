@@ -9,13 +9,16 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
 
   const isLoggedIn = computed(() => !!token.value);
-  const hasRole = (role) => user.value?.role === role;
+  // roles is always an array, e.g. ['Employee', 'Manager']
+  const hasRole = (role) => user.value?.roles?.includes(role) ?? false;
+  const hasAnyRole = (...rolesToCheck) => rolesToCheck.some(r => hasRole(r));
   
   async function login(email, password) {
     const data = await AuthService.login(email, password);
     token.value = data.token ?? null;
     userEmail.value = data.email ?? email;
     setUser()
+    console.log(data)
     return data;
   }
 
@@ -26,18 +29,24 @@ export const useAuthStore = defineStore('auth', () => {
   function setUser(){
     if(token.value){
       const decoded = jwtDecode(token.value)
-      user.value = {
-        role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
-      }
+      const rawRoles = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+      // JWT może zwrócić string (1 rola) lub tablicę (wiele ról) — normalizujemy do tablicy
+      const roles = rawRoles
+        ? Array.isArray(rawRoles) ? rawRoles : [rawRoles]
+        : []
+      user.value = { roles }
+      console.log('[auth] decoded roles:', roles)
     }
   }
 
   setUser();
    
   function logout() {
-    AuthService.logout();
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('user_email');
     token.value = null;
     userEmail.value = null;
+    user.value = null;
   }
 
   return {
@@ -46,6 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     user,
     hasRole,
+    hasAnyRole,
     login,
     register,
     logout,
