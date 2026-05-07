@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 h-full flex flex-col gap-6 overflow-hidden">
+  <div class="p-8 h-full min-h-full flex flex-col gap-6 overflow-hidden">
 
     <!-- Wyszukiwarka -->
     <div class="shrink-0 relative w-full mb-2">

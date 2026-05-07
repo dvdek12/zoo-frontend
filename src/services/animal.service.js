@@ -3,6 +3,7 @@ import authService from './auth.service';
 
 const BASE_URL = 'https://localhost:7293/animals/';
 const ATTRIBUTES_URL = 'https://localhost:7293/attributes';
+const ENUMS_URL = 'https://localhost:7293/enums';
 
 /**
  * Tworzy nagłówki z tokenem JWT z localStorage.
@@ -20,6 +21,14 @@ class AnimalService {
    */
   async getAll() {
     const response = await axios.get(BASE_URL + 'getAll', authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Pobiera wartości enuma stanów zdrowia zwierzęcia.
+   */
+  async getAnimalConditions() {
+    const response = await axios.get(`${ENUMS_URL}/animals-condition`, authHeaders());
     return response.data;
   }
 
@@ -46,6 +55,34 @@ class AnimalService {
       console.error('Response body:', JSON.stringify(err?.response?.data, null, 2));
       throw err;
     }
+  }
+
+  /**
+   * Pobiera historię zwierzęcia po ID.
+   * @param {number} id
+   */
+  async getHistory(id) {
+    const response = await axios.get(BASE_URL + `getHistory/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Dodaje wpis historii zdrowia zwierzęcia.
+   * @param {number} id
+   * @param {{ ConditionAdmission, Temperature, Weight, IsVacinated, DateOfLastCheckup }} dto
+   */
+  async addHistory(id, dto) {
+    const response = await axios.post(`${BASE_URL}addHistory/${id}`, dto, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Usuwa wpis historii zdrowia po ID.
+   * @param {number} historyId
+   */
+  async deleteHistory(historyId) {
+    const response = await axios.delete(`${BASE_URL}deleteHistory/${historyId}`, authHeaders());
+    return response.data;
   }
 
   /**
