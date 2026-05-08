@@ -57,6 +57,16 @@ class EmployeeService {
   }
 
   /**
+   * Pobiera rolę konkretnego pracownika.
+   * @param {number} id
+   * @returns {Promise<{ id: number, name: string, description: string, isManagerial: boolean }>}
+   */
+  async getEmployeeRole(id) {
+    const response = await axios.get(`${BASE_URL}/employee/${id}/role`, authHeaders());
+    return response.data;
+  }
+
+  /**
    * Pobiera wszystkie role pracownicze.
    * @returns {Promise<Array>}
    */

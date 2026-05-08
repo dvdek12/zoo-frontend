@@ -42,12 +42,6 @@
           style="background-image: url('data:image/svg+xml,%3Csvg width=%2760%27 height=%2760%27 viewBox=%270 0 60 60%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cg fill=%27none%27 fill-rule=%27evenodd%27%3E%3Cg fill=%27%23ffffff%27 fill-opacity=%270.4%27%3E%3Cpath d=%27M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%27/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
         </div>
         <div class="relative flex flex-col md:flex-row items-start md:items-center gap-6 p-8">
-          <!-- Avatar -->
-          <div class="shrink-0">
-            <div class="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-4xl font-extrabold shadow-xl border-2 border-white/30">
-              {{ initials }}
-            </div>
-          </div>
           <!-- Info -->
           <div class="flex-1 text-white">
             <div class="flex items-center gap-3 mb-1">
@@ -166,7 +160,7 @@
               >
                 <option :value="null">— nie zmieniaj —</option>
                 <option v-for="role in roles" :key="role.id" :value="role.id">
-                  {{ role.name }} (ID: {{ role.id }})
+                  {{ role.name }} 
                 </option>
               </select>
             </div>

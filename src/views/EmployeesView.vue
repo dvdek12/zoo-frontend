@@ -203,7 +203,19 @@ const fetchEmployees = async () => {
   loadError.value = null;
   try {
     const data = await employeeService.getAll();
-    employees.value = (Array.isArray(data) ? data : [data]).map(mapEmployee);
+    const mapped = (Array.isArray(data) ? data : [data]).map(mapEmployee);
+    employees.value = mapped;
+
+    // Pobierz role równolegle dla każdego pracownika
+    const roleResults = await Promise.allSettled(
+      mapped.map(e => employeeService.getEmployeeRole(e.id))
+    );
+    roleResults.forEach((result, idx) => {
+      if (result.status === 'fulfilled' && result.value) {
+        const roleName = result.value.name ?? result.value.Name ?? null;
+        if (roleName) employees.value[idx].roleName = roleName;
+      }
+    });
   } catch (err) {
     console.error('[EmployeesView] fetchEmployees error:', err);
     loadError.value = err?.response?.data?.message ?? 'Nie udało się pobrać pracowników z serwera.';
