@@ -24,6 +24,73 @@ class EmployeeService {
   }
 
   /**
+   * Pobiera szczegóły jednego pracownika po ID.
+   * @param {number} id
+   */
+  async getById(id) {
+    const response = await axios.get(`${BASE_URL}/employee/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Aktualizuje dane pracownika (endpoint menedżerski).
+   * @param {number} id
+   * @param {{
+   *   FirstName?: string,
+   *   LastName?: string,
+   *   BirthDay?: string,
+   *   PhoneNumber?: string,
+   *   Email?: string,
+   *   RoleId?: number,
+   *   SupervisorId?: number
+   * }} dto
+   */
+  async updateAsManager(id, dto) {
+    try {
+      const response = await axios.put(`${BASE_URL}/employee/asManager/${id}`, dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[EmployeeService] updateAsManager error status:', err?.response?.status);
+      console.error('[EmployeeService] updateAsManager error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+  /**
+   * Pobiera rolę konkretnego pracownika.
+   * @param {number} id
+   * @returns {Promise<{ id: number, name: string, description: string, isManagerial: boolean }>}
+   */
+  async getEmployeeRole(id) {
+    const response = await axios.get(`${BASE_URL}/employee/${id}/role`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Pobiera wszystkie role pracownicze.
+   * @returns {Promise<Array>}
+   */
+  async getAllRoles() {
+    const response = await axios.get(`${BASE_URL}/employee/getAllRoles`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Tworzy nową rolę.
+   * @param {{ Name: string, Description: string, IsManagerial: boolean }} dto
+   */
+  async createRole(dto) {
+    try {
+      const response = await axios.post(`${BASE_URL}/employee/roles/new`, dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[EmployeeService] createRole error status:', err?.response?.status);
+      console.error('[EmployeeService] createRole error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+  /**
    * Rejestruje nowego pracownika.
    * @param {{
    *   FirstName: string,
