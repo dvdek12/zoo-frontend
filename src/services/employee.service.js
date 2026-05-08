@@ -57,6 +57,30 @@ class EmployeeService {
   }
 
   /**
+   * Pobiera wszystkie role pracownicze.
+   * @returns {Promise<Array>}
+   */
+  async getAllRoles() {
+    const response = await axios.get(`${BASE_URL}/employee/getAllRoles`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Tworzy nową rolę.
+   * @param {{ Name: string, Description: string, IsManagerial: boolean }} dto
+   */
+  async createRole(dto) {
+    try {
+      const response = await axios.post(`${BASE_URL}/employee/role`, dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[EmployeeService] createRole error status:', err?.response?.status);
+      console.error('[EmployeeService] createRole error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+  /**
    * Rejestruje nowego pracownika.
    * @param {{
    *   FirstName: string,

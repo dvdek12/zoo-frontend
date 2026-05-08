@@ -146,18 +146,29 @@
             </div>
           </div>
 
-          <!-- ID Roli + ID Supervisora -->
+          <!-- Rola + ID Supervisora -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label for="edit-role" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">ID Roli</label>
-              <input
+              <label for="edit-role" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Rola</label>
+              <!-- Loading roles -->
+              <div v-if="rolesLoading" class="input-field flex items-center gap-2 text-gray-400">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <span class="text-sm">Ładowanie ról…</span>
+              </div>
+              <select
+                v-else
                 id="edit-role"
                 v-model.number="form.roleId"
-                type="number"
-                min="1"
-                placeholder="np. 2"
                 class="input-field"
-              />
+              >
+                <option :value="null">— nie zmieniaj —</option>
+                <option v-for="role in roles" :key="role.id" :value="role.id">
+                  {{ role.name }} (ID: {{ role.id }})
+                </option>
+              </select>
             </div>
             <div class="flex flex-col gap-1.5">
               <label for="edit-supervisor" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">ID Supervisora</label>
@@ -226,12 +237,28 @@ import employeeService from '../services/employee.service';
 const route  = useRoute();
 const router = useRouter();
 
-const employee  = ref(null);
-const isLoading = ref(false);
+const employee   = ref(null);
+const isLoading  = ref(false);
 const fetchError = ref(null);
-const isSaving  = ref(false);
+const isSaving   = ref(false);
 const saveError  = ref(null);
 const saveSuccess = ref(false);
+
+// --- ROLE ---
+const roles       = ref([]);
+const rolesLoading = ref(false);
+
+const fetchRoles = async () => {
+  rolesLoading.value = true;
+  try {
+    const data = await employeeService.getAllRoles();
+    roles.value = Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('[EmployeeDetailsView] fetchRoles error:', err);
+  } finally {
+    rolesLoading.value = false;
+  }
+};
 
 const form = reactive({
   firstName:   '',
@@ -272,6 +299,7 @@ const populateForm = (data) => {
 onMounted(async () => {
   isLoading.value = true;
   fetchError.value = null;
+  fetchRoles(); // nie czekaj, ładuj równolegle
   try {
     const data = await employeeService.getById(route.params.id);
     employee.value = data;
@@ -348,6 +376,10 @@ const submitUpdate = async () => {
 }
 :global(.dark) .input-field {
   border-color: #374151;
+  background-color: #1f2937;
+  color: #ffffff;
+}
+:global(.dark) .input-field option {
   background-color: #1f2937;
   color: #ffffff;
 }
