@@ -1,11 +1,3 @@
-/**
- * Composable do podświetlania wyszukiwanych fraz w tekście.
- * Bezpieczne — tekst jest escapowany przed wstrzyknięciem HTML.
- *
- * Użycie:
- *   const { highlight } = useHighlight();
- *   // w template: v-html="highlight(text, query)"
- */
 export function useHighlight() {
   /**
    * Escapuje znaki specjalne HTML aby zapobiec XSS.

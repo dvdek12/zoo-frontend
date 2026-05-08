@@ -56,7 +56,8 @@
             </td>
             <td class="py-3 px-6">
               <span
-                class="bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-[#2d6a4f]/20 shadow-sm"
+                :style="themeStore.getRoleBadgeStyle(employee.roleName)"
+                class="text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm"
                 v-html="highlight(employee.roleName ?? 'Pracownik', query)"
               />
             </td>
@@ -85,10 +86,12 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { useHighlight } from '../../composables/useHighlight';
+import { useThemeStore } from '../../stores/theme';
 import '../../assets/table-animations.css';
 
 const router = useRouter();
 const { highlight } = useHighlight();
+const themeStore = useThemeStore();
 
 defineProps({
   employees: {

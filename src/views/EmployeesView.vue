@@ -105,7 +105,7 @@
           <table class="w-full text-left border-collapse">
             <thead class="bg-gray-50 dark:bg-gray-900/95 border-b border-gray-100 dark:border-gray-700">
               <tr>
-                <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 w-20">ID</th>
+                <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 w-24">Kolor</th>
                 <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Nazwa</th>
                 <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Opis</th>
                 <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 text-center">Menedżerska</th>
@@ -117,8 +117,14 @@
                 :key="role.id"
                 class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-all duration-200 hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80]"
               >
-                <td class="py-3 px-6">
-                  <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ role.id }}</span>
+                <td class="p-0 w-16 relative">
+                  <input
+                    type="color"
+                    :value="themeStore.getRoleColor(role.name)"
+                    @input="themeStore.setRoleColor(role.name, $event.target.value)"
+                    class="absolute inset-0 w-full h-full cursor-pointer border-0 p-0 m-0"
+                    :title="`Zmień kolor roli: ${role.name}`"
+                  />
                 </td>
                 <td class="py-3 px-6">
                   <span class="font-semibold text-gray-900 dark:text-white">{{ role.name }}</span>
@@ -178,6 +184,9 @@ import EmployeeTable from '../components/employees/EmployeeTable.vue';
 import RegisterEmployeeModal from '../components/employees/RegisterEmployeeModal.vue';
 import AddRoleModal from '../components/employees/AddRoleModal.vue';
 import employeeService from '../services/employee.service';
+import { useThemeStore } from '../stores/theme';
+
+const themeStore = useThemeStore();
 
 const showModal     = ref(false);
 const showRoleModal = ref(false);
