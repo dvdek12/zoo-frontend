@@ -24,6 +24,39 @@ class EmployeeService {
   }
 
   /**
+   * Pobiera szczegóły jednego pracownika po ID.
+   * @param {number} id
+   */
+  async getById(id) {
+    const response = await axios.get(`${BASE_URL}/employee/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Aktualizuje dane pracownika (endpoint menedżerski).
+   * @param {number} id
+   * @param {{
+   *   FirstName?: string,
+   *   LastName?: string,
+   *   BirthDay?: string,
+   *   PhoneNumber?: string,
+   *   Email?: string,
+   *   RoleId?: number,
+   *   SupervisorId?: number
+   * }} dto
+   */
+  async updateAsManager(id, dto) {
+    try {
+      const response = await axios.put(`${BASE_URL}/employee/asManager/${id}`, dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[EmployeeService] updateAsManager error status:', err?.response?.status);
+      console.error('[EmployeeService] updateAsManager error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+  /**
    * Rejestruje nowego pracownika.
    * @param {{
    *   FirstName: string,

@@ -17,7 +17,8 @@
           <tr
             v-for="employee in employees"
             :key="employee.id"
-            class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-all duration-200 group hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80]"
+            @click="router.push({ name: 'employeeDetail', params: { id: employee.id } })"
+            class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-all duration-200 group hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80] cursor-pointer"
           >
             <td class="py-3 px-6">
               <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ employee.id }}</span>
@@ -65,6 +66,10 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 defineProps({
   employees: {
     type: Array,
