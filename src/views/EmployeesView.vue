@@ -232,11 +232,15 @@ const onSaved = async () => {
 const filteredEmployees = computed(() => {
   const q = searchQuery.value.toLowerCase().trim();
   if (!q) return employees.value;
-  return employees.value.filter(e =>
-    e.firstName.toLowerCase().includes(q) ||
-    e.lastName.toLowerCase().includes(q) ||
-    e.email.toLowerCase().includes(q)
-  );
+  return employees.value.filter(e => {
+    const fullName = `${e.firstName} ${e.lastName}`.toLowerCase();
+    return (
+      fullName.includes(q) ||
+      e.email.toLowerCase().includes(q) ||
+      (e.roleName ?? '').toLowerCase().includes(q) ||
+      (e.phoneNumber ?? '').toLowerCase().includes(q)
+    );
+  });
 });
 
 // --- ROLE ---
