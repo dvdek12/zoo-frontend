@@ -36,7 +36,7 @@
       </button>
 
       <!-- Hero card -->
-      <div class="relative bg-gradient-to-br from-[#1a3b22] to-[#2d6a4f] rounded-3xl overflow-hidden shadow-2xl">
+      <div class="relative bg-gradient-to-br from-[#1a3b22] to-[#2d6a4f] dark:from-[#0a1628] dark:to-[#0d3b6e] rounded-3xl overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,153,255,0.25)]">
         <div class="absolute inset-0 opacity-10"
           style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
         </div>
@@ -56,7 +56,7 @@
               <span class="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-0.5 rounded-full font-semibold">{{ animal.status ?? 'W zoo' }}</span>
             </div>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1">{{ animal.name }}</h1>
-            <p class="text-green-200 italic text-lg">{{ animal.raceName ?? animal.species ?? 'Nieznany gatunek' }}</p>
+            <p class="text-green-200 dark:text-cyan-300 italic text-lg">{{ animal.raceName ?? animal.species ?? 'Nieznany gatunek' }}</p>
             <p v-if="animal.origin" class="text-green-100/70 text-sm mt-1 flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
@@ -66,7 +66,7 @@
           </div>
           <!-- Date badge -->
           <div v-if="animal.dateOfArrival" class="shrink-0 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center text-white">
-            <p class="text-xs text-green-200 mb-1 uppercase tracking-wider font-semibold">Data przybycia</p>
+            <p class="text-xs text-green-200 dark:text-cyan-300 mb-1 uppercase tracking-wider font-semibold">Data przybycia</p>
             <p class="text-2xl font-bold">{{ formatDate(animal.dateOfArrival) }}</p>
           </div>
         </div>
