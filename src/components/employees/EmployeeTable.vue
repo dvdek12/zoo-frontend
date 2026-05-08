@@ -13,12 +13,17 @@
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Rola</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+        <!-- TransitionGroup animuje wiersze przy filtracji -->
+        <TransitionGroup
+          name="row"
+          tag="tbody"
+          class="divide-y divide-gray-100 dark:divide-gray-700"
+        >
           <tr
             v-for="employee in employees"
             :key="employee.id"
             @click="router.push({ name: 'employeeDetail', params: { id: employee.id } })"
-            class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-all duration-200 group hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80] cursor-pointer"
+            class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-colors duration-200 group hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80] cursor-pointer"
           >
             <td class="py-3 px-6">
               <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ employee.id }}</span>
@@ -46,22 +51,24 @@
               </span>
             </td>
           </tr>
-        </tbody>
+        </TransitionGroup>
       </table>
     </div>
 
     <!-- Empty state -->
-    <div v-else class="flex-1 flex flex-col items-center justify-center select-none overflow-hidden py-12">
-      <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+    <Transition name="fade">
+      <div v-if="employees.length === 0" class="flex-1 flex flex-col items-center justify-center select-none overflow-hidden py-12">
+        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">Brak pracowników</p>
+        <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
+          Nie znaleziono żadnych pracowników.<br>Zarejestruj pierwszego, klikając przycisk powyżej.
+        </p>
       </div>
-      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">Brak pracowników</p>
-      <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
-        Nie znaleziono żadnych pracowników.<br>Zarejestruj pierwszego, klikając przycisk powyżej.
-      </p>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -94,6 +101,41 @@ const formatDate = (dateStr) => {
 </script>
 
 <style scoped>
+/* ── Animacja wierszy przy filtracji ── */
+.row-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.row-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  /* wychodzący wiersz "wypada" w lewo i znika */
+}
+.row-enter-from {
+  opacity: 0;
+  transform: translateX(-12px);
+}
+.row-leave-to {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+/* Podczas gdy inne wiersze się przesuwają na nowe pozycje */
+.row-move {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Wychodzące wiersze muszą być out-of-flow żeby "move" działał płynnie */
+.row-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+/* ── Animacja empty state ── */
+.fade-enter-active { transition: opacity 0.3s ease 0.1s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.1s; }
+.fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from   { opacity: 0; transform: translateY(8px); }
+.fade-leave-to     { opacity: 0; }
+
+/* ── Scrollbar ── */
 .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e5e7eb; border-radius: 4px; }
