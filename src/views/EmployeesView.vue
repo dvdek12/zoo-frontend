@@ -61,7 +61,7 @@
       </div>
 
       <!-- Table -->
-      <EmployeeTable v-else :employees="filteredEmployees" />
+      <EmployeeTable v-else :employees="filteredEmployees" :query="searchQuery" />
     </section>
 
     <!-- ═══ SEKCJA: ROLE ═══ -->

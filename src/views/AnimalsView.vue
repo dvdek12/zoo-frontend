@@ -56,7 +56,7 @@
       </div>
 
       <!-- Table -->
-      <AnimalTable v-else :animals="filteredAnimals" @delete="deleteAnimal" @row-click="goToAnimal" />
+      <AnimalTable v-else :animals="filteredAnimals" :query="searchQuery" @delete="deleteAnimal" @row-click="goToAnimal" />
     </section>
 
     <!-- Atrybuty Sekcja (1/4) -->

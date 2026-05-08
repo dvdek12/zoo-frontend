@@ -1,0 +1,68 @@
+/*
+ * table-animations.css
+ * ────────────────────
+ * Współdzielone style animacji dla tabel z <TransitionGroup name="row">.
+ *
+ * Importuj w komponentach tabeli:
+ *   import '../../assets/table-animations.css';   (lub odpowiednia ścieżka)
+ *
+ * Wymagania w template:
+ *   <TransitionGroup name="row" tag="tbody" class="...">
+ *     <tr v-for="item in items" :key="item.id"> ... </tr>
+ *   </TransitionGroup>
+ */
+
+/* ── Wiersze wchodzą (filtr dodaje wiersz) ── */
+.row-enter-active {
+  transition: opacity 0.25s ease,
+              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Wiersze wychodzą (filtr usuwa wiersz) ── */
+.row-leave-active {
+  transition: opacity 0.18s ease,
+              transform 0.18s ease;
+  /* Out-of-flow podczas wychodzenia → pozostałe wiersze płynnie się przesuwają */
+  position: absolute;
+  width: 100%;
+}
+
+.row-enter-from {
+  opacity: 0;
+  transform: translateX(-12px);
+}
+
+.row-leave-to {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+/* ── Pozostałe wiersze przesuwają się na nowe pozycje (FLIP) ── */
+.row-move {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─────────────────────────────────────────────
+ * Podświetlenie wyszukiwanej frazy
+ * Użycie: v-html="highlight(text, query)"
+ *         (wymaga useHighlight composable)
+ * ───────────────────────────────────────────── */
+.hl {
+  background-color: #fef08a; /* yellow-200 */
+  color: #1a3b22;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 700;
+  animation: hl-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark mode override */
+.dark .hl {
+  background-color: #f59e0b; /* amber-500 */
+  color: #1c1917;
+}
+
+@keyframes hl-pop {
+  from { transform: scale(0.85); opacity: 0.5; }
+  to   { transform: scale(1);    opacity: 1;   }
+}

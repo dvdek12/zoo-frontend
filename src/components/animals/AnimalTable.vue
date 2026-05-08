@@ -13,26 +13,37 @@
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 text-right w-24">Akcje</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+        <TransitionGroup
+          name="row"
+          tag="tbody"
+          class="divide-y divide-gray-100 dark:divide-gray-700"
+        >
           <tr
             v-for="animal in animals"
             :key="animal.id"
-            class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-all duration-200 group cursor-pointer hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80]"
+            class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-colors duration-200 group cursor-pointer hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80]"
             @click="$emit('row-click', animal.id)"
           >
             <td class="py-3 px-6">
               <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ animal.id }}</span>
             </td>
             <td class="py-3 px-6">
-              <span class="font-bold text-gray-900 dark:text-white text-lg">{{ animal.name }}</span>
+              <span
+                class="font-bold text-gray-900 dark:text-white text-lg"
+                v-html="highlight(animal.name, query)"
+              />
             </td>
             <td class="py-3 px-6">
-              <span class="text-gray-500 dark:text-gray-400 italic text-sm">{{ animal.species }}</span>
+              <span
+                class="text-gray-500 dark:text-gray-400 italic text-sm"
+                v-html="highlight(animal.species, query)"
+              />
             </td>
             <td class="py-3 px-6">
-              <span class="bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-[#2d6a4f]/20 shadow-sm">
-                {{ animal.status }}
-              </span>
+              <span
+                class="bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-[#2d6a4f]/20 shadow-sm"
+                v-html="highlight(animal.status, query)"
+              />
             </td>
             <td class="py-3 px-6">
               <div class="flex flex-wrap gap-1.5">
@@ -41,7 +52,8 @@
                   :key="attr.name"
                   class="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded border border-gray-200 dark:border-gray-600"
                 >
-                  <span class="font-semibold">{{ attr.name }}:</span> {{ attr.value }}
+                  <span class="font-semibold" v-html="highlight(attr.name, query)" />:
+                  <span v-html="highlight(attr.value, query)" />
                 </span>
                 <span v-if="animal.attributes.length === 0" class="text-xs text-gray-400">Brak atrybutów</span>
               </div>
@@ -58,42 +70,59 @@
               </button>
             </td>
           </tr>
-        </tbody>
+        </TransitionGroup>
       </table>
     </div>
 
-    <!-- Empty state — poza scrollem, wypełnia całą kartę -->
-    <div v-else class="flex-1 flex flex-col items-center justify-center select-none overflow-hidden">
-      <img
-        :src="sadPandaImg"
-        alt="Smutna panda"
-        class="w-80 opacity-55 grayscale mb-4"
-        draggable="false"
-      />
-      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">
-        Brak zwierząt w zoo
-      </p>
-      <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
-        Nasza panda jest smutna — nie ma tu żadnych zwierząt.<br>Dodaj pierwsze, klikając przycisk powyżej.
-      </p>
-    </div>
+    <!-- Empty state -->
+    <Transition name="fade">
+      <div v-if="animals.length === 0" class="flex-1 flex flex-col items-center justify-center select-none overflow-hidden">
+        <img
+          :src="sadPandaImg"
+          alt="Smutna panda"
+          class="w-80 opacity-55 grayscale mb-4"
+          draggable="false"
+        />
+        <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">
+          Brak zwierząt w zoo
+        </p>
+        <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
+          Nasza panda jest smutna — nie ma tu żadnych zwierząt.<br>Dodaj pierwsze, klikając przycisk powyżej.
+        </p>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import sadPandaImg from '../../assets/sad_panda.png';
+import { useHighlight } from '../../composables/useHighlight';
+import '../../assets/table-animations.css';
 
 defineProps({
   animals: {
     type: Array,
     required: true,
   },
+  query: {
+    type: String,
+    default: '',
+  },
 });
 
 defineEmits(['delete', 'row-click']);
+
+const { highlight } = useHighlight();
 </script>
 
 <style scoped>
+/* ── Fade dla empty state ── */
+.fade-enter-active { transition: opacity 0.3s ease 0.1s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.1s; }
+.fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from   { opacity: 0; transform: translateY(8px); }
+.fade-leave-to     { opacity: 0; }
+
+/* ── Scrollbar ── */
 .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e5e7eb; border-radius: 4px; }

@@ -33,22 +33,32 @@
                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#2d6a4f] to-[#40916c] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
                   {{ initials(employee) }}
                 </div>
-                <span class="font-bold text-gray-900 dark:text-white">{{ employee.firstName }} {{ employee.lastName }}</span>
+                <span
+                  class="font-bold text-gray-900 dark:text-white"
+                  v-html="highlight(employee.firstName + ' ' + employee.lastName, query)"
+                />
               </div>
             </td>
             <td class="py-3 px-6">
-              <span class="text-gray-600 dark:text-gray-300 text-sm">{{ employee.email }}</span>
+              <span
+                class="text-gray-600 dark:text-gray-300 text-sm"
+                v-html="highlight(employee.email, query)"
+              />
             </td>
             <td class="py-3 px-6">
-              <span class="text-gray-500 dark:text-gray-400 text-sm">{{ employee.phoneNumber ?? '—' }}</span>
+              <span
+                class="text-gray-500 dark:text-gray-400 text-sm"
+                v-html="highlight(employee.phoneNumber ?? '—', query)"
+              />
             </td>
             <td class="py-3 px-6">
               <span class="text-gray-500 dark:text-gray-400 text-sm">{{ formatDate(employee.birthDay) }}</span>
             </td>
             <td class="py-3 px-6">
-              <span class="bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-[#2d6a4f]/20 shadow-sm">
-                {{ employee.roleName ?? 'Pracownik' }}
-              </span>
+              <span
+                class="bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-[#2d6a4f]/20 shadow-sm"
+                v-html="highlight(employee.roleName ?? 'Pracownik', query)"
+              />
             </td>
           </tr>
         </TransitionGroup>
@@ -74,13 +84,20 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useHighlight } from '../../composables/useHighlight';
+import '../../assets/table-animations.css';
 
 const router = useRouter();
+const { highlight } = useHighlight();
 
 defineProps({
   employees: {
     type: Array,
     required: true,
+  },
+  query: {
+    type: String,
+    default: '',
   },
 });
 
@@ -101,35 +118,7 @@ const formatDate = (dateStr) => {
 </script>
 
 <style scoped>
-/* ── Animacja wierszy przy filtracji ── */
-.row-enter-active {
-  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.row-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  /* wychodzący wiersz "wypada" w lewo i znika */
-}
-.row-enter-from {
-  opacity: 0;
-  transform: translateX(-12px);
-}
-.row-leave-to {
-  opacity: 0;
-  transform: translateX(8px);
-}
-
-/* Podczas gdy inne wiersze się przesuwają na nowe pozycje */
-.row-move {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Wychodzące wiersze muszą być out-of-flow żeby "move" działał płynnie */
-.row-leave-active {
-  position: absolute;
-  width: 100%;
-}
-
-/* ── Animacja empty state ── */
+/* ── Fade dla empty state ── */
 .fade-enter-active { transition: opacity 0.3s ease 0.1s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.1s; }
 .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from   { opacity: 0; transform: translateY(8px); }
