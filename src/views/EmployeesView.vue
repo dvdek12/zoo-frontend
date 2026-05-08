@@ -109,6 +109,7 @@
                 <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Nazwa</th>
                 <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Opis</th>
                 <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 text-center">Menedżerska</th>
+                <th class="py-3 px-6 w-16"></th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -143,6 +144,25 @@
                     Tak
                   </span>
                   <span v-else class="text-gray-400 text-xs">Nie</span>
+                </td>
+                <!-- Akcje: usuwanie -->
+                <td class="py-3 px-4 text-right">
+                  <button
+                    @click.stop="deleteRole(role)"
+                    :disabled="deletingRoleId === role.id"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Usuń rolę"
+                  >
+                    <!-- Spinner podczas usuwania -->
+                    <svg v-if="deletingRoleId === role.id" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <!-- Ikona koszyczka -->
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -274,6 +294,27 @@ const fetchRoles = async () => {
 const onRoleSaved = async () => {
   showRoleModal.value = false;
   await fetchRoles();
+};
+
+// --- USUWANIE ROLI ---
+const deletingRoleId = ref(null);
+const deleteRoleError = ref(null);
+
+const deleteRole = async (role) => {
+  if (!confirm(`Czy na pewno chcesz usunąć rolę "${role.name}"? Tej operacji nie można cofnąć.`)) return;
+  deletingRoleId.value = role.id;
+  deleteRoleError.value = null;
+  try {
+    await employeeService.deleteRole(role.id);
+    // Optymistyczne usunięcie z listy
+    roles.value = roles.value.filter(r => r.id !== role.id);
+  } catch (err) {
+    console.error('[EmployeesView] deleteRole error:', err);
+    deleteRoleError.value = err?.response?.data?.message ?? 'Nie udało się usunąć roli.';
+    alert(deleteRoleError.value);
+  } finally {
+    deletingRoleId.value = null;
+  }
 };
 
 onMounted(() => {
