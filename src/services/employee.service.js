@@ -81,7 +81,7 @@ class EmployeeService {
    */
   async createRole(dto) {
     try {
-      const response = await axios.post(`${BASE_URL}/employee/role`, dto, authHeaders());
+      const response = await axios.post(`${BASE_URL}/employee/roles/new`, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('[EmployeeService] createRole error status:', err?.response?.status);
