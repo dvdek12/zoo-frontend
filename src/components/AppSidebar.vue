@@ -64,7 +64,8 @@ import {
   User,
   LogOut,
   PawPrint,
-  Users
+  Users,
+  Fence
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -81,6 +82,7 @@ const links = computed(() => {
   if (auth.hasAnyRole('Manager')) {
     baseLinks.push({ name: 'Animals', path: '/animals', icon: PawPrint });
     baseLinks.push({ name: 'Employees', path: '/employees', icon: Users });
+    baseLinks.push({ name: 'Enclosures', path: '/enclosures', icon: Fence });
   }
   return baseLinks;
 });
