@@ -5,7 +5,7 @@
       <table class="w-full text-left border-collapse">
         <thead class="sticky top-0 bg-gray-50 dark:bg-gray-900/95 backdrop-blur-sm z-10 shadow-sm border-b border-gray-100 dark:border-gray-700">
           <tr>
-            <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 w-20">ID</th>
+            <th class="py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 w-16 text-center">Ikona</th>
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Nazwa</th>
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Gatunek</th>
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Status</th>
@@ -24,8 +24,9 @@
             class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-colors duration-200 group cursor-pointer hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80]"
             @click="$emit('row-click', animal.id)"
           >
-            <td class="py-3 px-6">
-              <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ animal.id }}</span>
+            <!-- Kolumna ikonki -->
+            <td class="py-2 px-4 text-center">
+              <AnimalIconCell :icon-id="animal.iconId" :name="animal.name" />
             </td>
             <td class="py-3 px-6">
               <span
@@ -97,7 +98,9 @@
 <script setup>
 import sadPandaImg from '../../assets/sad_panda.png';
 import { useHighlight } from '../../composables/useHighlight';
+import { useIcon } from '../../composables/useIcon';
 import '../../assets/table-animations.css';
+import { defineComponent, h, toRef } from 'vue';
 
 defineProps({
   animals: {
@@ -113,6 +116,48 @@ defineProps({
 defineEmits(['delete', 'row-click']);
 
 const { highlight } = useHighlight();
+
+/**
+ * Subkomponent renderujący ikonkę jednego wiersza.
+ * Używa useIcon per-instancja (każdy wiersz ma własny stan ładowania).
+ */
+const AnimalIconCell = defineComponent({
+  name: 'AnimalIconCell',
+  props: {
+    iconId: { type: Number, default: null },
+    name:   { type: String, default: '' },
+  },
+  setup(props) {
+    const iconIdRef = toRef(props, 'iconId');
+    const { iconUrl, isLoading } = useIcon(iconIdRef);
+    // Zwracamy stan jako obiekt — render() odczyta go reaktywnie
+    return { iconUrl, isLoading };
+  },
+  render() {
+    // Spinner podczas ładowania
+    if (this.isLoading) {
+      return h('div', {
+        class: 'w-10 h-10 rounded-xl mx-auto bg-gray-100 dark:bg-gray-700 animate-pulse',
+      });
+    }
+    // Obrazek ikonki
+    if (this.iconUrl) {
+      return h('img', {
+        src: this.iconUrl,
+        alt: this.name,
+        class: 'w-10 h-10 rounded-xl object-cover mx-auto shadow-sm border border-gray-100 dark:border-gray-700 transition-transform group-hover:scale-110 duration-200',
+      });
+    }
+    // Fallback — avatar z pierwszą literą nazwy
+    return h('div', {
+      class: 'w-10 h-10 rounded-xl mx-auto flex items-center justify-center bg-gradient-to-br from-[#2d6a4f] to-[#1a3b22] shadow-sm transition-transform group-hover:scale-110 duration-200',
+    }, [
+      h('span', {
+        class: 'text-white font-bold text-sm select-none',
+      }, (this.name?.[0] ?? '?').toUpperCase()),
+    ]);
+  },
+});
 </script>
 
 <style scoped>
@@ -130,3 +175,4 @@ const { highlight } = useHighlight();
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #374151; }
 .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb { background-color: #4b5563; }
 </style>
+

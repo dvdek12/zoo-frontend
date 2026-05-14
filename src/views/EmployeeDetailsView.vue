@@ -42,6 +42,49 @@
           style="background-image: url('data:image/svg+xml,%3Csvg width=%2760%27 height=%2760%27 viewBox=%270 0 60 60%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cg fill=%27none%27 fill-rule=%27evenodd%27%3E%3Cg fill=%27%23ffffff%27 fill-opacity=%270.4%27%3E%3Cpath d=%27M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%27/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
         </div>
         <div class="relative flex flex-col md:flex-row items-start md:items-center gap-6 p-8">
+          <!-- Avatar z możliwością edycji ikonki -->
+          <div class="shrink-0 flex flex-col items-center gap-2">
+            <div
+              class="relative w-28 h-28 rounded-full cursor-pointer group"
+              @click="iconFileInput?.click()"
+              title="Kliknij aby zmienić zdjęcie"
+            >
+              <!-- Zdjęcie lub avatar z inicjałami -->
+              <img
+                v-if="iconPreviewUrl"
+                :src="iconPreviewUrl"
+                :alt="employee.firstName + ' ' + employee.lastName"
+                class="w-full h-full rounded-full object-cover shadow-xl border-4 border-white/20"
+              />
+              <div
+                v-else
+                class="w-full h-full rounded-full bg-white/20 border-4 border-white/20 flex items-center justify-center shadow-xl"
+              >
+                <span class="text-4xl font-extrabold text-white select-none">{{ initials }}</span>
+              </div>
+              <!-- Overlay: aparat -->
+              <div class="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="text-white text-xs font-semibold drop-shadow">Zmień</span>
+                </div>
+              </div>
+              <!-- Spinner podczas uploadu -->
+              <div v-if="isIconUploading" class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                <svg class="animate-spin h-7 w-7 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Ukryty input -->
+            <input ref="iconFileInput" type="file" accept="image/*" class="hidden" @change="onIconChange" />
+            <!-- Błąd -->
+            <p v-if="iconUploadError" class="text-red-300 text-xs text-center max-w-[8rem]">{{ iconUploadError }}</p>
+          </div>
           <!-- Info -->
           <div class="flex-1 text-white">
             <div class="flex items-center gap-3 mb-1">
@@ -227,6 +270,8 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import employeeService from '../services/employee.service';
+import iconService from '../services/icon.service';
+import { invalidateIcon } from '../composables/useIcon';
 
 const route  = useRoute();
 const router = useRouter();
@@ -237,6 +282,39 @@ const fetchError = ref(null);
 const isSaving   = ref(false);
 const saveError  = ref(null);
 const saveSuccess = ref(false);
+
+// --- IKONKA ---
+const iconFileInput   = ref(null);
+const iconPreviewUrl  = ref(null);
+const isIconUploading = ref(false);
+const iconUploadError = ref(null);
+
+const onIconChange = async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  iconUploadError.value = null;
+
+  const existingIconId = employee.value?.iconId ?? employee.value?.IconId ?? null;
+
+  isIconUploading.value = true;
+  try {
+    if (existingIconId) {
+      await iconService.update(existingIconId, file);
+      // Unieważnij cache — tabela załaduje świeże zdjęcie przy następnym renderze
+      invalidateIcon(existingIconId);
+    } else {
+      await iconService.upload(file);
+    }
+    if (iconPreviewUrl.value) URL.revokeObjectURL(iconPreviewUrl.value);
+    iconPreviewUrl.value = URL.createObjectURL(file);
+  } catch (err) {
+    console.error('[EmployeeDetailsView] icon update error:', err);
+    iconUploadError.value = 'Nie udało się zapisać zdjęcia.';
+  } finally {
+    isIconUploading.value = false;
+    if (iconFileInput.value) iconFileInput.value.value = '';
+  }
+};
 
 // --- ROLE ---
 const roles       = ref([]);
@@ -298,6 +376,15 @@ onMounted(async () => {
     const data = await employeeService.getById(route.params.id);
     employee.value = data;
     populateForm(data);
+    // Załaduj ikonkę jeśli istnieje
+    const iconId = data?.iconId ?? data?.IconId ?? null;
+    if (iconId) {
+      try {
+        iconPreviewUrl.value = await iconService.getById(iconId);
+      } catch {
+        // cicho ignoruj
+      }
+    }
   } catch (err) {
     console.error('[EmployeeDetailsView] fetch error:', err);
     fetchError.value = err?.response?.data?.message ?? 'Nie udało się pobrać danych pracownika.';

@@ -163,6 +163,68 @@
               </div>
             </div>
 
+            <!-- Icon Upload -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+                Zdjęcie / Ikonka
+                <span class="text-gray-400 normal-case font-normal ml-1">(opcjonalnie)</span>
+              </label>
+              <div
+                class="relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer p-5"
+                :class="[
+                  isDraggingIcon
+                    ? 'border-[#2d6a4f] bg-[#f0f9f4] dark:bg-[#132a1e]'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-[#2d6a4f]/60 bg-gray-50 dark:bg-gray-800/50'
+                ]"
+                @dragover.prevent="isDraggingIcon = true"
+                @dragleave.prevent="isDraggingIcon = false"
+                @drop.prevent="onIconDrop"
+                @click="$refs.iconFileInput.click()"
+              >
+                <input
+                  ref="iconFileInput"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="onIconFileChange"
+                />
+
+                <!-- Preview -->
+                <div v-if="iconPreview" class="flex flex-col items-center gap-2">
+                  <div class="relative">
+                    <img :src="iconPreview" alt="Podgląd" class="w-20 h-20 rounded-2xl object-cover shadow-md border-2 border-[#2d6a4f]/30" />
+                    <button
+                      type="button"
+                      @click.stop="removeIcon"
+                      class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </div>
+                  <p class="text-xs text-[#2d6a4f] dark:text-green-400 font-medium">{{ iconFile?.name }}</p>
+                </div>
+
+                <!-- Placeholder -->
+                <template v-else>
+                  <div class="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Przeciągnij plik lub <span class="text-[#2d6a4f] dark:text-green-400 underline underline-offset-2">kliknij</span></p>
+                    <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WebP — maks. 5 MB</p>
+                  </div>
+                </template>
+
+                <!-- Upload error -->
+                <p v-if="iconUploadError" class="text-xs text-red-500 flex items-center gap-1" @click.stop>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  {{ iconUploadError }}
+                </p>
+              </div>
+            </div>
+
             <!-- Server error -->
             <div v-if="serverError" class="flex items-start gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
@@ -209,8 +271,48 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import employeeService from '../../services/employee.service';
+import iconService from '../../services/icon.service';
 
 const emit = defineEmits(['close', 'save']);
+
+// --- ICON UPLOAD ---
+const iconFile = ref(null);
+const iconPreview = ref(null);
+const isDraggingIcon = ref(false);
+const iconUploadError = ref(null);
+const iconFileInput = ref(null);
+
+const onIconFileChange = (e) => {
+  const file = e.target.files?.[0];
+  if (file) setIconFile(file);
+};
+
+const onIconDrop = (e) => {
+  isDraggingIcon.value = false;
+  const file = e.dataTransfer.files?.[0];
+  if (file) setIconFile(file);
+};
+
+const setIconFile = (file) => {
+  iconUploadError.value = null;
+  if (!file.type.startsWith('image/')) {
+    iconUploadError.value = 'Dozwolone są tylko pliki graficzne (PNG, JPG, WebP).';
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    iconUploadError.value = 'Plik jest zbyt duży. Maksymalny rozmiar to 5 MB.';
+    return;
+  }
+  iconFile.value = file;
+  iconPreview.value = URL.createObjectURL(file);
+};
+
+const removeIcon = () => {
+  iconFile.value = null;
+  iconPreview.value = null;
+  iconUploadError.value = null;
+  if (iconFileInput.value) iconFileInput.value.value = '';
+};
 
 const showPassword = ref(false);
 const isLoading = ref(false);
@@ -267,7 +369,22 @@ const submit = async () => {
 
   isLoading.value = true;
   try {
-    await employeeService.register(dto);
+    // Krok 1: jeśli wybrano ikonkę — wyślij ją najpierw i pobierz iconId
+    let iconId = null;
+    if (iconFile.value) {
+      const iconResult = await iconService.upload(iconFile.value);
+      // Backend zwraca obiekt z polem id lub iconId
+      iconId = iconResult?.id ?? iconResult?.iconId ?? null;
+      console.log('[RegisterEmployeeModal] Icon uploaded, iconId:', iconId);
+    }
+
+    // Krok 2: zarejestruj pracownika z IconId (jeśli dostępne)
+    const finalDto = {
+      ...dto,
+      ...(iconId !== null && { IconId: iconId }),
+    };
+
+    await employeeService.register(finalDto);
     success.value = true;
     // Emituj zdarzenie po krótkim opóźnieniu (żeby user zobaczył sukces)
     setTimeout(() => emit('save'), 1200);

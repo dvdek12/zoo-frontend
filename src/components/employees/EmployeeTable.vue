@@ -5,7 +5,7 @@
       <table class="w-full text-left border-collapse">
         <thead class="sticky top-0 bg-gray-50 dark:bg-gray-900/95 backdrop-blur-sm z-10 shadow-sm border-b border-gray-100 dark:border-gray-700">
           <tr>
-            <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300 w-20">ID</th>
+            <th class="py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 w-16 text-center">Ikona</th>
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Imię i Nazwisko</th>
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Email</th>
             <th class="py-3 px-6 font-semibold text-gray-700 dark:text-gray-300">Telefon</th>
@@ -25,14 +25,12 @@
             @click="router.push({ name: 'employeeDetail', params: { id: employee.id } })"
             class="hover:bg-[#f0f9f4] dark:hover:bg-[#132a1e] transition-colors duration-200 group hover:shadow-[inset_4px_0_0_0_#2d6a4f] dark:hover:shadow-[inset_4px_0_0_0_#4ade80] cursor-pointer"
           >
-            <td class="py-3 px-6">
-              <span class="inline-block px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-mono font-semibold">#{{ employee.id }}</span>
+            <!-- Kolumna ikona -->
+            <td class="py-2 px-4 text-center">
+              <EmployeeIconCell :icon-id="employee.iconId" :first-name="employee.firstName" :last-name="employee.lastName" />
             </td>
             <td class="py-3 px-6">
               <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#2d6a4f] to-[#40916c] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
-                  {{ initials(employee) }}
-                </div>
                 <span
                   class="font-bold text-gray-900 dark:text-white"
                   v-html="highlight(employee.firstName + ' ' + employee.lastName, query)"
@@ -84,8 +82,10 @@
 </template>
 
 <script setup>
+import { defineComponent, h, toRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { useHighlight } from '../../composables/useHighlight';
+import { useIcon } from '../../composables/useIcon';
 import { useThemeStore } from '../../stores/theme';
 import '../../assets/table-animations.css';
 
@@ -104,12 +104,6 @@ defineProps({
   },
 });
 
-const initials = (emp) => {
-  const f = emp.firstName?.[0] ?? '';
-  const l = emp.lastName?.[0] ?? '';
-  return (f + l).toUpperCase() || '?';
-};
-
 const formatDate = (dateStr) => {
   if (!dateStr) return '—';
   try {
@@ -118,6 +112,49 @@ const formatDate = (dateStr) => {
     return dateStr;
   }
 };
+
+/**
+ * Subkomponent renderujący ikonkę pracownika.
+ * Fallback: zielony avatar z inicjałami (imię + nazwisko).
+ */
+const EmployeeIconCell = defineComponent({
+  name: 'EmployeeIconCell',
+  props: {
+    iconId:    { type: Number, default: null },
+    firstName: { type: String, default: '' },
+    lastName:  { type: String, default: '' },
+  },
+  setup(props) {
+    const iconIdRef = toRef(props, 'iconId');
+    const { iconUrl, isLoading } = useIcon(iconIdRef);
+    return { iconUrl, isLoading };
+  },
+  render() {
+    // Spinner podczas ładowania
+    if (this.isLoading) {
+      return h('div', {
+        class: 'w-10 h-10 rounded-full mx-auto bg-gray-100 dark:bg-gray-700 animate-pulse',
+      });
+    }
+    // Zdjęcie ikonki
+    if (this.iconUrl) {
+      return h('img', {
+        src: this.iconUrl,
+        alt: `${this.firstName} ${this.lastName}`,
+        class: 'w-10 h-10 rounded-full object-cover mx-auto shadow-sm border-2 border-[#2d6a4f]/20 transition-transform group-hover:scale-110 duration-200',
+      });
+    }
+    // Fallback — avatar z inicjałami
+    const f = this.firstName?.[0] ?? '';
+    const l = this.lastName?.[0]  ?? '';
+    const initials = (f + l).toUpperCase() || '?';
+    return h('div', {
+      class: 'w-10 h-10 rounded-full mx-auto flex items-center justify-center bg-gradient-to-br from-[#2d6a4f] to-[#40916c] text-white font-bold text-sm shrink-0 shadow-sm transition-transform group-hover:scale-110 duration-200',
+    }, [
+      h('span', { class: 'select-none' }, initials),
+    ]);
+  },
+});
 </script>
 
 <style scoped>
@@ -135,3 +172,4 @@ const formatDate = (dateStr) => {
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #374151; }
 .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb { background-color: #4b5563; }
 </style>
+
