@@ -183,6 +183,7 @@ const loadError         = ref(null);
  */
 const mapAnimal = (a) => ({
   id:         a.id,
+  iconId:     a.iconId     ?? null,
   name:       a.name        ?? '',
   species:    a.raceName    ?? a.species ?? 'Nieznany',
   image:      a.image       ?? 'https://images.unsplash.com/photo-1564756543161-1d54eb84e4f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',

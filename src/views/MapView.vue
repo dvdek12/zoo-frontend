@@ -69,11 +69,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Map from '../components/Map.vue';
 import { MapPin, X, Video, Thermometer } from 'lucide-vue-next';
+import EnclosureService from '../services/enclosure.service';
 
 const selectedAnimalId = ref(null);
+const enclosures = ref([]);
+
+async function loadEnclosures() {
+  try {
+    enclosures.value = await EnclosureService.getAll();
+    console.log("enclosures",enclosures.value);
+  } catch (error) {
+    console.error('Error loading enclosures:', error);
+  }
+}
+
+onMounted(async () => {
+  await loadEnclosures();
+});
 
 const handleSelect = (animalId) => {
   selectedAnimalId.value = animalId;

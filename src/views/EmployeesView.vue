@@ -199,6 +199,7 @@ const loadError = ref(null);
 
 const mapEmployee = (e) => ({
   id:          e.id          ?? e.employeeId ?? Math.random(),
+  iconId:      e.iconId      ?? e.IconId     ?? e.icon_id ?? null,
   firstName:   e.firstName   ?? e.FirstName  ?? '',
   lastName:    e.lastName    ?? e.LastName   ?? '',
   email:       e.email       ?? e.Email      ?? '',

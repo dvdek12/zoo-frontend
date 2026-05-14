@@ -41,13 +41,50 @@
           style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
         </div>
         <div class="relative flex flex-col md:flex-row items-start md:items-center gap-6 p-8">
-          <!-- Avatar / Image -->
+          <!-- Avatar / Ikonka z możliwością edycji -->
           <div class="shrink-0">
-            <!-- <img
-              :src="animal.image ?? 'https://images.unsplash.com/photo-1564756543161-1d54eb84e4f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'"
-              :alt="animal.name"
-              class="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover shadow-xl border-4 border-white/20"
-            /> -->
+            <div
+              class="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl cursor-pointer group"
+              @click="iconFileInput?.click()"
+              title="Kliknij aby zmienić ikonkę"
+            >
+              <!-- Aktualna ikonka lub placeholder -->
+              <img
+                v-if="iconPreviewUrl"
+                :src="iconPreviewUrl"
+                :alt="animal.name"
+                class="w-full h-full rounded-2xl object-cover shadow-xl border-4 border-white/20"
+              />
+              <div
+                v-else
+                class="w-full h-full rounded-2xl bg-white/10 border-4 border-white/20 flex items-center justify-center shadow-xl"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <!-- Overlay: aparat -->
+              <div class="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="text-white text-xs font-semibold drop-shadow">Zmień</span>
+                </div>
+              </div>
+              <!-- Spinner podczas uploadu -->
+              <div v-if="isIconUploading" class="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
+                <svg class="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Ukryty input -->
+            <input ref="iconFileInput" type="file" accept="image/*" class="hidden" @change="onIconChange" />
+            <!-- Błąd uploadu -->
+            <p v-if="iconUploadError" class="text-red-300 text-xs mt-2 text-center max-w-[9rem]">{{ iconUploadError }}</p>
           </div>
           <!-- Info -->
           <div class="flex-1 text-white">
@@ -272,6 +309,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import animalService from '../services/animal.service';
+import iconService from '../services/icon.service';
+import { invalidateIcon } from '../composables/useIcon';
 import AddHealthRecordModal from '../components/animals/AddHealthRecordModal.vue';
 
 const route  = useRoute();
@@ -280,6 +319,42 @@ const router = useRouter();
 const animal    = ref(null);
 const isLoading = ref(false);
 const error     = ref(null);
+
+// --- IKONKA ---
+const iconFileInput    = ref(null);
+const iconPreviewUrl   = ref(null);
+const isIconUploading  = ref(false);
+const iconUploadError  = ref(null);
+
+const onIconChange = async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  iconUploadError.value = null;
+
+  const existingIconId = animal.value?.iconId ?? animal.value?.IconId ?? null;
+
+  isIconUploading.value = true;
+  try {
+    if (existingIconId) {
+      // Aktualizuj istniejącą ikonkę
+      await iconService.update(existingIconId, file);
+      // Unieważnij cache — tabela załaduje świeże zdjęcie przy następnym renderze
+      invalidateIcon(existingIconId);
+    } else {
+      // Uploaduj nową ikonkę (brak wcześniejszej)
+      await iconService.upload(file);
+    }
+    // Odśwież podgląd z nowego pliku lokalnie (bez ponownego fetch)
+    if (iconPreviewUrl.value) URL.revokeObjectURL(iconPreviewUrl.value);
+    iconPreviewUrl.value = URL.createObjectURL(file);
+  } catch (err) {
+    console.error('[AnimalDetailsView] icon update error:', err);
+    iconUploadError.value = 'Nie udało się zapisać ikonki.';
+  } finally {
+    isIconUploading.value = false;
+    if (iconFileInput.value) iconFileInput.value.value = '';
+  }
+};
 
 // --- HISTORIA ---
 const history          = ref([]);
@@ -357,6 +432,15 @@ onMounted(async () => {
   try {
     const data = await animalService.getById(id);
     animal.value = data;
+    // Załaduj ikonkę jeśli istnieje
+    const iconId = data?.iconId ?? data?.IconId ?? null;
+    if (iconId) {
+      try {
+        iconPreviewUrl.value = await iconService.getById(iconId);
+      } catch {
+        // cicho ignoruj — brak ikonki nie blokuje widoku
+      }
+    }
   } catch (err) {
     console.error('[AnimalDetailsView] fetch error:', err);
     error.value = err?.response?.data?.message ?? 'Nie udało się pobrać danych zwierzęcia.';
