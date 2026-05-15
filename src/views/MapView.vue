@@ -100,7 +100,7 @@
                 <!-- Przycisk odpięcia -->
                 <button
                   v-if="authStore.hasRole('Manager')"
-                  @click="handleUnassign(selectedEnclosure.id, animal)"
+                  @click.stop="handleUnassign(selectedEnclosure.id, animal)"
                   :disabled="unassigningId === animal.id"
                   class="opacity-0 group-hover:opacity-100 transition-all w-7 h-7 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 disabled:opacity-40 shrink-0"
                   title="Usuń z wybiegu"
