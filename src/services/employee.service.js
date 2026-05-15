@@ -76,6 +76,15 @@ class EmployeeService {
   }
 
   /**
+   * Usuwa rolę po ID.
+   * @param {number} id
+   */
+  async deleteRole(id) {
+    const response = await axios.delete(`${BASE_URL}/employee/roles/delete/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
    * Tworzy nową rolę.
    * @param {{ Name: string, Description: string, IsManagerial: boolean }} dto
    */
