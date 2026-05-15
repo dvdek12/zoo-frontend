@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
     <form
-      class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+      class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fade-in-up flex flex-col max-h-[92vh]"
       @submit.prevent="handleSave"
       novalidate
     >
@@ -64,6 +64,15 @@
             placeholder="Dodatkowe informacje..."
           />
         </div>
+
+        <!-- Lokalizacja na mapie -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Lokalizacja na mapie
+            <span class="text-gray-400 font-normal ml-1">(opcjonalne)</span>
+          </label>
+          <ZooMiniMap v-model="form.mapKey" />
+        </div>
       </div>
 
       <!-- Save error banner -->
@@ -97,6 +106,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import enclosureService from '../../services/enclosure.service';
+import ZooMiniMap from './ZooMiniMap.vue';
 
 const props = defineProps({
   enclosure: {
@@ -119,6 +129,7 @@ const form = reactive({
   name: '',
   description: '',
   typeId: null,
+  mapKey: null,
 });
 
 onMounted(() => {
@@ -127,6 +138,7 @@ onMounted(() => {
     form.name = props.enclosure.name || '';
     form.description = props.enclosure.description || '';
     form.typeId = props.enclosure.typeId || null;
+    form.mapKey = props.enclosure.mapKey || null;
   }
 });
 
@@ -141,6 +153,7 @@ const handleSave = async () => {
       name: form.name,
       description: form.description,
       typeId: form.typeId,
+      mapKey: form.mapKey,
     };
 
     if (isEdit.value) {

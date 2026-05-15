@@ -1,67 +1,118 @@
 <template>
   <div class="flex-1 relative h-full w-full overflow-hidden bg-[#e4e4e0] flex items-center justify-center">
+    <!-- Mapa -->
     <Map
       :highlighted-enclosure="hoveredEnclosureKey"
-      :animal-assignments="animalAssignments"
-      @select-enclosure="handleSelect"
+      :enclosure-data="enclosureData"
+      @select-enclosure="handleSelectEnclosure"
       @enclosure-drag-enter="onEnclosureDragEnter"
       @enclosure-drag-leave="onEnclosureDragLeave"
       @enclosure-drop="onEnclosureDrop"
     />
 
-    <!-- Karta wybranego wybiegu -->
+    <!-- Loading overlay -->
+    <Transition name="fade-quick">
+      <div
+        v-if="isLoading"
+        class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50"
+      >
+        <div class="bg-white rounded-2xl px-8 py-6 flex items-center gap-4 shadow-2xl">
+          <svg class="animate-spin h-6 w-6 text-[#2d6a4f]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <span class="text-[#1a3b22] font-semibold">Ładowanie mapy…</span>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ══ MODAL WYBRANEGO WYBIEGU ══ -->
     <Transition name="slide-up" mode="out-in">
-      <div v-if="selectedData" :key="selectedAnimalId" class="absolute bottom-8 right-8 z-30">
-        <div class="bg-white rounded-[2rem] p-6 w-[360px] shadow-2xl pointer-events-auto border border-gray-100">
-          <div class="flex items-start justify-between mb-4 mt-2">
+      <div v-if="selectedEnclosure" :key="selectedEnclosure.id" class="absolute bottom-8 right-8 z-30">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-[380px] border border-gray-100 overflow-hidden">
+
+          <!-- Header -->
+          <div class="px-6 pt-6 pb-4 flex items-start justify-between">
             <div>
-              <h3 class="text-[22px] font-extrabold text-[#1a3b22] tracking-tight">{{ selectedData.name }}</h3>
-              <p class="text-[11px] text-gray-500 font-bold tracking-wide flex items-center gap-1.5 mt-1.5 uppercase">
-                <MapPin class="w-3 h-3" /> {{ selectedData.sector }}
+              <h3 class="text-[20px] font-extrabold text-[#1a3b22] tracking-tight leading-tight">
+                {{ selectedEnclosure.name }}
+              </h3>
+              <p v-if="selectedEnclosure.type?.typeName" class="text-[11px] text-gray-500 font-bold tracking-wide flex items-center gap-1.5 mt-1 uppercase">
+                <MapPin class="w-3 h-3" />
+                {{ selectedEnclosure.type.typeName }}
               </p>
             </div>
-            <button @click="closeModal" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-600">
+            <button
+              @click="selectedEnclosure = null"
+              class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-600 shrink-0"
+            >
               <X class="w-4 h-4" />
             </button>
           </div>
-          <div class="bg-[#f4f3ea] rounded-[1.5rem] p-4 flex items-center gap-4 mb-5">
-            <img :src="selectedData.img" :alt="selectedData.animal" class="w-14 h-14 rounded-full object-cover shadow-sm bg-white" />
-            <div class="flex-1">
-              <div class="flex items-center justify-between mb-1.5">
-                <h4 class="font-extrabold text-[#1a3b22] text-[15px]">{{ selectedData.animal }}</h4>
-                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                      :class="selectedData.status === 'Stable' ? 'text-[#55695b] bg-[#e1e2da]' : 'text-[#a02121] bg-[#fceded]'">
-                  {{ selectedData.status }}
-                </span>
-              </div>
-              <div class="h-1.5 w-full bg-[#d6d8d1] rounded-full overflow-hidden mb-1">
-                <div class="h-full rounded-full"
-                     :class="selectedData.health > 90 ? 'bg-[#1a3b22]' : 'bg-[#ba2a2a]'"
-                     :style="{ width: selectedData.health + '%' }"></div>
-              </div>
-              <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">{{ selectedData.health }}% Health Index</p>
+
+          <!-- Lista zwierząt -->
+          <div class="px-6 pb-5">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+              Zwierzęta w wybiegu
+              <span class="ml-1.5 px-1.5 py-0.5 bg-[#f0faf5] text-[#2d6a4f] rounded-full text-[10px]">
+                {{ selectedEnclosure.animals?.length ?? 0 }}
+              </span>
+            </p>
+
+            <!-- Brak zwierząt -->
+            <div
+              v-if="!selectedEnclosure.animals || selectedEnclosure.animals.length === 0"
+              class="flex flex-col items-center justify-center py-5 rounded-2xl bg-gray-50 border border-dashed border-gray-200 text-gray-400"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+              <span class="text-sm font-medium">Brak zwierząt</span>
+              <span class="text-xs mt-0.5">Przeciągnij zwierzę na ten wybieg</span>
             </div>
-          </div>
-          <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-[#ced3cf] rounded-[1.25rem] p-4">
-              <p class="text-[9px] font-bold text-[#627063] uppercase tracking-widest mb-1">Last Check</p>
-              <p class="text-xl font-extrabold text-[#1a3b22]">{{ selectedData.nextCheck }}</p>
-            </div>
-            <div class="bg-[#fceded] rounded-[1.25rem] p-4 relative overflow-hidden">
-              <p class="text-[9px] font-bold text-[#a02121] uppercase tracking-widest mb-1">Temp Control</p>
-              <p class="text-xl font-extrabold text-[#a02121]">{{ selectedData.temp }}</p>
-              <div class="absolute -right-2 -bottom-2 opacity-5">
-                <Thermometer class="w-16 h-16 text-[#a02121]" />
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <button class="flex-1 bg-[#1a3b22] hover:bg-[#112a17] text-white py-4 rounded-full text-xs font-bold transition-colors">
-              View Medical Records
-            </button>
-            <button class="w-12 h-12 bg-[#e8e7de] hover:bg-[#d8d7cd] text-[#425043] rounded-full flex items-center justify-center transition-colors">
-              <Video class="w-5 h-5" />
-            </button>
+
+            <!-- Lista -->
+            <ul v-else class="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
+              <li
+                @click="navigateToAnimal(animal.id)"
+                v-for="animal in selectedEnclosure.animals"
+                :key="animal.id"
+                class="flex cursor-pointer items-center gap-3 p-2.5 rounded-xl bg-[#f8faf8] hover:bg-[#f0f7f2] border border-transparent hover:border-[#c8e6d0] transition-all group"
+              >
+                <!-- Ikona zwierzęcia -->
+                <div class="w-9 h-9 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
+                  <img
+                    v-if="animalIconUrls[animal.id]"
+                    :src="animalIconUrls[animal.id]"
+                    :alt="animal.name"
+                    class="w-full h-full object-cover"
+                  />
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-[#1a3b22] truncate">{{ animal.name }}</p>
+                  <p class="text-[10px] text-gray-400 truncate">{{ animal.raceName }}</p>
+                </div>
+
+                <!-- Przycisk odpięcia -->
+                <button
+                  v-if="authStore.hasRole('Manager')"
+                  @click="handleUnassign(selectedEnclosure.id, animal)"
+                  :disabled="unassigningId === animal.id"
+                  class="opacity-0 group-hover:opacity-100 transition-all w-7 h-7 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 disabled:opacity-40 shrink-0"
+                  title="Usuń z wybiegu"
+                >
+                  <svg v-if="unassigningId === animal.id" class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  <X v-else class="w-3.5 h-3.5" />
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -87,10 +138,12 @@
           <span class="text-white text-sm font-bold tracking-wide">Tryb Managera</span>
           <span class="text-green-300/70 text-xs font-medium">— Przeciągnij zwierzę na wybieg</span>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg"
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
           class="h-4 w-4 text-white/70 transition-transform duration-300"
           :class="panelOpen ? 'rotate-180' : ''"
-          viewBox="0 0 20 20" fill="currentColor">
+          viewBox="0 0 20 20" fill="currentColor"
+        >
           <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
         </svg>
       </button>
@@ -100,10 +153,11 @@
         <div v-if="panelOpen" class="bg-[#0f2016]/95 backdrop-blur-md overflow-hidden" style="height: 33vh">
           <div class="h-full flex flex-col py-3 gap-2">
 
-            <!-- Info o aktualnie przeciąganym (góra) -->
+            <!-- Info o aktualnie przeciąganym -->
             <Transition name="fade-quick">
               <div v-if="draggingAnimal" class="shrink-0 mx-4 flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-2">
-                <img :src="draggingAnimal.img" class="w-6 h-6 object-contain" draggable="false" />
+                <img v-if="draggingAnimal.iconUrl" :src="draggingAnimal.iconUrl" class="w-6 h-6 object-contain rounded-full" draggable="false" />
+                <div v-else class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/40 text-xs">?</div>
                 <span class="text-green-300 text-xs font-semibold">{{ draggingAnimal.name }}</span>
                 <span class="text-white/40 text-xs ml-auto">Upuść na wybieg na mapie…</span>
               </div>
@@ -112,12 +166,19 @@
               </div>
             </Transition>
 
-            <!-- Kafelki — pełna wysokość, poziomy scroll -->
+            <!-- Kafelki zwierząt — poziomy scroll -->
             <div
               class="flex gap-3 overflow-x-auto flex-1 min-h-0 px-4 scrollbar-panel"
               style="scrollbar-gutter: stable"
               @dragover.prevent
             >
+              <div
+                v-if="isLoadingAnimals"
+                class="flex-1 flex items-center justify-center text-white/30 text-sm"
+              >
+                Ładowanie zwierząt…
+              </div>
+
               <div
                 v-for="animal in panelAnimals"
                 :key="animal.id"
@@ -133,22 +194,29 @@
                 ]"
                 :title="animal.name"
               >
-                <div class="absolute inset-0 bg-white/[0.03] group-hover:bg-white/[0.07] transition-colors rounded-2xl"></div>
+                <div class="absolute inset-0 bg-white/[0.03] group-hover:bg-white/[0.07] transition-colors rounded-2xl" />
 
-                <!-- Zdjęcie — duże, na środku -->
-                <img
-                  :src="animal.img"
-                  :alt="animal.name"
-                  class="w-3/5 aspect-square object-contain drop-shadow-lg relative z-10 pointer-events-none transition-transform duration-200 group-hover:scale-110"
-                  draggable="false"
-                />
+                <!-- Ikona -->
+                <div class="w-3/5 aspect-square relative z-10 flex items-center justify-center">
+                  <img
+                    v-if="animal.iconUrl"
+                    :src="animal.iconUrl"
+                    :alt="animal.name"
+                    class="w-full h-full object-contain drop-shadow-lg pointer-events-none transition-transform duration-200 group-hover:scale-110"
+                    draggable="false"
+                  />
+                  <div
+                    v-else
+                    class="w-full h-full rounded-full bg-white/10 flex items-center justify-center text-white/30 text-2xl pointer-events-none"
+                  >🐾</div>
+                </div>
 
                 <!-- Nazwa -->
-                <span class="text-[11px] font-bold text-white/50 group-hover:text-white/80 transition-colors text-center leading-tight px-2 relative z-10 w-full truncate text-center">
-                  {{ animal.shortName }}
+                <span class="text-[11px] font-bold text-white/50 group-hover:text-white/80 transition-colors text-center leading-tight px-2 relative z-10 w-full truncate">
+                  {{ animal.name }}
                 </span>
 
-                <!-- Zielona kropka jeśli na mapie -->
+                <!-- Zielona kropka jeśli przypisane -->
                 <span
                   v-if="isAssigned(animal.id)"
                   class="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full shadow-[0_0_6px_rgba(74,222,128,0.8)]"
@@ -165,57 +233,167 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 import Map from '../components/Map.vue';
-import { MapPin, X, Video, Thermometer } from 'lucide-vue-next';
+import { MapPin, X } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
+import enclosureService from '../services/enclosure.service';
+import animalService from '../services/animal.service';
+import iconService from '../services/icon.service';
+import router from '../router';
 
 const authStore = useAuthStore();
 
-// ── Panel managera ───────────────────────────
-const panelOpen       = ref(false);
-const draggingAnimal  = ref(null);
+// ── Stan ─────────────────────────────────────────
+const isLoading       = ref(false);
+const isLoadingAnimals = ref(false);
+const rawEnclosures   = ref([]); // lista z API (z .animals)
+const allAnimals      = ref([]); // wszystkie zwierzęta z API
+const animalIconUrls  = reactive({}); // animalId → blob URL
+
+// ── Panel Managera ────────────────────────────────
+const panelOpen      = ref(false);
+const draggingAnimal = ref(null);
 const hoveredEnclosureKey = ref(null);
+const unassigningId  = ref(null);
 
+// ── Modal wybranego wybiegu ───────────────────────
+const selectedEnclosure = ref(null);
+
+const navigateToAnimal = (animalId) => {
+  router.push(`/animals/${animalId}`);
+};
+
+// ── Dane dla Map.vue ──────────────────────────────
 /**
- * Przypisania: enclosureKey → { id, name, img }
- * Domyślnie puste — ikony na mapie pokazują defaulty z Map.vue
+ * enclosureData: mapKey → { id, name, type, animals: [{ id, name, raceName, iconUrl }] }
+ * Reaktywna — aktualizowana po D&D bez przeładowania strony.
  */
-const animalAssignments = reactive({});
+const enclosureData = computed(() => {
+  const map = {};
+  for (const enc of rawEnclosures.value) {
+    if (!enc.mapKey) continue;
+    map[enc.mapKey] = {
+      id:      enc.id,
+      name:    enc.name,
+      type:    enc.type,
+      animals: (enc.animals ?? []).map(a => ({
+        id:       a.id,
+        name:     a.name,
+        raceName: a.raceName,
+        iconUrl:  animalIconUrls[a.id] ?? null,
+      })),
+    };
+  }
+  return map;
+});
 
-/** Lista kafelków zwierząt w panelu */
-const panelAnimals = [
-  { id: 'panda',   name: 'Mei Lan',          shortName: 'Panda',     img: '/animal_panda.png'      },
-  { id: 'bear',    name: 'Grizzly Bear',      shortName: 'Niedźwiedź',img: '/map-icons/bear.png'    },
-  { id: 'croco',   name: 'Nile Crocodile',    shortName: 'Krokodyl',  img: '/map-icons/croco.png'   },
-  { id: 'gazelle', name: 'Thomson Gazelle',   shortName: 'Gazela',    img: '/map-icons/gazelle.png' },
-  { id: 'giraffe', name: 'Masai Giraffe',     shortName: 'Żyrafa',    img: '/map-icons/giraffe.png' },
-  { id: 'lion',    name: 'Simba',             shortName: 'Lew',       img: '/map-icons/lion.png'    },
-  { id: 'monkey',  name: 'Macaque',           shortName: 'Małpa',     img: '/map-icons/monkey.png'  },
-  { id: 'parrot',  name: 'Macaw',             shortName: 'Papuga',    img: '/map-icons/parrot.png'  },
-  { id: 'penguin', name: 'Emperor Penguin',   shortName: 'Pingwin',   img: '/map-icons/penguin.png' },
-  { id: 'rhino',   name: 'White Rhino',       shortName: 'Nosorożec', img: '/map-icons/rhino.png'   },
-  { id: 'sealion', name: 'California Sea Lion',shortName: 'Uchatka',  img: '/map-icons/sealion.png' },
-  { id: 'snake',   name: 'Python',            shortName: 'Wąż',       img: '/map-icons/snake.png'   },
-  { id: 'spider',  name: 'Tarantula',         shortName: 'Pająk',     img: '/map-icons/spider.png'  },
-  { id: 'tiger',   name: 'Bengal Tiger',      shortName: 'Tygrys',    img: '/map-icons/tiger.png'   },
-  { id: 'zebra',   name: 'Plains Zebra',      shortName: 'Zebra',     img: '/map-icons/zebra.png'   },
-];
+// ── Zwierzęta w panelu managera (wszystkie, bez filtra) ──
+const panelAnimals = computed(() =>
+  allAnimals.value.map(a => ({
+    id:      a.id,
+    name:    a.name,
+    raceName: a.raceName,
+    iconUrl:  animalIconUrls[a.id] ?? null,
+    enclosureId: a.enclosureId ?? null,
+  }))
+);
 
-/** Sprawdza czy dane zwierzę jest już przypisane do jakiegoś wybiegu */
-const isAssigned = (animalId) =>
-  Object.values(animalAssignments).some(a => a?.id === animalId);
+/** Sprawdza czy zwierzę jest już przypisane do jakiegoś wybiegu z mapKey */
+const isAssigned = (animalId) => {
+  return rawEnclosures.value
+    .filter(e => e.mapKey)
+    .some(e => (e.animals ?? []).some(a => a.id === animalId));
+};
 
-// ── Handlery Drag & Drop ─────────────────────
+// ── Pobieranie danych ─────────────────────────────
+const loadIconForAnimal = async (animal) => {
+  if (!animal.iconId || animalIconUrls[animal.id]) return;
+  try {
+    const url = await iconService.getById(animal.iconId);
+    animalIconUrls[animal.id] = url;
+  } catch {
+    // brak ikony — zostaje null
+  }
+};
 
+const fetchEnclosures = async () => {
+  try {
+    const data = await enclosureService.getAll();
+    rawEnclosures.value = Array.isArray(data) ? data : [data];
+
+    // Załaduj ikony dla zwierząt w wybiegach
+    for (const enc of rawEnclosures.value) {
+      for (const animal of enc.animals ?? []) {
+        loadIconForAnimal(animal);
+      }
+    }
+  } catch (err) {
+    console.error('[MapView] fetchEnclosures error:', err);
+  }
+};
+
+const fetchAnimals = async () => {
+  isLoadingAnimals.value = true;
+  try {
+    const data = await animalService.getAll();
+    allAnimals.value = Array.isArray(data) ? data : [data];
+
+    // Załaduj ikony dla wszystkich zwierząt
+    for (const animal of allAnimals.value) {
+      loadIconForAnimal(animal);
+    }
+  } catch (err) {
+    console.error('[MapView] fetchAnimals error:', err);
+  } finally {
+    isLoadingAnimals.value = false;
+  }
+};
+
+onMounted(async () => {
+  isLoading.value = true;
+  await Promise.all([fetchEnclosures(), fetchAnimals()]);
+  isLoading.value = false;
+});
+
+// ── Kliknięcie wybiegu na mapie ───────────────────
+const handleSelectEnclosure = (mapKey) => {
+  const enc = rawEnclosures.value.find(e => e.mapKey === mapKey);
+  if (!enc) return;
+  // Odśwież ikonki zwierząt wybranego wybiegu
+  for (const animal of enc.animals ?? []) {
+    loadIconForAnimal(animal);
+  }
+  selectedEnclosure.value = {
+    ...enc,
+    animals: (enc.animals ?? []).map(a => ({
+      ...a,
+      iconUrl: animalIconUrls[a.id] ?? null,
+    })),
+  };
+};
+
+// Synchronizuj modal gdy animalIconUrls się zaktualizuje
+watch(animalIconUrls, () => {
+  if (!selectedEnclosure.value) return;
+  selectedEnclosure.value = {
+    ...selectedEnclosure.value,
+    animals: (selectedEnclosure.value.animals ?? []).map(a => ({
+      ...a,
+      iconUrl: animalIconUrls[a.id] ?? null,
+    })),
+  };
+}, { deep: true });
+
+// ── Drag & Drop ───────────────────────────────────
 const onAnimalDragStart = (event, animal) => {
   draggingAnimal.value = animal;
   event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', animal.id);
+  event.dataTransfer.setData('text/plain', String(animal.id));
 };
 
 const onAnimalDragEnd = () => {
-  draggingAnimal.value   = null;
+  draggingAnimal.value = null;
   hoveredEnclosureKey.value = null;
 };
 
@@ -227,57 +405,61 @@ const onEnclosureDragLeave = () => {
   hoveredEnclosureKey.value = null;
 };
 
-/**
- * Upuszczenie zwierzęcia na wybieg.
- * TODO: zastąp setTimeout prawdziwym wywołaniem API gdy backend będzie gotowy.
- *   await animalService.assignToEnclosure(enclosureKey, draggingAnimal.value.id)
- */
-const onEnclosureDrop = async (enclosureKey) => {
+const onEnclosureDrop = async (mapKey) => {
   if (!draggingAnimal.value) return;
   const animal = draggingAnimal.value;
-
-  draggingAnimal.value      = null;
+  draggingAnimal.value = null;
   hoveredEnclosureKey.value = null;
 
-  // Symulacja wywołania API (hardcode — backend TODO)
-  console.log(`[API TODO] PUT /enclosure/${enclosureKey}/animal/${animal.id}`);
-  await new Promise(r => setTimeout(r, 150)); // fake latency
+  // Znajdź wybieg po mapKey
+  const enc = rawEnclosures.value.find(e => e.mapKey === mapKey);
+  if (!enc) {
+    console.warn('[MapView] Brak wybiegu dla mapKey:', mapKey);
+    return;
+  }
 
-  animalAssignments[enclosureKey] = { id: animal.id, img: animal.img };
+  // Sprawdź czy zwierzę już jest w tym wybiegu
+  if ((enc.animals ?? []).some(a => a.id === animal.id)) return;
+
+  try {
+    await enclosureService.assignAnimal(enc.id, animal.id);
+    // Odśwież dane — przeładuj wybiegi żeby dostać aktualną listę
+    await fetchEnclosures();
+
+    // Jeśli modal był otwarty na tym wybiegu — odśwież go
+    if (selectedEnclosure.value?.mapKey === mapKey) {
+      handleSelectEnclosure(mapKey);
+    }
+  } catch (err) {
+    console.error('[MapView] Błąd przypisania zwierzęcia:', err);
+  }
 };
 
-// ── Karta wybranego wybiegu (istniejąca logika) ──
-const selectedAnimalId = ref(null);
+// ── Odpinanie zwierzęcia z wybiegu ───────────────
+const handleUnassign = async (enclosureId, animal) => {
+  unassigningId.value = animal.id;
+  try {
+    await enclosureService.unassignAnimal(enclosureId, animal.id);
+    await fetchEnclosures();
 
-const handleSelect = (animalId) => { selectedAnimalId.value = animalId; };
-const closeModal = () => { selectedAnimalId.value = null; };
-
-const enclosuresInfo = {
-  panda:   { name: 'Panda Sanctuary',     animal: 'Mei Lan',              img: '/animal_panda.png',      health: 98,  status: 'Stable',      temp: '22.4°C', nextCheck: '08:30 AM', sector: 'Sector 4, North Garden'  },
-  bear:    { name: 'Bear Valley',          animal: 'Grizzly Bear',         img: '/map-icons/bear.png',    health: 92,  status: 'Stable',      temp: '18.5°C', nextCheck: '10:00 AM', sector: 'Sector 2, West Woods'    },
-  croco:   { name: 'Crocodile Swamp',     animal: 'Nile Crocodile',       img: '/map-icons/croco.png',   health: 88,  status: 'Maintenance', temp: '26.0°C', nextCheck: '11:15 AM', sector: 'Sector 5, Reptile House'  },
-  gazelle: { name: 'Gazelle Plains',      animal: 'Thomson Gazelle',      img: '/map-icons/gazelle.png', health: 100, status: 'Stable',      temp: '24.2°C', nextCheck: '07:45 AM', sector: 'Sector 1, Savannah'      },
-  giraffe: { name: 'Giraffe Savanna',     animal: 'Masai Giraffe',        img: '/map-icons/giraffe.png', health: 96,  status: 'Stable',      temp: '25.5°C', nextCheck: '08:00 AM', sector: 'Sector 1, Savannah'      },
-  lion:    { name: 'Lion Rock',           animal: 'Simba',                img: '/map-icons/lion.png',    health: 99,  status: 'Stable',      temp: '28.0°C', nextCheck: '09:30 AM', sector: 'Sector 1, Savannah'      },
-  monkey:  { name: 'Monkey Island',       animal: 'Macaque',              img: '/map-icons/monkey.png',  health: 94,  status: 'Stable',      temp: '23.4°C', nextCheck: '10:30 AM', sector: 'Sector 3, Tropical'      },
-  parrot:  { name: 'Parrot Aviary',       animal: 'Macaw',                img: '/map-icons/parrot.png',  health: 97,  status: 'Stable',      temp: '21.0°C', nextCheck: '08:15 AM', sector: 'Sector 3, Tropical'      },
-  penguin: { name: 'Penguin Cove',        animal: 'Emperor Penguin',      img: '/map-icons/penguin.png', health: 91,  status: 'Stable',      temp: '4.5°C',  nextCheck: '07:30 AM', sector: 'Sector 6, Polar'         },
-  rhino:   { name: 'Rhino Reserve',       animal: 'White Rhino',          img: '/map-icons/rhino.png',   health: 89,  status: 'Stable',      temp: '29.1°C', nextCheck: '11:00 AM', sector: 'Sector 1, Savannah'      },
-  sealion: { name: 'Sea Lion Pool',       animal: 'California Sea Lion',  img: '/map-icons/sealion.png', health: 93,  status: 'Stable',      temp: '15.2°C', nextCheck: '09:45 AM', sector: 'Sector 6, Polar'         },
-  snake:   { name: 'Reptile House',       animal: 'Python',               img: '/map-icons/snake.png',   health: 85,  status: 'Stable',      temp: '30.0°C', nextCheck: '12:00 PM', sector: 'Sector 5, Reptile House'  },
-  spider:  { name: 'Insectarium',         animal: 'Tarantula',            img: '/map-icons/spider.png',  health: 100, status: 'Stable',      temp: '27.5°C', nextCheck: '13:00 PM', sector: 'Sector 5, Reptile House'  },
-  tiger:   { name: 'Tiger Habitat',       animal: 'Bengal Tiger',         img: '/map-icons/tiger.png',   health: 95,  status: 'Stable',      temp: '22.0°C', nextCheck: '08:45 AM', sector: 'Sector 2, West Woods'    },
-  zebra:   { name: 'Zebra Plains',        animal: 'Plains Zebra',         img: '/map-icons/zebra.png',   health: 98,  status: 'Stable',      temp: '24.0°C', nextCheck: '09:15 AM', sector: 'Sector 1, Savannah'      },
+    // Odśwież modal — usuń zwierzę z listy
+    if (selectedEnclosure.value?.id === enclosureId) {
+      selectedEnclosure.value = {
+        ...selectedEnclosure.value,
+        animals: (selectedEnclosure.value.animals ?? []).filter(a => a.id !== animal.id),
+      };
+    }
+  } catch (err) {
+    console.error('[MapView] Błąd odpięcia zwierzęcia:', err);
+  } finally {
+    unassigningId.value = null;
+  }
 };
-
-const selectedData = computed(() =>
-  selectedAnimalId.value ? enclosuresInfo[selectedAnimalId.value] : null
-);
 </script>
 
 <style scoped>
 /* ── Karta wybiegu ── */
-.slide-up-enter-active, .slide-up-leave-active { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.slide-up-enter-active, .slide-up-leave-active { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 .slide-up-enter-from, .slide-up-leave-to { transform: translateY(30px); opacity: 0; }
 
 /* ── Panel managera ── */
@@ -285,14 +467,19 @@ const selectedData = computed(() =>
 .panel-slide-leave-active { transition: height 0.3s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease; }
 .panel-slide-enter-from, .panel-slide-leave-to { height: 0 !important; opacity: 0; }
 
-/* ── Fade info D&D ── */
+/* ── Fade ── */
 .fade-quick-enter-active { transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
 .fade-quick-leave-active { transition: opacity 0.15s ease; }
 .fade-quick-enter-from   { opacity: 0; transform: translateY(4px); }
 .fade-quick-leave-to     { opacity: 0; }
 
-/* ── Scrollbar w panelu ── */
+/* ── Scrollbar panel managera ── */
 .scrollbar-panel::-webkit-scrollbar { height: 4px; }
 .scrollbar-panel::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+/* ── Scrollbar modal ── */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
 </style>

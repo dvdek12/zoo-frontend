@@ -61,6 +61,25 @@ class EnclosureService {
     const response = await axios.delete(`${API_URL}/type/delete/${id}`, this._getAuthHeader());
     return response.data;
   }
+
+  // --- Animal Assignment ---
+
+  async assignAnimal(enclosureId, animalId) {
+    const response = await axios.put(
+      `${API_URL}/${enclosureId}/assignAnimal/${animalId}`,
+      {},
+      this._getAuthHeader(),
+    );
+    return response.data;
+  }
+
+  async unassignAnimal(enclosureId, animalId) {
+    const response = await axios.delete(
+      `${API_URL}/${enclosureId}/assignAnimal/${animalId}`,
+      this._getAuthHeader(),
+    );
+    return response.data;
+  }
 }
 
 export default new EnclosureService();
