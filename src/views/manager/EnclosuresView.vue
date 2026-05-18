@@ -142,10 +142,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import enclosureService from '../services/enclosure.service';
-import EnclosureModal from '../components/enclosures/EnclosureModal.vue';
-import EnclosureTypeModal from '../components/enclosures/EnclosureTypeModal.vue';
-import EnclosureCard from '../components/enclosures/EnclosureCard.vue';
+import enclosureService from '../../services/enclosure.service';
+import EnclosureModal from '../../components/enclosures/EnclosureModal.vue';
+import EnclosureTypeModal from '../../components/enclosures/EnclosureTypeModal.vue';
+import EnclosureCard from '../../components/enclosures/EnclosureCard.vue';
 
 // --- STAN ---
 const enclosures = ref([]);

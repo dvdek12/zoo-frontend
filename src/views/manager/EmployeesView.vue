@@ -200,11 +200,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import EmployeeTable from '../components/employees/EmployeeTable.vue';
-import RegisterEmployeeModal from '../components/employees/RegisterEmployeeModal.vue';
-import AddRoleModal from '../components/employees/AddRoleModal.vue';
-import employeeService from '../services/employee.service';
-import { useThemeStore } from '../stores/theme';
+import EmployeeTable from '../../components/employees/EmployeeTable.vue';
+import RegisterEmployeeModal from '../../components/employees/RegisterEmployeeModal.vue';
+import AddRoleModal from '../../components/employees/AddRoleModal.vue';
+import employeeService from '../../services/employee.service';
+import { useThemeStore } from '../../stores/theme';
 
 const themeStore = useThemeStore();
 

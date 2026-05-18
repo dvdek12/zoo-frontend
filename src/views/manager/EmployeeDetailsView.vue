@@ -269,9 +269,9 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import employeeService from '../services/employee.service';
-import iconService from '../services/icon.service';
-import { invalidateIcon } from '../composables/useIcon';
+import employeeService from '../../services/employee.service';
+import iconService from '../../services/icon.service';
+import { invalidateIcon } from '../../composables/useIcon';
 
 const route  = useRoute();
 const router = useRouter();

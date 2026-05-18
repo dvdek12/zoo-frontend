@@ -308,10 +308,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import animalService from '../services/animal.service';
-import iconService from '../services/icon.service';
-import { invalidateIcon } from '../composables/useIcon';
-import AddHealthRecordModal from '../components/animals/AddHealthRecordModal.vue';
+import animalService from '../../services/animal.service';
+import iconService from '../../services/icon.service';
+import { invalidateIcon } from '../../composables/useIcon';
+import AddHealthRecordModal from '../../components/animals/AddHealthRecordModal.vue';
 
 const route  = useRoute();
 const router = useRouter();

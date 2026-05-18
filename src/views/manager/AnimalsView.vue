@@ -141,12 +141,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import AnimalTable      from '../components/animals/AnimalTable.vue';
-import AttributeTable   from '../components/animals/AttributeTable.vue';
-import AddAnimalModal   from '../components/animals/AddAnimalModal.vue';
-import AddAttributeModal from '../components/animals/AddAttributeModal.vue';
-import ConfirmDialog    from '../components/ConfirmDialog.vue';
-import animalService    from '../services/animal.service';
+import AnimalTable      from '../../components/animals/AnimalTable.vue';
+import AttributeTable   from '../../components/animals/AttributeTable.vue';
+import AddAnimalModal   from '../../components/animals/AddAnimalModal.vue';
+import AddAttributeModal from '../../components/animals/AddAttributeModal.vue';
+import ConfirmDialog    from '../../components/ConfirmDialog.vue';
+import animalService    from '../../services/animal.service';
 
 const router = useRouter();
 
