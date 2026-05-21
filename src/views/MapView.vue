@@ -256,6 +256,7 @@ const panelOpen      = ref(false);
 const draggingAnimal = ref(null);
 const hoveredEnclosureKey = ref(null);
 const unassigningId  = ref(null);
+let   _panelWasOpen  = false; // zapamiętuje stan panelu przed drag
 
 // ── Modal wybranego wybiegu ───────────────────────
 const selectedEnclosure = ref(null);
@@ -390,11 +391,16 @@ const onAnimalDragStart = (event, animal) => {
   draggingAnimal.value = animal;
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', String(animal.id));
+  // Chowaj panel żeby mapa była widoczna
+  _panelWasOpen = panelOpen.value;
+  panelOpen.value = false;
 };
 
 const onAnimalDragEnd = () => {
   draggingAnimal.value = null;
   hoveredEnclosureKey.value = null;
+  // Przywróć stan panelu sprzed drag
+  panelOpen.value = _panelWasOpen;
 };
 
 const onEnclosureDragEnter = (key) => {
