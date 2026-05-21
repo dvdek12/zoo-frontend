@@ -1,8 +1,6 @@
 <template>
   <div class="p-8 h-full flex flex-col">
-    <div class="mb-8 flex items-center justify-between">
-      <h2 class="text-[2.5rem] font-bold text-[#1a3b22] tracking-tight">Ustawienia Profilu</h2>
-    </div>
+    <PageHeader title="Profil" subtitle="Zarządzaj swoimi danymi i ustawieniami konta." />
 
     <div class="bg-white rounded-xl shadow-sm p-8 flex-1 max-w-4xl">
       <EditProfileForm />
@@ -12,4 +10,5 @@
 
 <script setup>
 import EditProfileForm from '../components/forms/EditProfileForm.vue';
+import PageHeader from '../components/PageHeader.vue';
 </script>

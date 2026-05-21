@@ -1,5 +1,14 @@
 <template>
   <div class="flex-1 relative h-full w-full overflow-hidden bg-[#e4e4e0] flex items-center justify-center">
+
+    <!-- Page title overlay (top-left) -->
+    <div class="absolute top-5 left-5 z-20 flex items-center gap-2.5 bg-white/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md border border-white/40 dark:border-gray-700/60 rounded-2xl px-4 py-2.5 shadow-lg pointer-events-none">
+      <svg class="w-4 h-4 stroke-[#2d6a4f] dark:stroke-green-400 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      <span class="text-sm font-bold text-[#1a3b22] dark:text-green-400 leading-none">Mapa zoo</span>
+    </div>
+
     <!-- Mapa -->
     <Map
       :highlighted-enclosure="hoveredEnclosureKey"

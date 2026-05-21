@@ -2,6 +2,7 @@
   <!-- ═══ PAGE ═══ -->
   <div class="flex flex-col h-full bg-white dark:bg-[#111315] overflow-hidden">
     <div class="flex flex-col flex-1 min-h-0 p-8 gap-6">
+      <PageHeader title="Zadania" subtitle="Tworzenie, edycja i przypisywanie zadań pracownikom zoo." />
 
       <!-- ── TAB SWITCHER ── -->
       <div class="flex justify-center shrink-0">
@@ -252,6 +253,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import PageHeader     from '../../components/PageHeader.vue';
 import taskService     from '../../services/task.service';
 import employeeService from '../../services/employee.service';
 import ConfirmDialog   from '../../components/ConfirmDialog.vue';

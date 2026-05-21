@@ -1,5 +1,6 @@
 <template>
   <div class="p-8 h-full min-h-full flex flex-col gap-6 overflow-hidden">
+    <PageHeader title="Zwierzęta" subtitle="Zarządzaj listą zwierząt przebywających na terenie obiektu." />
 
     <!-- Wyszukiwarka -->
     <div class="shrink-0 relative w-full mb-2">
@@ -19,10 +20,6 @@
     <!-- Zwierzęta Sekcja (3/4) -->
     <section class="flex-[3] flex flex-col min-h-0">
       <div class="flex justify-between items-center mb-4 shrink-0">
-        <div>
-          <h2 class="text-3xl font-bold text-[#1a3b22] dark:text-green-400 tracking-tight">Zwierzęta w zoo</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Zarządzaj listą zwierząt przebywających obecnie na terenie obiektu.</p>
-        </div>
         <button
           @click="showAnimalModal = true"
           class="bg-[#2d6a4f] hover:bg-[#1a3b22] text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5"
@@ -141,6 +138,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import PageHeader       from '../../components/PageHeader.vue';
 import AnimalTable      from '../../components/animals/AnimalTable.vue';
 import AttributeTable   from '../../components/animals/AttributeTable.vue';
 import AddAnimalModal   from '../../components/animals/AddAnimalModal.vue';

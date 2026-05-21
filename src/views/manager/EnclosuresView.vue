@@ -1,14 +1,11 @@
 <template>
   <div class="p-8 h-full min-h-full flex flex-col gap-6 overflow-hidden">
+    <PageHeader title="Wybiegi" subtitle="Zarządzaj wybiegami dla zwierząt w zoo." />
     <div class="flex gap-6 h-full overflow-hidden">
       
       <!-- Sekcja Wybiegów (3/4 szerokości) -->
       <section class="flex-[3] flex flex-col min-h-0">
         <div class="flex justify-between items-center mb-4 shrink-0">
-          <div>
-            <h2 class="text-3xl font-bold text-[#1a3b22] dark:text-green-400 tracking-tight">Wybiegi</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Zarządzaj wybiegami dla zwierząt w zoo.</p>
-          </div>
           <button
             @click="openAddEnclosure"
             class="bg-[#2d6a4f] hover:bg-[#1a3b22] text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5"
@@ -143,6 +140,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import PageHeader from '../../components/PageHeader.vue';
 import enclosureService from '../../services/enclosure.service';
 import EnclosureModal from '../../components/enclosures/EnclosureModal.vue';
 import EnclosureTypeModal from '../../components/enclosures/EnclosureTypeModal.vue';

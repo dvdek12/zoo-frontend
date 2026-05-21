@@ -25,13 +25,8 @@
 
     <!-- SCROLLABLE CONTENT -->
     <div class="flex-1 overflow-y-auto px-10 py-6 pb-20 relative scroll-smooth h-full">
-      <!-- Main Header -->
-      <div class="mb-8 text-center">
-        <h2 class="text-4xl font-extrabold text-[#1a3b22] tracking-tight mb-3">Report Generator</h2>
-        <p class="text-gray-500 text-[15px] font-medium leading-relaxed">
-          Create high-precision zoological data exports for conservation monitoring, dietary compliance, and administrative oversight.
-        </p>
-      </div>
+      <!-- Page header -->
+      <PageHeader title="Raporty" subtitle="Generuj i eksportuj raporty zoologiczne dla twoich zwierząt, pracowników i wybiegów." />
 
       <!-- ── QUICK GENERATE FORM ─────────────────────────────────────────── -->
       <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-7 mb-10 max-w-2xl mx-auto">
@@ -471,6 +466,7 @@ import {
 import { useAuthStore } from '../stores/auth';
 import reportService from '../services/report.service';
 import employeeService from '../services/employee.service';
+import PageHeader from '../components/PageHeader.vue';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const auth = useAuthStore();

@@ -1,5 +1,6 @@
 <template>
   <div class="p-8 h-full flex flex-col gap-8 overflow-y-auto custom-scrollbar">
+    <PageHeader title="Pracownicy" subtitle="Zarządzaj listą pracowników zoo." />
 
     <!-- Wyszukiwarka -->
     <div class="shrink-0 relative w-full">
@@ -20,10 +21,6 @@
     <!-- ═══ SEKCJA: PRACOWNICY ═══ -->
     <section class="flex flex-col gap-4">
       <div class="flex justify-between items-center shrink-0">
-        <div>
-          <h2 class="text-3xl font-bold text-[#1a3b22] dark:text-green-400 tracking-tight">Pracownicy</h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Zarządzaj listą pracowników zoo.</p>
-        </div>
         <button
           id="open-register-employee-modal"
           @click="showModal = true"
@@ -200,6 +197,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import PageHeader from '../../components/PageHeader.vue';
 import EmployeeTable from '../../components/employees/EmployeeTable.vue';
 import RegisterEmployeeModal from '../../components/employees/RegisterEmployeeModal.vue';
 import AddRoleModal from '../../components/employees/AddRoleModal.vue';

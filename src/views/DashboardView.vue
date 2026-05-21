@@ -1,8 +1,6 @@
 <template>
   <div class="p-8 h-full flex flex-col">
-    <h2 
-      v-if="auth.isLoggedIn"
-      class="text-[2.5rem] font-bold text-[#1a3b22] dark:text-green-400 tracking-tight mb-8">Good morning, {{ auth.userEmail }}!</h2>
+    <PageHeader title="Dashboard" :subtitle="`Witaj z powrotem, ${auth.userEmail}!`" />
     
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex-1 max-w-4xl transition-colors duration-200">
       <h3 class="text-2xl font-bold text-[#1a3b22] dark:text-green-400 mb-6">Twoje zadania</h3>
@@ -57,6 +55,7 @@
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import PageHeader from '../components/PageHeader.vue';
 
 const auth = useAuthStore();
 const router = useRouter();
