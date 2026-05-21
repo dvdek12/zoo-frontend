@@ -127,6 +127,7 @@
       v-if="showEnclosureModal"
       :enclosure="selectedEnclosure"
       :enclosure-types="enclosureTypes"
+      :taken-keys="takenMapKeys"
       @save="onEnclosureSaved"
       @close="showEnclosureModal = false"
     />
@@ -166,6 +167,13 @@ const filteredEnclosures = computed(() => {
   }
   return enclosures.value.filter(enc => enc.typeId === selectedFilterType.value);
 });
+
+/** Zajęte mapKey (wybiegi już przypisane do lokalizacji na mapie) */
+const takenMapKeys = computed(() =>
+  enclosures.value
+    .filter(e => e.mapKey && e.id !== selectedEnclosure.value?.id)
+    .map(e => e.mapKey)
+);
 
 // --- POBIERANIE DANYCH ---
 const fetchData = async () => {

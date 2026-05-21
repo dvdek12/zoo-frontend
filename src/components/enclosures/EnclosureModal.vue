@@ -71,7 +71,7 @@
             Lokalizacja na mapie
             <span class="text-gray-400 font-normal ml-1">(opcjonalne)</span>
           </label>
-          <ZooMiniMap v-model="form.mapKey" />
+          <ZooMiniMap v-model="form.mapKey" :taken-keys="effectiveTakenKeys" />
         </div>
       </div>
 
@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import enclosureService from '../../services/enclosure.service';
 import ZooMiniMap from './ZooMiniMap.vue';
 
@@ -116,7 +116,12 @@ const props = defineProps({
   enclosureTypes: {
     type: Array,
     required: true,
-  }
+  },
+  /** Klucze mapKey już przypisanych wybiegów */
+  takenKeys: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(['save', 'close']);
@@ -124,6 +129,17 @@ const emit = defineEmits(['save', 'close']);
 const isEdit = ref(false);
 const isSaving = ref(false);
 const saveError = ref(null);
+
+/**
+ * Przy edycji wyłączamy własny mapKey z listy zajętych,
+ * żeby użytkownik mógł zachować lub zmienić ten sam wybieg.
+ */
+const effectiveTakenKeys = computed(() => {
+  if (isEdit.value && props.enclosure?.mapKey) {
+    return props.takenKeys.filter(k => k !== props.enclosure.mapKey);
+  }
+  return props.takenKeys;
+});
 
 const form = reactive({
   name: '',
