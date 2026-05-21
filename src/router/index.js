@@ -11,6 +11,7 @@ import AnimalsView from '../views/manager/AnimalsView.vue'
 import EmployeesView from '../views/manager/EmployeesView.vue'
 import EmployeeDetailsView from '../views/manager/EmployeeDetailsView.vue'
 import EnclosuresView from '../views/manager/EnclosuresView.vue'
+import TasksView from '../views/manager/TasksView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -85,6 +86,12 @@ const router = createRouter({
       path: '/enclosures',
       name: 'enclosures',
       component: EnclosuresView,
+      meta: { requiresManager: true }
+    },
+    {
+      path: '/tasks',
+      name: 'tasks',
+      component: TasksView,
       meta: { requiresManager: true }
     }
   ]

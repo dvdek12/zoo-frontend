@@ -65,7 +65,8 @@ import {
   LogOut,
   PawPrint,
   Users,
-  Fence
+  Fence,
+  ClipboardList
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -83,6 +84,7 @@ const links = computed(() => {
     baseLinks.push({ name: 'Animals', path: '/animals', icon: PawPrint });
     baseLinks.push({ name: 'Employees', path: '/employees', icon: Users });
     baseLinks.push({ name: 'Enclosures', path: '/enclosures', icon: Fence });
+    baseLinks.push({ name: 'Tasks', path: '/tasks', icon: ClipboardList });
   }
   return baseLinks;
 });
