@@ -1,3 +1,44 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════
+   PAGE TRANSITIONS
+   ═══════════════════════════════════════════════════════ */
+
+/**
+ * page-fade  — used for login page & client (public) pages
+ * Smooth crossfade, no movement.
+ */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
+
+/**
+ * page-slide — used for internal app pages (main layout)
+ * Fades in while sliding up slightly — like Linear / Notion.
+ * The outgoing page fades & scales down subtly.
+ */
+.page-slide-enter-active {
+  transition:
+    opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.page-slide-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.15s cubic-bezier(0.4, 0, 1, 1);
+}
+.page-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.99);
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 relative h-full w-full overflow-hidden bg-[#e4e4e0] flex items-center justify-center">
+  <div ref="mapRoot" class="flex-1 relative h-full w-full overflow-hidden bg-[#e4e4e0] flex items-center justify-center">
 
     <!-- Page title overlay (top-left) -->
     <div class="absolute top-5 left-5 z-20 flex items-center gap-2.5 bg-white/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md border border-white/40 dark:border-gray-700/60 rounded-2xl px-4 py-2.5 shadow-lg pointer-events-none">
@@ -8,6 +8,31 @@
       </svg>
       <span class="text-sm font-bold text-[#1a3b22] dark:text-green-400 leading-none">Mapa zoo</span>
     </div>
+
+    <!-- Fullscreen toggle (top-right) -->
+    <button
+      @click="toggleFullscreen"
+      class="absolute top-5 right-5 z-20 flex items-center gap-2 bg-white/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md border border-white/40 dark:border-gray-700/60 rounded-2xl px-3.5 py-2.5 shadow-lg text-[#1a3b22] dark:text-green-400 hover:bg-white dark:hover:bg-[#1a1c1e] transition-all duration-200 group"
+      :title="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
+    >
+      <!-- Expand icon -->
+      <svg v-if="!isFullscreen" class="w-4 h-4 transition-transform duration-200 group-hover:scale-110" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 00-2 2v3"/>
+        <path d="M21 8V5a2 2 0 00-2-2h-3"/>
+        <path d="M3 16v3a2 2 0 002 2h3"/>
+        <path d="M16 21h3a2 2 0 002-2v-3"/>
+      </svg>
+      <!-- Compress icon -->
+      <svg v-else class="w-4 h-4 transition-transform duration-200 group-hover:scale-110" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3v3a2 2 0 01-2 2H3"/>
+        <path d="M21 8h-3a2 2 0 01-2-2V3"/>
+        <path d="M3 16h3a2 2 0 012 2v3"/>
+        <path d="M16 21v-3a2 2 0 012-2h3"/>
+      </svg>
+      <span class="text-xs font-semibold leading-none select-none">
+        {{ isFullscreen ? 'Exit' : 'Fullscreen' }}
+      </span>
+    </button>
 
     <!-- Mapa -->
     <Map
@@ -242,7 +267,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import Map from '../components/Map.vue';
 import { MapPin, X } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
@@ -252,6 +277,22 @@ import iconService from '../services/icon.service';
 import router from '../router';
 
 const authStore = useAuthStore();
+
+// ── Fullscreen ────────────────────────────────────
+const mapRoot     = ref(null);
+const isFullscreen = ref(false);
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    mapRoot.value?.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+function onFullscreenChange() {
+  isFullscreen.value = !!document.fullscreenElement;
+}
 
 // ── Stan ─────────────────────────────────────────
 const isLoading       = ref(false);
@@ -364,6 +405,11 @@ onMounted(async () => {
   isLoading.value = true;
   await Promise.all([fetchEnclosures(), fetchAnimals()]);
   isLoading.value = false;
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', onFullscreenChange);
 });
 
 // ── Kliknięcie wybiegu na mapie ───────────────────

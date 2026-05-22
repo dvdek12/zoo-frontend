@@ -27,31 +27,31 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
-      meta: { requiresEmployee: true }
+      meta: { requiresEmployee: true, breadcrumb: 'Dashboard' }
     },
     {
       path: '/dashboard/:taskId',
       name: 'taskDetail',
       component: TaskDetailView,
-      meta: { requiresEmployee: true }
+      meta: { requiresEmployee: true, breadcrumb: (route) => `Task #${route.params.taskId}` }
     },
     {
       path: '/profile',
       name: 'profile',
       component: ProfileView,
-      meta: { requiresEmployee: true }
+      meta: { requiresEmployee: true, breadcrumb: 'Profile' }
     },
     {
       path: '/map',
       name: 'map',
       component: MapView,
-      meta: { requiresEmployee: true }
+      meta: { requiresEmployee: true, breadcrumb: 'Map', hideBreadcrumb: true }
     },
     {
       path: '/reports',
       name: 'reports',
       component: ReportsView,
-      meta: { requiresEmployee: true }
+      meta: { requiresEmployee: true, breadcrumb: 'Reports' }
     },
     {
       path: '/login',
@@ -62,37 +62,37 @@ const router = createRouter({
       path: '/animals',
       name: 'animals',
       component: AnimalsView,
-      meta: { requiresManager: true }
+      meta: { requiresManager: true, breadcrumb: 'Animals' }
     },
     {
       path: '/animals/:id',
       name: 'animalDetail',
       component: AnimalDetailView,
-      meta: { requiresManager: true }
+      meta: { requiresManager: true, breadcrumb: (route) => `Animal #${route.params.id}` }
     },
     {
       path: '/employees',
       name: 'employees',
       component: EmployeesView,
-      meta: { requiresManager: true }
+      meta: { requiresManager: true, breadcrumb: 'Employees' }
     },
     {
       path: '/employees/:id',
       name: 'employeeDetail',
       component: EmployeeDetailsView,
-      meta: { requiresManager: true }
+      meta: { requiresManager: true, breadcrumb: (route) => `Employee #${route.params.id}` }
     },
     {
       path: '/enclosures',
       name: 'enclosures',
       component: EnclosuresView,
-      meta: { requiresManager: true }
+      meta: { requiresManager: true, breadcrumb: 'Enclosures' }
     },
     {
       path: '/tasks',
       name: 'tasks',
       component: TasksView,
-      meta: { requiresManager: true }
+      meta: { requiresManager: true, breadcrumb: 'Tasks' }
     }
   ]
 })

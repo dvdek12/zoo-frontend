@@ -2,11 +2,11 @@
   <!-- ═══ PAGE ═══ -->
   <div class="flex flex-col h-full bg-white dark:bg-[#111315] overflow-hidden">
     <div class="flex flex-col flex-1 min-h-0 p-8 gap-6">
-      <PageHeader title="Zadania" subtitle="Tworzenie, edycja i przypisywanie zadań pracownikom zoo." />
+      <PageHeader title="Tasks" subtitle="Create, edit and assign tasks to zoo employees." />
 
       <!-- ── TAB SWITCHER ── -->
-      <div class="flex justify-center shrink-0">
-        <div class="relative flex bg-white dark:bg-[#1e2228] border border-gray-200 dark:border-gray-800 rounded-full p-1 shadow-sm min-w-[320px]">
+      <div class="shrink-0 w-full">
+        <div class="relative flex bg-white dark:bg-[#1e2228] border border-gray-200 dark:border-gray-800 rounded-full p-1 shadow-sm w-full">
           <!-- animated slider -->
           <div
             class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-br from-[#2d6a4f] to-[#1a3b22] rounded-full shadow-lg transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0"
@@ -21,7 +21,7 @@
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
             </svg>
-            Zadania
+            Tasks
           </button>
           <button
             id="tab-assign"
@@ -33,7 +33,7 @@
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
             </svg>
-            Przypisz
+            Assign
           </button>
         </div>
       </div>
@@ -58,8 +58,8 @@
           <!-- Header bar -->
           <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 shrink-0">
             <div>
-              <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">Lista zadań</h2>
-              <p class="text-xs text-gray-400">{{ tasks.length }} zadań w systemie</p>
+              <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">Task List</h2>
+              <p class="text-xs text-gray-400">{{ tasks.length }} tasks in the system</p>
             </div>
             <div class="flex items-center gap-3">
               <div class="relative">
@@ -70,7 +70,7 @@
                   v-model="searchQuery"
                   id="task-search"
                   type="text"
-                  placeholder="Szukaj zadań..."
+                  placeholder="Search tasks..."
                   class="pl-9 pr-3 py-2 text-xs border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors w-48"
                 />
               </div>
@@ -79,10 +79,10 @@
                 id="task-filter-status"
                 class="px-3 py-2 text-xs border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 cursor-pointer transition-colors"
               >
-                <option value="all">Wszystkie</option>
-                <option value="active">Aktywne</option>
-                <option value="completed">Ukończone</option>
-                <option value="overdue">Przeterminowane</option>
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
               </select>
             </div>
           </div>
@@ -93,7 +93,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            Pobieranie zadań…
+            Loading tasks…
           </div>
 
           <!-- Error -->
@@ -102,7 +102,7 @@
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
             <p class="text-sm text-red-500">{{ tasksError }}</p>
-            <button @click="fetchTasks" class="text-xs text-[#2d6a4f] underline cursor-pointer">Spróbuj ponownie</button>
+            <button @click="fetchTasks" class="text-xs text-[#2d6a4f] underline cursor-pointer">Try again</button>
           </div>
 
           <!-- Empty -->
@@ -112,9 +112,9 @@
                 <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Brak zadań</p>
+            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No tasks</p>
             <p class="text-xs text-gray-300 dark:text-gray-600 text-center">
-              {{ searchQuery ? 'Brak wyników dla podanej frazy' : 'Utwórz pierwsze zadanie używając formularza po lewej' }}
+              {{ searchQuery ? 'No results for the given phrase' : 'Create your first task using the form on the left' }}
             </p>
           </div>
 
@@ -146,7 +146,7 @@
                     @click="startEdit(task)"
                     :id="`edit-task-${task.id}`"
                     class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#2d6a4f] hover:bg-[#2d6a4f]/10 transition-all cursor-pointer"
-                    title="Edytuj"
+                    title="Edit"
                   >
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
@@ -157,7 +157,7 @@
                     @click="deleteTask(task)"
                     :id="`delete-task-${task.id}`"
                     class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
-                    title="Usuń"
+                    title="Delete"
                   >
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="3,6 5,6 21,6"/>
@@ -199,7 +199,7 @@
                     'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400': isOverdue(task) && !task.isCompleted
                   }"
                 >
-                  {{ task.isCompleted ? 'Ukończone' : isOverdue(task) ? 'Przeterminowane' : 'Aktywne' }}
+                  {{ task.isCompleted ? 'Completed' : isOverdue(task) ? 'Overdue' : 'Active' }}
                 </span>
               </div>
             </div>
@@ -223,10 +223,10 @@
     <!-- ═══ CONFIRM DELETE ═══ -->
     <ConfirmDialog
       v-model="showDeleteConfirm"
-      title="Usuń zadanie"
-      :message="`Czy na pewno chcesz usunąć zadanie &quot;${pendingDelete?.name ?? ''}&quot;? Tej operacji nie można cofnąć.`"
-      confirm-label="Usuń"
-      cancel-label="Anuluj"
+      title="Delete task"
+      :message="`Are you sure you want to delete the task &quot;${pendingDelete?.name ?? ''}&quot;? This action cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
       :loading="isDeleting"
       @confirm="confirmDelete"
       @cancel="showDeleteConfirm = false"
@@ -351,7 +351,7 @@ async function fetchTasks() {
     tasks.value = (Array.isArray(data) ? data : []).map(mapTask);
   } catch (err) {
     console.error('[TasksView] fetchTasks:', err);
-    tasksError.value = err?.response?.data?.message ?? 'Nie udało się pobrać zadań.';
+    tasksError.value = err?.response?.data?.message ?? 'Failed to load tasks.';
   } finally {
     isLoadingTasks.value = false;
   }
@@ -405,16 +405,16 @@ async function handleFormSubmit(formData) {
     };
     if (editingTask.value) {
       await taskService.update(editingTask.value.id, dto);
-      showToast('Zadanie zaktualizowane!');
+      showToast('Task updated!');
     } else {
       await taskService.create(dto);
-      showToast('Zadanie utworzone!');
+      showToast('Task created!');
     }
     editingTask.value = null;
     await fetchTasks();
   } catch (err) {
     console.error('[TasksView] handleFormSubmit:', err);
-    formError.value = err?.response?.data?.message ?? 'Nie udało się zapisać zadania.';
+    formError.value = err?.response?.data?.message ?? 'Failed to save the task.';
   } finally {
     isSubmitting.value = false;
   }
@@ -443,9 +443,9 @@ async function confirmDelete() {
     await taskService.remove(pendingDelete.value.id);
     tasks.value             = tasks.value.filter(t => t.id !== pendingDelete.value.id);
     showDeleteConfirm.value = false;
-    showToast('Zadanie usunięte.');
+    showToast('Task deleted.');
   } catch (err) {
-    showToast(err?.response?.data?.message ?? 'Nie udało się usunąć zadania.', 'error');
+    showToast(err?.response?.data?.message ?? 'Failed to delete the task.', 'error');
     showDeleteConfirm.value = false;
   } finally {
     isDeleting.value    = false;
@@ -464,13 +464,13 @@ async function handleAssign({ taskId, empId }) {
   task.assignedEmployeeName = emp ? `${emp.firstName} ${emp.lastName}` : null;
   try {
     await taskService.update(taskId, { AssignedEmployeeId: empId });
-    showToast(`Zadanie przypisano do ${emp?.firstName ?? ''}!`);
+    showToast(`Task assigned to ${emp?.firstName ?? ''}!`);
   } catch (err) {
     // Rollback
     task.assignedEmployeeId = oldEmpId;
     const oldEmp = employees.value.find(e => e.id === oldEmpId);
     task.assignedEmployeeName = oldEmp ? `${oldEmp.firstName} ${oldEmp.lastName}` : null;
-    showToast('Nie udało się przypisać zadania.', 'error');
+    showToast('Failed to assign the task.', 'error');
   }
 }
 
@@ -480,12 +480,12 @@ async function handleUnassign(task) {
   task.assignedEmployeeName = null;
   try {
     await taskService.update(task.id, { AssignedEmployeeId: null });
-    showToast('Zadanie odpięte od pracownika.');
+    showToast('Task unassigned from employee.');
   } catch (err) {
     task.assignedEmployeeId = oldEmpId;
     const oldEmp = employees.value.find(e => e.id === oldEmpId);
     task.assignedEmployeeName = oldEmp ? `${oldEmp.firstName} ${oldEmp.lastName}` : null;
-    showToast('Nie udało się odpiąć zadania.', 'error');
+    showToast('Failed to unassign the task.', 'error');
   }
 }
 
