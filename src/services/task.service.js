@@ -19,7 +19,7 @@ class TaskService {
    * @returns {Promise<Array>}
    */
   async getAll() {
-    const response = await axios.get(`${BASE_URL}/getAll`, authHeaders());
+    const response = await axios.get(`${BASE_URL}`, authHeaders());
     return response.data;
   }
 
@@ -28,7 +28,7 @@ class TaskService {
    * @param {number} id
    */
   async getById(id) {
-    const response = await axios.get(`${BASE_URL}/getOne/${id}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/${id}`, authHeaders());
     return response.data;
   }
 
@@ -37,7 +37,7 @@ class TaskService {
    * @param {number} employeeId
    */
   async getForEmployee(employeeId) {
-    const response = await axios.get(`${BASE_URL}/getForEmployee/${employeeId}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/forEmployee/${employeeId}`, authHeaders());
     return response.data;
   }
 
@@ -46,7 +46,7 @@ class TaskService {
    * @param {number} roleId
    */
   async getForRole(roleId) {
-    const response = await axios.get(`${BASE_URL}/getForRole/${roleId}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/forRole/${roleId}`, authHeaders());
     return response.data;
   }
 
@@ -66,7 +66,7 @@ class TaskService {
    */
   async create(dto) {
     try {
-      const response = await axios.post(`${BASE_URL}/new`, dto, authHeaders());
+      const response = await axios.post(`${BASE_URL}`, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('[TaskService] create error status:', err?.response?.status);
@@ -92,7 +92,7 @@ class TaskService {
    */
   async update(id, dto) {
     try {
-      const response = await axios.put(`${BASE_URL}/update/${id}`, dto, authHeaders());
+      const response = await axios.put(`${BASE_URL}/${id}`, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('[TaskService] update error status:', err?.response?.status);
@@ -106,7 +106,7 @@ class TaskService {
    * @param {number} id
    */
   async remove(id) {
-    const response = await axios.delete(`${BASE_URL}/delete/${id}`, authHeaders());
+    const response = await axios.delete(`${BASE_URL}/${id}`, authHeaders());
     return response.data;
   }
 }
