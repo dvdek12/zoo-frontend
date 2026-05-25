@@ -69,19 +69,10 @@ class AnimalService {
   /**
    * Dodaje wpis historii zdrowia zwierzęcia.
    * @param {number} id
-   * @param {{ ConditionAdmission, Temperature, Weight, IsVacinated, DateOfLastCheckup }} dto
+   * @param {{ ConditionId, Temperature, Weight, IsVacinated, DateOfLastCheckup }} dto
    */
   async addHistory(id, dto) {
     const response = await axios.post(`${BASE_URL}/${id}/addHistory`, dto, authHeaders());
-    return response.data;
-  }
-
-  /**
-   * Usuwa wpis historii zdrowia po ID.
-   * @param {number} historyId
-   */
-  async deleteHistory(historyId) {
-    const response = await axios.delete(`${BASE_URL}deleteHistory/${historyId}`, authHeaders());
     return response.data;
   }
 

@@ -32,6 +32,18 @@ class EmployeeService {
     return response.data;
   }
 
+  /**
+   * Znajduje pracownika po adresie e-mail (np. zalogowany użytkownik).
+   * @param {string} email
+   */
+  async findByEmail(email) {
+    const employees = await this.getAll();
+    const normalized = email?.trim().toLowerCase();
+    return employees.find(
+      (e) => (e.email ?? e.Email ?? '').trim().toLowerCase() === normalized,
+    ) ?? null;
+  }
+
    /**
    * Aktualizuje dane pracownika (endpoint pracowniczy).
    * @param {number} id

@@ -240,20 +240,10 @@
                     <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                   </svg>
                   <time class="text-sm font-bold text-[#2d6a4f] dark:text-green-400">
-                    {{ entry.dateOfLastCheckup ? formatDateTime(entry.dateOfLastCheckup) : '—' }}
+                    {{ formatDateTime(entry.dateOfLastCheckup ?? entry.DateOfLastCheckup) }}
                   </time>
                 </div>
-                <span class="text-xs text-gray-400 font-mono">#{{ entry.id }}</span>
-                <button
-                  type="button"
-                  @click="deleteHistory(entry.id)"
-                  class="ml-2 p-1 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                  title="Usuń wpis"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                </button>
+                <span class="text-xs text-gray-400 font-mono">#{{ entry.id ?? entry.Id }}</span>
               </div>
 
               <!-- Metryki zdrowia -->
@@ -261,13 +251,13 @@
 
                 <!-- Temperatura -->
                 <div class="flex flex-col items-center justify-center gap-1 py-4 px-3">
-                  <span class="text-lg font-extrabold text-gray-800 dark:text-white leading-none">{{ entry.temperature ?? '—' }}<span class="text-xs font-normal text-gray-400 ml-0.5">°C</span></span>
+                  <span class="text-lg font-extrabold text-gray-800 dark:text-white leading-none">{{ entry.temperature ?? entry.Temperature ?? '—' }}<span class="text-xs font-normal text-gray-400 ml-0.5">°C</span></span>
                   <span class="text-xs text-gray-400 dark:text-gray-500">Temperatura</span>
                 </div>
 
                 <!-- Waga -->
                 <div class="flex flex-col items-center justify-center gap-1 py-4 px-3">
-                  <span class="text-lg font-extrabold text-gray-800 dark:text-white leading-none">{{ entry.weight ?? '—' }}<span class="text-xs font-normal text-gray-400 ml-0.5">kg</span></span>
+                  <span class="text-lg font-extrabold text-gray-800 dark:text-white leading-none">{{ entry.weight ?? entry.Weight ?? '—' }}<span class="text-xs font-normal text-gray-400 ml-0.5">kg</span></span>
                   <span class="text-xs text-gray-400 dark:text-gray-500">Waga</span>
                 </div>
 
@@ -275,15 +265,15 @@
                 <div class="flex flex-col items-center justify-center gap-1 py-4 px-3">
                   <span
                     class="text-sm font-bold leading-none"
-                    :class="entry.isVaccinated ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
-                  >{{ entry.isVaccinated ? 'Tak' : 'Nie' }}</span>
+                    :class="isVacinated(entry) ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+                  >{{ isVacinated(entry) ? 'Tak' : 'Nie' }}</span>
                   <span class="text-xs text-gray-400 dark:text-gray-500">Szczepienie</span>
                 </div>
 
-                <!-- Stan przy przyjęciu -->
+                <!-- Stan zdrowia -->
                 <div class="flex flex-col items-center justify-center gap-1 py-4 px-3">
-                  <span class="text-sm font-bold leading-none" :class="conditionColor(entry.conditionAdmission)">
-                    {{ conditionLabel(entry.conditionAdmission) }}
+                  <span class="text-sm font-bold leading-none" :class="conditionColor(entry)">
+                    {{ conditionLabel(entry) }}
                   </span>
                   <span class="text-xs text-gray-400 dark:text-gray-500">Stan zdrowia</span>
                 </div>
@@ -311,7 +301,10 @@ import { useRoute, useRouter } from 'vue-router';
 import animalService from '../../services/animal.service';
 import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
+import { useAnimalConditions } from '../../composables/useAnimalConditions';
 import AddHealthRecordModal from '../../components/animals/AddHealthRecordModal.vue';
+
+const { load: loadConditions, labelFor: conditionLabel, colorFor: conditionColor } = useAnimalConditions();
 
 const route  = useRoute();
 const router = useRouter();
@@ -381,43 +374,19 @@ const formatDateTime = (iso) => {
     + ', ' + d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
 };
 
-// conditionAdmission: 0 = Dobry, 1 = Przeciętny, 2 = Zły
-const conditionLabel = (v) => {
-  if (v === 0) return 'Dobry';
-  if (v === 1) return 'Przeciętny';
-  if (v === 2) return 'Zły';
-  return '—';
-};
-const conditionColor = (v) => {
-  if (v === 0) return 'text-green-500 dark:text-green-400';
-  if (v === 1) return 'text-yellow-500 dark:text-yellow-400';
-  return 'text-red-500 dark:text-red-400';
-};
-const conditionBg = (v) => {
-  if (v === 0) return 'bg-green-100 dark:bg-green-900/30';
-  if (v === 1) return 'bg-yellow-100 dark:bg-yellow-900/30';
-  return 'bg-red-100 dark:bg-red-900/30';
-};
-
-const deleteHistory = async (historyId) => {
-  if (!confirm('Czy na pewno chcesz usunąć ten wpis historii zdrowia?')) return;
-  try {
-    await animalService.deleteHistory(historyId);
-    history.value = history.value.filter(e => e.id !== historyId);
-  } catch (err) {
-    console.error('[AnimalDetailsView] deleteHistory error:', err);
-    alert('Nie udało się usunąć wpisu. Sprawdź połączenie z API.');
-  }
-};
+const isVacinated = (entry) => entry.isVacinated ?? entry.IsVacinated ?? false;
 
 const fetchHistory = async (id) => {
   isLoadingHistory.value = true;
   historyError.value = null;
   try {
     const data = await animalService.getHistory(id);
-    console.log(data)
     history.value = Array.isArray(data) ? data : (data ? [data] : []);
   } catch (err) {
+    if (err?.response?.status === 404) {
+      history.value = [];
+      return;
+    }
     console.error('[AnimalDetailsView] fetchHistory error:', err);
     historyError.value = err?.response?.data?.message ?? 'Nie udało się pobrać historii zwierzęcia.';
   } finally {
@@ -448,7 +417,7 @@ onMounted(async () => {
     isLoading.value = false;
   }
 
-  // Pobieramy historię niezależnie od wyniku głównego zapytania
+  loadConditions();
   fetchHistory(id);
 });
 </script>
