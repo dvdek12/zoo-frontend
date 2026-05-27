@@ -1,42 +1,18 @@
 <template>
   <!-- ═══ PAGE ═══ -->
   <div class="flex flex-col h-full bg-white dark:bg-[#111315] overflow-hidden">
-    <div class="flex flex-col flex-1 min-h-0 p-8 gap-6">
-      <PageHeader title="Tickets" subtitle="Manage ticket types and view all purchased tickets." />
+    <PageBanner
+      title="Tickets"
+      eyebrow="Zoo Management"
+      subtitle="Manage ticket types and view all purchased tickets."
+      image="/banner_tickets.png"
+      image-position="center 50%"
+    />
 
-      <!-- ── TAB SWITCHER ── -->
-      <div class="shrink-0 w-full">
-        <div class="relative flex bg-white dark:bg-[#1e2228] border border-gray-200 dark:border-gray-800 rounded-full p-1 shadow-sm w-full">
-          <!-- animated slider -->
-          <div
-            class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-br from-[#2d6a4f] to-[#1a3b22] rounded-full shadow-lg transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0"
-            :style="activeTab === 'all' ? 'transform:translateX(calc(100% + 8px))' : 'transform:translateX(0)'"
-          ></div>
+    <div class="flex flex-col flex-1 min-h-0 px-8 pt-6 gap-6">
 
-          <button
-            id="tab-entry-types"
-            class="relative z-10 flex-1 flex items-center justify-center gap-2 px-8 py-2.5 rounded-full text-sm font-semibold cursor-pointer transition-colors duration-200"
-            :class="activeTab === 'types' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-            @click="activeTab = 'types'"
-          >
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-            </svg>
-            Entry Types
-          </button>
-          <button
-            id="tab-all-tickets"
-            class="relative z-10 flex-1 flex items-center justify-center gap-2 px-8 py-2.5 rounded-full text-sm font-semibold cursor-pointer transition-colors duration-200"
-            :class="activeTab === 'all' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-            @click="activeTab = 'all'"
-          >
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-            All Tickets
-          </button>
-        </div>
-      </div>
+      <!-- Tab Switcher -->
+      <TabSwitcher v-model="activeTab" :tabs="tabs" />
 
       <!-- ═══ ENTRY TYPES PANEL ═══ -->
       <div v-if="activeTab === 'types'" class="flex-1 min-h-0 grid grid-cols-[380px_1fr] gap-6 items-start overflow-y-auto">
@@ -80,7 +56,6 @@
               </div>
             </div>
 
-            <!-- Error -->
             <p v-if="typeFormError" class="text-xs text-red-500 font-medium">{{ typeFormError }}</p>
           </div>
 
@@ -114,55 +89,50 @@
             </div>
           </div>
 
-          <!-- Loading -->
-          <div v-if="isLoadingTypes" class="flex flex-col items-center justify-center gap-3 py-20 text-gray-400 text-sm">
-            <svg class="w-8 h-8 text-[#2d6a4f] animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-            Loading…
-          </div>
-
-          <!-- Empty -->
-          <div v-else-if="entryTypes.length === 0" class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
-            <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
-              <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-              </svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No entry types yet</p>
-            <p class="text-xs text-gray-300 dark:text-gray-600">Add your first ticket category using the form on the left</p>
-          </div>
-
-          <!-- Cards Grid -->
-          <div v-else class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            <div
-              v-for="et in entryTypes"
-              :key="et.id"
-              class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <!-- Icon + Name -->
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2d6a4f]/10 to-[#1a3b22]/10 dark:from-green-400/10 dark:to-green-600/10 flex items-center justify-center shrink-0">
-                  <svg class="w-5 h-5 stroke-[#2d6a4f] dark:stroke-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <DataStateWrapper
+            :loading="isLoadingTypes"
+            :empty="entryTypes.length === 0"
+            loading-text="Loading…"
+            :retryable="false"
+          >
+            <template #empty>
+              <div class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
+                <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
+                  <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
                   </svg>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ et.name }}</p>
-                  <p class="text-xs text-gray-400">Entry Type #{{ et.id }}</p>
-                </div>
+                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No entry types yet</p>
+                <p class="text-xs text-gray-300 dark:text-gray-600">Add your first ticket category using the form on the left</p>
               </div>
+            </template>
 
-              <!-- Price badge -->
-              <div class="flex items-center justify-between">
-                <span class="text-2xl font-extrabold text-[#1a3b22] dark:text-green-400">
-                  {{ formatPrice(et.price) }}
-                  <span class="text-sm font-medium text-gray-400 ml-1">PLN</span>
-                </span>
-                <div class="flex items-center gap-1">
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div
+                v-for="et in entryTypes"
+                :key="et.id"
+                class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2d6a4f]/10 to-[#1a3b22]/10 dark:from-green-400/10 dark:to-green-600/10 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 stroke-[#2d6a4f] dark:stroke-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ et.name }}</p>
+                    <p class="text-xs text-gray-400">Entry Type #{{ et.id }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-extrabold text-[#1a3b22] dark:text-green-400">
+                    {{ formatPrice(et.price) }}
+                    <span class="text-sm font-medium text-gray-400 ml-1">PLN</span>
+                  </span>
                   <button
-                    @click="deleteEntryType(et)"
+                    @click="entryTypeDelete.requestDelete(et)"
                     :id="`delete-entry-type-${et.id}`"
                     class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
                     title="Delete"
@@ -174,7 +144,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </DataStateWrapper>
         </div>
       </div>
 
@@ -201,140 +171,149 @@
           </div>
         </div>
 
-        <!-- Loading -->
-        <div v-if="isLoadingTickets" class="flex flex-col items-center justify-center gap-3 py-20 text-gray-400 text-sm">
-          <svg class="w-8 h-8 text-[#2d6a4f] animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
-          Loading tickets…
-        </div>
+        <DataStateWrapper
+          :loading="isLoadingTickets"
+          :error="ticketsError"
+          :empty="filteredTickets.length === 0"
+          loading-text="Loading tickets…"
+          @retry="fetchTickets"
+        >
+          <template #empty>
+            <div class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
+              <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
+                <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No tickets found</p>
+            </div>
+          </template>
 
-        <!-- Error -->
-        <div v-else-if="ticketsError" class="flex flex-col items-center justify-center gap-3 py-20">
-          <svg class="w-10 h-10 stroke-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p class="text-sm text-red-500">{{ ticketsError }}</p>
-          <button @click="fetchTickets" class="text-xs text-[#2d6a4f] underline cursor-pointer">Try again</button>
-        </div>
-
-        <!-- Empty -->
-        <div v-else-if="filteredTickets.length === 0" class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
-          <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
-            <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-          </div>
-          <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No tickets found</p>
-        </div>
-
-        <!-- Table -->
-        <div v-else class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-gray-100 dark:border-gray-700">
-                <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Ticket ID</th>
-                <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Client ID</th>
-                <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Entry Types</th>
-                <th class="text-right text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="ticket in filteredTickets"
-                :key="ticket.id"
-                class="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-              >
-                <td class="px-5 py-4">
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1a3b22]/5 dark:bg-green-400/10 text-[#1a3b22] dark:text-green-400 text-xs font-bold">
-                    #{{ ticket.id }}
-                  </span>
-                </td>
-                <td class="px-5 py-4">
-                  <span class="text-gray-700 dark:text-gray-300 font-medium">{{ ticket.clientId }}</span>
-                </td>
-                <td class="px-5 py-4">
-                  <div class="flex flex-wrap gap-1.5">
-                    <span
-                      v-for="(qty, name) in ticket.entryTypes"
-                      :key="name"
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                    >
-                      {{ name }}
-                      <span class="bg-[#2d6a4f] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">{{ qty }}</span>
+          <!-- Table -->
+          <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-100 dark:border-gray-700">
+                  <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Ticket ID</th>
+                  <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Client ID</th>
+                  <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Entry Types</th>
+                  <th class="text-right text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="ticket in filteredTickets"
+                  :key="ticket.id"
+                  class="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                >
+                  <td class="px-5 py-4">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1a3b22]/5 dark:bg-green-400/10 text-[#1a3b22] dark:text-green-400 text-xs font-bold">
+                      #{{ ticket.id }}
                     </span>
-                  </div>
-                </td>
-                <td class="px-5 py-4 text-right">
-                  <button
-                    @click="deleteTicket(ticket)"
-                    :id="`delete-ticket-${ticket.id}`"
-                    class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
-                    title="Delete ticket"
-                  >
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                  </td>
+                  <td class="px-5 py-4">
+                    <span class="text-gray-700 dark:text-gray-300 font-medium">{{ ticket.clientId }}</span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <div class="flex flex-wrap gap-1.5">
+                      <span
+                        v-for="(qty, name) in ticket.entryTypes"
+                        :key="name"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                      >
+                        {{ name }}
+                        <span class="bg-[#2d6a4f] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">{{ qty }}</span>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-4 text-right">
+                    <button
+                      @click="ticketDelete.requestDelete(ticket)"
+                      :id="`delete-ticket-${ticket.id}`"
+                      class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
+                      title="Delete ticket"
+                    >
+                      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </DataStateWrapper>
       </div>
 
     </div>
 
-    <!-- ═══ CONFIRM DELETE ═══ -->
+    <!-- Confirm Delete — Entry Type -->
     <ConfirmDialog
-      v-model="showDeleteConfirm"
-      :title="pendingDeleteType === 'ticket' ? 'Delete Ticket' : 'Delete Entry Type'"
-      :message="pendingDeleteType === 'ticket'
-        ? `Are you sure you want to delete ticket #${pendingDelete?.id}? This cannot be undone.`
-        : `Are you sure you want to delete entry type &quot;${pendingDelete?.name}&quot;? This cannot be undone.`"
+      :model-value="etShowConfirm"
+      @update:model-value="etShowConfirm = $event"
+      title="Delete Entry Type"
+      :message="`Are you sure you want to delete entry type &quot;${etPendingDelete?.name}&quot;? This cannot be undone.`"
       confirm-label="Delete"
       cancel-label="Cancel"
-      :loading="isDeleting"
-      @confirm="confirmDelete"
-      @cancel="showDeleteConfirm = false"
+      :loading="etIsDeleting"
+      @confirm="entryTypeDelete.confirmDelete"
+      @cancel="entryTypeDelete.cancelDelete"
     />
 
-    <!-- ═══ TOAST ═══ -->
-    <transition name="toast">
-      <div
-        v-if="toastMsg"
-        class="fixed bottom-8 right-8 flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold text-white shadow-xl z-[9999] pointer-events-none"
-        :class="toastType === 'error' ? 'bg-red-900' : 'bg-[#1a3b22]'"
-      >
-        <svg v-if="toastType === 'success'" class="w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20,6 9,17 4,12"/>
-        </svg>
-        <svg v-else class="w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        {{ toastMsg }}
-      </div>
-    </transition>
+    <!-- Confirm Delete — Ticket -->
+    <ConfirmDialog
+      :model-value="tkShowConfirm"
+      @update:model-value="tkShowConfirm = $event"
+      title="Delete Ticket"
+      :message="`Are you sure you want to delete ticket #${tkPendingDelete?.id}? This cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
+      :loading="tkIsDeleting"
+      @confirm="ticketDelete.confirmDelete"
+      @cancel="ticketDelete.cancelDelete"
+    />
+
+    <!-- Toast -->
+    <AppToast :message="toastMsg" :type="toastType" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onActivated } from 'vue';
-import PageHeader from '../../components/PageHeader.vue';
-import ConfirmDialog from '../../components/ConfirmDialog.vue';
-import ticketService from '../../services/ticket.service.js';
+import { ref, computed, onMounted, onActivated, watch } from 'vue';
+import PageBanner       from '../../components/PageBanner.vue';
+import TabSwitcher      from '../../components/TabSwitcher.vue';
+import DataStateWrapper from '../../components/DataStateWrapper.vue';
+import ConfirmDialog    from '../../components/ConfirmDialog.vue';
+import AppToast         from '../../components/AppToast.vue';
+import ticketService    from '../../services/ticket.service.js';
+import { useDeleteConfirm } from '../../composables/useDeleteConfirm';
+import { useToast }         from '../../composables/useToast';
 
 // ── TAB ──────────────────────────────────────────────────────────
+const tabs = [
+  {
+    key: 'types',
+    label: 'Entry Types',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  },
+  {
+    key: 'all',
+    label: 'All Tickets',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+  },
+];
 const activeTab = ref('types');
 
+// ── TOAST ──────────────────────────────────────────────────────────
+const { toastMsg, toastType, showToast } = useToast();
+
 // ── ENTRY TYPES ──────────────────────────────────────────────────
-const entryTypes      = ref([]);
-const isLoadingTypes  = ref(false);
-const editingType     = ref(null);
+const entryTypes       = ref([]);
+const isLoadingTypes   = ref(false);
+const editingType      = ref(null);
 const isTypeSubmitting = ref(false);
-const typeFormError   = ref(null);
-const typeForm        = ref({ name: '', price: null });
+const typeFormError    = ref(null);
+const typeForm         = ref({ name: '', price: null });
 
 async function fetchEntryTypes() {
   isLoadingTypes.value = true;
@@ -374,16 +353,30 @@ async function submitTypeForm() {
 }
 
 function cancelTypeEdit() {
-  editingType.value = null;
-  typeForm.value    = { name: '', price: null };
+  editingType.value   = null;
+  typeForm.value      = { name: '', price: null };
   typeFormError.value = null;
 }
 
+// ── DELETE — Entry Types ──────────────────────────────
+const entryTypeDelete = useDeleteConfirm(async (et) => {
+  await ticketService.deleteEntryType(et.id);
+  entryTypes.value = entryTypes.value.filter(e => e.id !== et.id);
+  showToast('Entry type deleted.');
+});
+
+// Destrukturyzacja refs dla template
+const { showConfirm: etShowConfirm, pendingDelete: etPendingDelete, isDeleting: etIsDeleting } = entryTypeDelete;
+
+watch(entryTypeDelete.deleteError, (err) => {
+  if (err) showToast(err, 'error');
+});
+
 // ── TICKETS ──────────────────────────────────────────────────────
-const tickets        = ref([]);
+const tickets          = ref([]);
 const isLoadingTickets = ref(false);
-const ticketsError   = ref(null);
-const ticketSearch   = ref('');
+const ticketsError     = ref(null);
+const ticketSearch     = ref('');
 
 const filteredTickets = computed(() => {
   const q = ticketSearch.value.toLowerCase().trim();
@@ -405,63 +398,24 @@ async function fetchTickets() {
   }
 }
 
-// ── DELETE ───────────────────────────────────────────────────────
-const showDeleteConfirm = ref(false);
-const isDeleting        = ref(false);
-const pendingDelete     = ref(null);
-const pendingDeleteType = ref('ticket'); // 'ticket' | 'entryType'
+// ── DELETE — Tickets ─────────────────────────────────
+const ticketDelete = useDeleteConfirm(async (ticket) => {
+  await ticketService.remove(ticket.id);
+  tickets.value = tickets.value.filter(t => t.id !== ticket.id);
+  showToast('Ticket deleted.');
+});
 
-function deleteEntryType(et) {
-  pendingDelete.value     = et;
-  pendingDeleteType.value = 'entryType';
-  showDeleteConfirm.value = true;
-}
+// Destrukturyzacja refs dla template
+const { showConfirm: tkShowConfirm, pendingDelete: tkPendingDelete, isDeleting: tkIsDeleting } = ticketDelete;
 
-function deleteTicket(ticket) {
-  pendingDelete.value     = ticket;
-  pendingDeleteType.value = 'ticket';
-  showDeleteConfirm.value = true;
-}
-
-async function confirmDelete() {
-  if (!pendingDelete.value) return;
-  isDeleting.value = true;
-  try {
-    if (pendingDeleteType.value === 'entryType') {
-      await ticketService.deleteEntryType(pendingDelete.value.id);
-      entryTypes.value = entryTypes.value.filter(e => e.id !== pendingDelete.value.id);
-      showToast('Entry type deleted.');
-    } else {
-      await ticketService.remove(pendingDelete.value.id);
-      tickets.value = tickets.value.filter(t => t.id !== pendingDelete.value.id);
-      showToast('Ticket deleted.');
-    }
-    showDeleteConfirm.value = false;
-  } catch (err) {
-    showToast(err?.response?.data?.message ?? 'Failed to delete.', 'error');
-    showDeleteConfirm.value = false;
-  } finally {
-    isDeleting.value    = false;
-    pendingDelete.value = null;
-  }
-}
+watch(ticketDelete.deleteError, (err) => {
+  if (err) showToast(err, 'error');
+});
 
 // ── HELPERS ──────────────────────────────────────────────────────
 function formatPrice(price) {
   if (price == null) return '—';
   return Number(price).toFixed(2);
-}
-
-// ── TOAST ────────────────────────────────────────────────────────
-const toastMsg  = ref('');
-const toastType = ref('success');
-let toastTimer  = null;
-
-function showToast(msg, type = 'success') {
-  toastMsg.value  = msg;
-  toastType.value = type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { toastMsg.value = ''; }, 3000);
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
@@ -472,8 +426,3 @@ async function initData() {
 onMounted(initData);
 onActivated(initData);
 </script>
-
-<style scoped>
-.toast-enter-active, .toast-leave-active { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(1rem) scale(0.95); }
-</style>
