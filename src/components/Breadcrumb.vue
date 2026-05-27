@@ -58,8 +58,10 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useBreadcrumbStore } from '../stores/breadcrumb';
 
-const route = useRoute();
+const route           = useRoute();
+const breadcrumbStore = useBreadcrumbStore();
 
 // Map of detail route names → their parent list route
 const parentRoutes = {
@@ -80,15 +82,19 @@ const crumbs = computed(() => {
     result.push(parent);
   }
 
-  // Current route breadcrumb from meta
+  // Current route breadcrumb:
+  // 1. Dynamic label set by the view (e.g. animal name / employee full name)
+  // 2. Static label from route.meta.breadcrumb (function or string)
   const meta = route.meta;
   if (meta?.breadcrumb) {
-    const label =
+    const staticLabel =
       typeof meta.breadcrumb === 'function'
         ? meta.breadcrumb(route)
         : meta.breadcrumb;
 
-    // Don't add if it's the same as the last item
+    // Use dynamic label if available (set by the view after data load)
+    const label = breadcrumbStore.dynamicLabel ?? staticLabel;
+
     if (result.at(-1)?.label !== label) {
       result.push({ label, to: route.path });
     }

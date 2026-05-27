@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onActivated } from 'vue';
 import PageHeader from '../../components/PageHeader.vue';
 import enclosureService from '../../services/enclosure.service';
 import EnclosureModal from '../../components/enclosures/EnclosureModal.vue';
@@ -203,9 +203,8 @@ const fetchTypes = async () => {
   }
 };
 
-onMounted(() => {
-  fetchData();
-});
+onMounted(fetchData);
+onActivated(fetchData);
 
 // --- HELPERS ---
 const getTypeName = (id) => {

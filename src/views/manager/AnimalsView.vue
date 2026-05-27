@@ -136,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
 import PageHeader       from '../../components/PageHeader.vue';
 import AnimalTable      from '../../components/animals/AnimalTable.vue';
@@ -203,10 +203,12 @@ const fetchAnimals = async () => {
   }
 };
 
-onMounted(() => {
+function initData() {
   fetchAnimals();
   fetchAttributes();
-});
+}
+onMounted(initData);
+onActivated(initData);
 
 const onAnimalSaved = async () => {
   showAnimalModal.value = false;

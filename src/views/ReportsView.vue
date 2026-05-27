@@ -456,7 +456,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onActivated, onBeforeUnmount } from 'vue';
 import {
   Search,
   FileText, Zap, RefreshCw, Download,
@@ -780,10 +780,12 @@ async function fetchCurrentAuthorId() {
   }
 }
 
-onMounted(async () => {
+async function initData() {
   await Promise.all([fetchReports(), fetchTypes(), fetchEmployees()]);
   await fetchCurrentAuthorId();
-});
+}
+onMounted(initData);
+onActivated(initData);
 
 onBeforeUnmount(() => {
   if (previewBlobUrl.value) {

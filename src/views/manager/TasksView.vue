@@ -252,7 +252,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onActivated, watch } from 'vue';
 import PageHeader     from '../../components/PageHeader.vue';
 import taskService     from '../../services/task.service';
 import employeeService from '../../services/employee.service';
@@ -497,11 +497,13 @@ watch(employees, () => {
   });
 });
 
-onMounted(async () => {
+async function initData() {
   await fetchEmployees();
   await fetchRoles();
   await fetchTasks();
-});
+}
+onMounted(initData);
+onActivated(initData);
 </script>
 
 <style scoped>

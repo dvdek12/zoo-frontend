@@ -196,7 +196,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onActivated } from 'vue';
 import PageHeader from '../../components/PageHeader.vue';
 import EmployeeTable from '../../components/employees/EmployeeTable.vue';
 import RegisterEmployeeModal from '../../components/employees/RegisterEmployeeModal.vue';
@@ -316,10 +316,12 @@ const deleteRole = async (role) => {
   }
 };
 
-onMounted(() => {
+function initData() {
   fetchEmployees();
   fetchRoles();
-});
+}
+onMounted(initData);
+onActivated(initData);
 </script>
 
 <style scoped>

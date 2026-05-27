@@ -17,8 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
     const data = await AuthService.login(email, password);
     token.value = data.token ?? null;
     userEmail.value = data.email ?? email;
-    setUser()
-    console.log(data)
+    setUser();
     return data;
   }
 
@@ -34,8 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
       const roles = rawRoles
         ? Array.isArray(rawRoles) ? rawRoles : [rawRoles]
         : []
-      user.value = { roles }
-      console.log('[auth] decoded roles:', roles)
+      user.value = { roles };
     }
   }
 
