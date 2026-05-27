@@ -8,11 +8,17 @@
 
 /**
  * page-fade  — used for login page & client (public) pages
- * Smooth crossfade, no movement.
+ * Smooth crossfade. Without mode="out-in" both components
+ * coexist briefly — leave element is pulled out of flow.
  */
-.page-fade-enter-active,
+.page-fade-enter-active {
+  transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .page-fade-leave-active {
-  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.12s cubic-bezier(0.4, 0, 1, 1);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 .page-fade-enter-from,
 .page-fade-leave-to {
@@ -21,22 +27,25 @@
 
 /**
  * page-slide — used for internal app pages (main layout)
- * Fades in while sliding up slightly — like Linear / Notion.
- * The outgoing page fades & scales down subtly.
+ * New page slides up & fades in. Old page fades out in-place
+ * (absolute so it doesn't affect layout of entering page).
  */
 .page-slide-enter-active {
   transition:
-    opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .page-slide-leave-active {
   transition:
-    opacity 0.15s cubic-bezier(0.4, 0, 1, 1),
-    transform 0.15s cubic-bezier(0.4, 0, 1, 1);
+    opacity 0.12s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.12s cubic-bezier(0.4, 0, 1, 1);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 .page-slide-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(8px);
 }
 .page-slide-leave-to {
   opacity: 0;

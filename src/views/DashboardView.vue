@@ -1,6 +1,13 @@
 <template>
-  <div class="p-8 h-full flex flex-col">
-    <PageHeader title="Dashboard" :subtitle="`Witaj z powrotem, ${auth.userEmail}!`" />
+  <div class="h-full flex flex-col">
+    <PageBanner
+      title="Dashboard"
+      eyebrow="Zoo Management"
+      :subtitle="`Witaj z powrotem, ${auth.userEmail}!`"
+      image="/banner_dashboard.png"
+      image-position="center 55%"
+    />
+    <div class="px-8 pt-6 pb-8 flex flex-col flex-1 overflow-y-auto custom-scrollbar">
     
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex-1 max-w-4xl transition-colors duration-200">
       <h3 class="text-2xl font-bold text-[#1a3b22] dark:text-green-400 mb-6">Twoje zadania</h3>
@@ -48,6 +55,7 @@
         </li>
       </ul>
     </div>
+    </div><!-- /content -->
   </div>
 </template>
 
@@ -55,7 +63,7 @@
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
-import PageHeader from '../components/PageHeader.vue';
+import PageBanner from '../components/PageBanner.vue';
 
 const auth = useAuthStore();
 const router = useRouter();

@@ -1,42 +1,18 @@
 <template>
   <!-- ═══ PAGE ═══ -->
   <div class="flex flex-col h-full bg-white dark:bg-[#111315] overflow-hidden">
-    <div class="flex flex-col flex-1 min-h-0 p-8 gap-6">
-      <PageHeader title="Tasks" subtitle="Create, edit and assign tasks to zoo employees." />
+    <PageBanner
+      title="Tasks"
+      eyebrow="Zoo Management"
+      subtitle="Create, edit and assign tasks to zoo employees."
+      image="/banner_tasks.png"
+      image-position="center 35%"
+    />
 
-      <!-- ── TAB SWITCHER ── -->
-      <div class="shrink-0 w-full">
-        <div class="relative flex bg-white dark:bg-[#1e2228] border border-gray-200 dark:border-gray-800 rounded-full p-1 shadow-sm w-full">
-          <!-- animated slider -->
-          <div
-            class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-br from-[#2d6a4f] to-[#1a3b22] rounded-full shadow-lg transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0"
-            :style="activeTab === 'assign' ? 'transform:translateX(calc(100% + 8px))' : 'transform:translateX(0)'"
-          ></div>
-          <button
-            id="tab-tasks"
-            class="relative z-10 flex-1 flex items-center justify-center gap-2 px-8 py-2.5 rounded-full text-sm font-semibold cursor-pointer transition-colors duration-200"
-            :class="activeTab === 'tasks' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-            @click="activeTab = 'tasks'"
-          >
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-            </svg>
-            Tasks
-          </button>
-          <button
-            id="tab-assign"
-            class="relative z-10 flex-1 flex items-center justify-center gap-2 px-8 py-2.5 rounded-full text-sm font-semibold cursor-pointer transition-colors duration-200"
-            :class="activeTab === 'assign' ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-            @click="activeTab = 'assign'"
-          >
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-            </svg>
-            Assign
-          </button>
-        </div>
-      </div>
+    <div class="flex flex-col flex-1 min-h-0 px-8 pt-6 gap-6">
+
+      <!-- Tab Switcher -->
+      <TabSwitcher v-model="activeTab" :tabs="tabs" />
 
       <!-- ═══ TASKS PANEL ═══ -->
       <div v-if="activeTab === 'tasks'" class="flex-1 min-h-0 grid grid-cols-[420px_1fr] gap-6 items-start overflow-y-auto">
@@ -87,123 +63,115 @@
             </div>
           </div>
 
-          <!-- Loading -->
-          <div v-if="isLoadingTasks" class="flex flex-col items-center justify-center gap-3 py-20 text-gray-400 text-sm">
-            <svg class="w-8 h-8 text-[#2d6a4f] animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-            Loading tasks…
-          </div>
+          <!-- Task list states -->
+          <DataStateWrapper
+            :loading="isLoadingTasks"
+            :error="tasksError"
+            :empty="filteredTasks.length === 0"
+            loading-text="Loading tasks…"
+            @retry="fetchTasks"
+          >
+            <template #empty>
+              <div class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
+                <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
+                  <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No tasks</p>
+                <p class="text-xs text-gray-300 dark:text-gray-600 text-center">
+                  {{ searchQuery ? 'No results for the given phrase' : 'Create your first task using the form on the left' }}
+                </p>
+              </div>
+            </template>
 
-          <!-- Error -->
-          <div v-else-if="tasksError" class="flex flex-col items-center justify-center gap-3 py-20">
-            <svg class="w-10 h-10 stroke-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <p class="text-sm text-red-500">{{ tasksError }}</p>
-            <button @click="fetchTasks" class="text-xs text-[#2d6a4f] underline cursor-pointer">Try again</button>
-          </div>
+            <!-- Task Cards -->
+            <div class="flex flex-col gap-3 overflow-y-auto pr-1 task-scrollbar">
+              <div
+                v-for="task in filteredTasks"
+                :key="task.id"
+                class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                :class="{
+                  'opacity-60': task.isCompleted,
+                  'border-l-4 !border-l-red-400': isOverdue(task) && !task.isCompleted,
+                }"
+              >
+                <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center gap-2 flex-1 min-w-0">
+                    <div
+                      class="w-2 h-2 rounded-full shrink-0"
+                      :class="{
+                        'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]': task.isCompleted,
+                        'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.4)] animate-pulse': isOverdue(task) && !task.isCompleted,
+                        'bg-amber-400 shadow-[0_0_6px_rgba(245,158,11,0.4)]': !task.isCompleted && !isOverdue(task),
+                      }"
+                    />
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ task.name }}</h3>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0 ml-2">
+                    <button
+                      @click="startEdit(task)"
+                      :id="`edit-task-${task.id}`"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#2d6a4f] hover:bg-[#2d6a4f]/10 transition-all cursor-pointer"
+                      title="Edit"
+                    >
+                      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button
+                      @click="taskDelete.requestDelete(task)"
+                      :id="`delete-task-${task.id}`"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
+                      title="Delete"
+                    >
+                      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3,6 5,6 21,6"/>
+                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                        <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
 
-          <!-- Empty -->
-          <div v-else-if="filteredTasks.length === 0" class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
-            <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
-              <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-              </svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No tasks</p>
-            <p class="text-xs text-gray-300 dark:text-gray-600 text-center">
-              {{ searchQuery ? 'No results for the given phrase' : 'Create your first task using the form on the left' }}
-            </p>
-          </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">{{ task.description }}</p>
 
-          <!-- Task Cards -->
-          <div v-else class="flex flex-col gap-3 overflow-y-auto pr-1 task-scrollbar">
-            <div
-              v-for="task in filteredTasks"
-              :key="task.id"
-              class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-              :class="{
-                'opacity-60': task.isCompleted,
-                'border-l-4 !border-l-red-400': isOverdue(task) && !task.isCompleted
-              }"
-            >
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="flex items-center gap-2 flex-1 min-w-0">
-                  <div
-                    class="w-2 h-2 rounded-full shrink-0"
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
+                      :class="isOverdue(task) && !task.isCompleted ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
+                    >
+                      <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      {{ formatDate(task.deadline) }}
+                    </span>
+                    <span
+                      v-if="task.assignedEmployeeName"
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                    >
+                      <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      {{ task.assignedEmployeeName }}
+                    </span>
+                  </div>
+                  <span
+                    class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase"
                     :class="{
-                      'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]': task.isCompleted,
-                      'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.4)] animate-pulse': isOverdue(task) && !task.isCompleted,
-                      'bg-amber-400 shadow-[0_0_6px_rgba(245,158,11,0.4)]': !task.isCompleted && !isOverdue(task)
+                      'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400': !task.isCompleted && !isOverdue(task),
+                      'bg-gray-100 dark:bg-gray-700 text-gray-400': task.isCompleted,
+                      'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400': isOverdue(task) && !task.isCompleted,
                     }"
-                  ></div>
-                  <h3 class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ task.name }}</h3>
-                </div>
-                <div class="flex items-center gap-1 shrink-0 ml-2">
-                  <button
-                    @click="startEdit(task)"
-                    :id="`edit-task-${task.id}`"
-                    class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#2d6a4f] hover:bg-[#2d6a4f]/10 transition-all cursor-pointer"
-                    title="Edit"
                   >
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                  </button>
-                  <button
-                    @click="deleteTask(task)"
-                    :id="`delete-task-${task.id}`"
-                    class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
-                    title="Delete"
-                  >
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3,6 5,6 21,6"/>
-                      <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-                      <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">{{ task.description }}</p>
-
-              <div class="flex items-center justify-between flex-wrap gap-2">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
-                    :class="isOverdue(task) && !task.isCompleted ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
-                  >
-                    <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    {{ formatDate(task.deadline) }}
-                  </span>
-                  <span
-                    v-if="task.assignedEmployeeName"
-                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                  >
-                    <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    {{ task.assignedEmployeeName }}
+                    {{ task.isCompleted ? 'Completed' : isOverdue(task) ? 'Overdue' : 'Active' }}
                   </span>
                 </div>
-                <span
-                  class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase"
-                  :class="{
-                    'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400': !task.isCompleted && !isOverdue(task),
-                    'bg-gray-100 dark:bg-gray-700 text-gray-400': task.isCompleted,
-                    'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400': isOverdue(task) && !task.isCompleted
-                  }"
-                >
-                  {{ task.isCompleted ? 'Completed' : isOverdue(task) ? 'Overdue' : 'Active' }}
-                </span>
               </div>
             </div>
-          </div>
+          </DataStateWrapper>
         </div>
       </div>
 
@@ -220,47 +188,51 @@
 
     </div>
 
-    <!-- ═══ CONFIRM DELETE ═══ -->
+    <!-- Confirm Delete -->
     <ConfirmDialog
-      v-model="showDeleteConfirm"
+      :model-value="taskShowConfirm"
+      @update:model-value="taskShowConfirm = $event"
       title="Delete task"
-      :message="`Are you sure you want to delete the task &quot;${pendingDelete?.name ?? ''}&quot;? This action cannot be undone.`"
+      :message="`Are you sure you want to delete the task &quot;${taskPendingDelete?.name ?? ''}&quot;? This action cannot be undone.`"
       confirm-label="Delete"
       cancel-label="Cancel"
-      :loading="isDeleting"
-      @confirm="confirmDelete"
-      @cancel="showDeleteConfirm = false"
+      :loading="taskIsDeleting"
+      @confirm="taskDelete.confirmDelete"
+      @cancel="taskDelete.cancelDelete"
     />
 
-    <!-- ═══ TOAST ═══ -->
-    <transition name="toast">
-      <div
-        v-if="toastMsg"
-        class="fixed bottom-8 right-8 flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold text-white shadow-xl z-[9999] pointer-events-none"
-        :class="toastType === 'error' ? 'bg-red-900' : 'bg-[#1a3b22]'"
-      >
-        <svg v-if="toastType === 'success'" class="w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20,6 9,17 4,12"/>
-        </svg>
-        <svg v-else class="w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        {{ toastMsg }}
-      </div>
-    </transition>
+    <!-- Toast -->
+    <AppToast :message="toastMsg" :type="toastType" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import PageHeader     from '../../components/PageHeader.vue';
-import taskService     from '../../services/task.service';
-import employeeService from '../../services/employee.service';
-import ConfirmDialog   from '../../components/ConfirmDialog.vue';
-import TaskForm        from '../../components/tasks/TaskForm.vue';
-import KanbanBoard     from '../../components/tasks/KanbanBoard.vue';
+import { ref, computed, onMounted, onActivated, watch } from 'vue';
+import PageBanner        from '../../components/PageBanner.vue';
+import TabSwitcher       from '../../components/TabSwitcher.vue';
+import DataStateWrapper  from '../../components/DataStateWrapper.vue';
+import ConfirmDialog     from '../../components/ConfirmDialog.vue';
+import AppToast          from '../../components/AppToast.vue';
+import TaskForm          from '../../components/tasks/TaskForm.vue';
+import KanbanBoard       from '../../components/tasks/KanbanBoard.vue';
+import taskService       from '../../services/task.service';
+import employeeService   from '../../services/employee.service';
+import { useDeleteConfirm } from '../../composables/useDeleteConfirm';
+import { useToast }         from '../../composables/useToast';
 
 // ═══ TAB ═══
+const tabs = [
+  {
+    key: 'tasks',
+    label: 'Tasks',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
+  },
+  {
+    key: 'assign',
+    label: 'Assign',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  },
+];
 const activeTab = ref('tasks');
 
 // ═══ DATA ═══
@@ -274,31 +246,32 @@ const isLoadingTasks     = ref(false);
 const tasksError         = ref(null);
 const isLoadingEmployees = ref(false);
 
-// ═══ FORM STATE (passed to TaskForm) ═══
+// ═══ FORM STATE ═══
 const editingTask  = ref(null);
 const isSubmitting = ref(false);
 const formError    = ref(null);
 
-// ═══ TASK LIST FILTERS ═══
+// ═══ FILTERS ═══
 const searchQuery  = ref('');
 const filterStatus = ref('all');
 
-// ═══ DELETE ═══
-const showDeleteConfirm = ref(false);
-const isDeleting        = ref(false);
-const pendingDelete     = ref(null);
-
 // ═══ TOAST ═══
-const toastMsg  = ref('');
-const toastType = ref('success');
-let toastTimer  = null;
+const { toastMsg, toastType, showToast } = useToast();
 
-function showToast(msg, type = 'success') {
-  toastMsg.value  = msg;
-  toastType.value = type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { toastMsg.value = ''; }, 3000);
-}
+// ═══ DELETE ═══
+const taskDelete = useDeleteConfirm(async (task) => {
+  await taskService.remove(task.id);
+  tasks.value = tasks.value.filter(t => t.id !== task.id);
+  showToast('Task deleted.');
+});
+
+// Destrukturyzacja refs dla template
+const { showConfirm: taskShowConfirm, pendingDelete: taskPendingDelete, isDeleting: taskIsDeleting } = taskDelete;
+
+// Obserwuj błąd usunięcia — pokaż toast
+watch(taskDelete.deleteError, (err) => {
+  if (err) showToast(err, 'error');
+});
 
 // ═══ COMPUTED ═══
 const filteredTasks = computed(() => {
@@ -389,7 +362,7 @@ async function fetchRoles() {
   } catch {}
 }
 
-// ═══ FORM: TaskForm emits ═══
+// ═══ FORM ═══
 async function handleFormSubmit(formData) {
   formError.value    = null;
   isSubmitting.value = true;
@@ -430,35 +403,11 @@ function cancelEdit() {
   formError.value   = null;
 }
 
-// ═══ DELETE ═══
-function deleteTask(task) {
-  pendingDelete.value     = task;
-  showDeleteConfirm.value = true;
-}
-
-async function confirmDelete() {
-  if (!pendingDelete.value) return;
-  isDeleting.value = true;
-  try {
-    await taskService.remove(pendingDelete.value.id);
-    tasks.value             = tasks.value.filter(t => t.id !== pendingDelete.value.id);
-    showDeleteConfirm.value = false;
-    showToast('Task deleted.');
-  } catch (err) {
-    showToast(err?.response?.data?.message ?? 'Failed to delete the task.', 'error');
-    showDeleteConfirm.value = false;
-  } finally {
-    isDeleting.value    = false;
-    pendingDelete.value = null;
-  }
-}
-
-// ═══ KANBAN: KanbanBoard emits ═══
+// ═══ KANBAN ═══
 async function handleAssign({ taskId, empId }) {
   const task = tasks.value.find(t => t.id === taskId);
   if (!task) return;
   const oldEmpId = task.assignedEmployeeId;
-  // Optimistic update
   task.assignedEmployeeId = empId;
   const emp = employees.value.find(e => e.id === empId);
   task.assignedEmployeeName = emp ? `${emp.firstName} ${emp.lastName}` : null;
@@ -466,7 +415,6 @@ async function handleAssign({ taskId, empId }) {
     await taskService.update(taskId, { AssignedEmployeeId: empId });
     showToast(`Task assigned to ${emp?.firstName ?? ''}!`);
   } catch (err) {
-    // Rollback
     task.assignedEmployeeId = oldEmpId;
     const oldEmp = employees.value.find(e => e.id === oldEmpId);
     task.assignedEmployeeName = oldEmp ? `${oldEmp.firstName} ${oldEmp.lastName}` : null;
@@ -489,7 +437,7 @@ async function handleUnassign(task) {
   }
 }
 
-// Re-map employee names when employees load
+// Ponowne mapowanie nazw pracowników po załadowaniu
 watch(employees, () => {
   tasks.value = tasks.value.map(t => {
     const emp = employees.value.find(e => e.id === t.assignedEmployeeId);
@@ -497,11 +445,13 @@ watch(employees, () => {
   });
 });
 
-onMounted(async () => {
+async function initData() {
   await fetchEmployees();
   await fetchRoles();
   await fetchTasks();
-});
+}
+onMounted(initData);
+onActivated(initData);
 </script>
 
 <style scoped>
@@ -509,7 +459,4 @@ onMounted(async () => {
 .task-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .task-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
 .dark .task-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
-
-.toast-enter-active, .toast-leave-active { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(1rem) scale(0.95); }
 </style>

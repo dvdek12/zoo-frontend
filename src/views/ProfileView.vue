@@ -1,14 +1,21 @@
 <template>
-  <div class="p-8 h-full flex flex-col">
-    <PageHeader title="Profil" subtitle="Zarządzaj swoimi danymi i ustawieniami konta." />
-
-    <div class="bg-white rounded-xl shadow-sm p-8 flex-1 max-w-4xl">
-      <EditProfileForm />
+  <div class="h-full flex flex-col">
+    <PageBanner
+      title="Profil"
+      eyebrow="Zoo Management"
+      subtitle="Zarządzaj swoimi danymi i ustawieniami konta."
+      image="/banner_profile.png"
+      image-position="center 40%"
+    />
+    <div class="px-8 pt-6 pb-8 flex flex-col flex-1 overflow-y-auto">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 flex-1 max-w-4xl">
+        <EditProfileForm />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import EditProfileForm from '../components/forms/EditProfileForm.vue';
-import PageHeader from '../components/PageHeader.vue';
+import PageBanner from '../components/PageBanner.vue';
 </script>

@@ -1,7 +1,16 @@
 <template>
   <div class="flex-1 flex flex-col h-full overflow-hidden relative">
-    <!-- TOP HEADER -->
-    <header class="flex items-center px-8 py-5 shrink-0">
+    <!-- BANNER -->
+    <PageBanner
+      title="Raporty"
+      eyebrow="Zoo Management"
+      subtitle="Generuj i eksportuj raporty zoologiczne dla zwierząt, pracowników i wybiegów."
+      image="/banner_reports.png"
+      image-position="center 40%"
+    />
+
+    <!-- Pasek narzędziowy z wyszukiwarką -->
+    <header class="flex items-center px-8 py-4 shrink-0">
       <!-- Search -->
       <div class="relative w-[32rem]">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
@@ -24,9 +33,7 @@
     </header>
 
     <!-- SCROLLABLE CONTENT -->
-    <div class="flex-1 overflow-y-auto px-10 py-6 pb-20 relative scroll-smooth h-full">
-      <!-- Page header -->
-      <PageHeader title="Raporty" subtitle="Generuj i eksportuj raporty zoologiczne dla twoich zwierząt, pracowników i wybiegów." />
+    <div class="flex-1 overflow-y-auto px-10 py-4 pb-20 relative scroll-smooth h-full">
 
       <!-- ── QUICK GENERATE FORM ─────────────────────────────────────────── -->
       <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-7 mb-10 max-w-2xl mx-auto">
@@ -456,7 +463,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onActivated, onBeforeUnmount } from 'vue';
 import {
   Search,
   FileText, Zap, RefreshCw, Download,
@@ -466,7 +473,7 @@ import {
 import { useAuthStore } from '../stores/auth';
 import reportService from '../services/report.service';
 import employeeService from '../services/employee.service';
-import PageHeader from '../components/PageHeader.vue';
+import PageBanner from '../components/PageBanner.vue';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const auth = useAuthStore();
@@ -780,10 +787,12 @@ async function fetchCurrentAuthorId() {
   }
 }
 
-onMounted(async () => {
+async function initData() {
   await Promise.all([fetchReports(), fetchTypes(), fetchEmployees()]);
   await fetchCurrentAuthorId();
-});
+}
+onMounted(initData);
+onActivated(initData);
 
 onBeforeUnmount(() => {
   if (previewBlobUrl.value) {

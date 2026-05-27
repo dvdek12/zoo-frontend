@@ -12,10 +12,16 @@ import EmployeesView from '../views/manager/EmployeesView.vue'
 import EmployeeDetailsView from '../views/manager/EmployeeDetailsView.vue'
 import EnclosuresView from '../views/manager/EnclosuresView.vue'
 import TasksView from '../views/manager/TasksView.vue'
+import TicketsView from '../views/manager/TicketsView.vue'
 import { useAuthStore } from '../stores/auth'
+import { useBreadcrumbStore } from '../stores/breadcrumb'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // Resetuj scroll okna do góry przy każdej nawigacji.
+  // Obsługuje strony klienckie (window scroll). Strony managera
+  // mają własny kontener scroll — resetowany w MainLayout.vue.
+  scrollBehavior: () => ({ top: 0, behavior: 'instant' }),
   routes: [
     {
       path: '/',
@@ -93,12 +99,20 @@ const router = createRouter({
       name: 'tasks',
       component: TasksView,
       meta: { requiresManager: true, breadcrumb: 'Tasks' }
+    },
+    {
+      path: '/tickets',
+      name: 'tickets',
+      component: TicketsView,
+      meta: { requiresManager: true, breadcrumb: 'Tickets' }
     }
   ]
 })
 
 router.beforeEach((to) => {
-  const auth = useAuthStore()
+  const auth = useAuthStore();
+  // Wyczyść dynamiczny tytuł breadcrumba przy każdej nawigacji
+  useBreadcrumbStore().clearLabel();
   const isEmployee = auth.hasAnyRole('Employee')
   const isManager = auth.hasAnyRole('Manager')
 

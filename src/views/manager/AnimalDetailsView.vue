@@ -306,15 +306,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import animalService from '../../services/animal.service';
 import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
 import AddHealthRecordModal from '../../components/animals/AddHealthRecordModal.vue';
+import { useBreadcrumbStore } from '../../stores/breadcrumb';
 
-const route  = useRoute();
-const router = useRouter();
+const route           = useRoute();
+const router          = useRouter();
+const breadcrumbStore = useBreadcrumbStore();
 
 const animal    = ref(null);
 const isLoading = ref(false);
@@ -425,32 +427,39 @@ const fetchHistory = async (id) => {
   }
 };
 
-onMounted(async () => {
-  const id = route.params.id;
-  isLoading.value = true;
-  error.value = null;
-  try {
-    const data = await animalService.getById(id);
-    animal.value = data;
-    // Załaduj ikonkę jeśli istnieje
-    const iconId = data?.iconId ?? data?.IconId ?? null;
-    if (iconId) {
-      try {
-        iconPreviewUrl.value = await iconService.getById(iconId);
-      } catch {
-        // cicho ignoruj — brak ikonki nie blokuje widoku
+// watch na ID — obsługuje zarówno pierwsze wejście jak i keep-alive reuse
+// (np. przejście z /animals/1 na /animals/2 przy tym samym komponencie w cache)
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (!id) return;
+    isLoading.value = true;
+    error.value = null;
+    animal.value = null;
+    iconPreviewUrl.value = null;
+    try {
+      const data = await animalService.getById(id);
+      animal.value = data;
+      // Ustaw dynamiczny breadcrumb na nazwę zwierzęcia
+      breadcrumbStore.setLabel(data?.name ?? `Animal #${id}`);
+      const iconId = data?.iconId ?? data?.IconId ?? null;
+      if (iconId) {
+        try {
+          iconPreviewUrl.value = await iconService.getById(iconId);
+        } catch {
+          // cicho ignoruj — brak ikonki nie blokuje widoku
+        }
       }
+    } catch (err) {
+      console.error('[AnimalDetailsView] fetch error:', err);
+      error.value = err?.response?.data?.message ?? 'Nie udało się pobrać danych zwierzęcia.';
+    } finally {
+      isLoading.value = false;
     }
-  } catch (err) {
-    console.error('[AnimalDetailsView] fetch error:', err);
-    error.value = err?.response?.data?.message ?? 'Nie udało się pobrać danych zwierzęcia.';
-  } finally {
-    isLoading.value = false;
-  }
-
-  // Pobieramy historię niezależnie od wyniku głównego zapytania
-  fetchHistory(id);
-});
+    fetchHistory(id);
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

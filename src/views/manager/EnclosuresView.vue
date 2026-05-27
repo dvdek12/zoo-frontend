@@ -1,102 +1,96 @@
 <template>
-  <div class="p-8 h-full min-h-full flex flex-col gap-6 overflow-hidden">
-    <PageHeader title="Wybiegi" subtitle="Zarządzaj wybiegami dla zwierząt w zoo." />
-    <div class="flex gap-6 h-full overflow-hidden">
-      
+  <div class="h-full min-h-full flex flex-col overflow-hidden">
+    <PageBanner
+      title="Wybiegi"
+      eyebrow="Zoo Management"
+      subtitle="Zarządzaj wybiegami dla zwierząt w zoo."
+      image="/banner_enclosures.png"
+      image-position="center 60%"
+    />
+
+    <div class="px-8 pt-6 flex gap-6 flex-1 overflow-hidden">
+
       <!-- Sekcja Wybiegów (3/4 szerokości) -->
       <section class="flex-[3] flex flex-col min-h-0">
-        <div class="flex justify-between items-center mb-4 shrink-0">
-          <button
-            @click="openAddEnclosure"
-            class="bg-[#2d6a4f] hover:bg-[#1a3b22] text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Dodaj wybieg
-          </button>
-        </div>
+        <SectionHeader
+          title=""
+          button-label="Dodaj wybieg"
+          @action="openAddEnclosure"
+        />
 
-        <div v-if="isLoadingEnclosures" class="flex-1 flex items-center justify-center">
-          <div class="flex flex-col items-center gap-3 text-gray-400">
-            <svg class="animate-spin h-8 w-8 text-[#2d6a4f]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-            <span class="text-sm">Pobieranie wybiegów…</span>
+        <DataStateWrapper
+          :loading="isLoadingEnclosures"
+          :empty="enclosures.length === 0"
+          loading-text="Pobieranie wybiegów…"
+          :retryable="false"
+        >
+          <template #empty>
+            <div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl py-16">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
+              </svg>
+              <p class="text-gray-500 font-medium">Brak wybiegów</p>
+              <p class="text-sm text-gray-400 mt-1">Dodaj pierwszy wybieg używając przycisku wyżej.</p>
+            </div>
+          </template>
+
+          <!-- Pasek filtrów -->
+          <div v-if="enclosures.length > 0 || selectedFilterType !== null" class="mb-4 flex flex-wrap gap-2">
+            <button
+              @click="selectedFilterType = null"
+              :class="['px-4 py-1.5 rounded-full text-sm font-medium transition-colors border',
+                selectedFilterType === null
+                  ? 'bg-[#2d6a4f] text-white border-[#2d6a4f]'
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700']"
+            >
+              Wszystkie
+            </button>
+            <button
+              v-for="t in enclosureTypes"
+              :key="'filter-' + t.id"
+              @click="selectedFilterType = t.id"
+              :class="['px-4 py-1.5 rounded-full text-sm font-medium transition-colors border',
+                selectedFilterType === t.id
+                  ? 'bg-[#2d6a4f] text-white border-[#2d6a4f]'
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700']"
+            >
+              {{ t.typeName }}
+            </button>
           </div>
-        </div>
 
-        <div v-else-if="enclosures.length === 0" class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
-          </svg>
-          <p class="text-gray-500 font-medium">Brak wybiegów</p>
-          <p class="text-sm text-gray-400 mt-1">Dodaj pierwszy wybieg używając przycisku wyżej.</p>
-        </div>
-
-        <!-- Pasek filtrów -->
-        <div v-if="enclosures.length > 0 || selectedFilterType !== null" class="mb-4 flex flex-wrap gap-2">
-          <button 
-            @click="selectedFilterType = null"
-            :class="['px-4 py-1.5 rounded-full text-sm font-medium transition-colors border', 
-              selectedFilterType === null 
-                ? 'bg-[#2d6a4f] text-white border-[#2d6a4f] dark:border-[#2d6a4f]' 
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700']"
-          >
-            Wszystkie
-          </button>
-          <button 
-            v-for="t in enclosureTypes" 
-            :key="'filter-' + t.id"
-            @click="selectedFilterType = t.id"
-            :class="['px-4 py-1.5 rounded-full text-sm font-medium transition-colors border', 
-              selectedFilterType === t.id 
-                ? 'bg-[#2d6a4f] text-white border-[#2d6a4f] dark:border-[#2d6a4f]' 
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700']"
-          >
-            {{ t.typeName }}
-          </button>
-        </div>
-
-        <!-- Siatka (Grid) Wybiegów -->
-        <div v-if="enclosures.length > 0 || selectedFilterType !== null" class="flex-1 overflow-y-auto custom-scrollbar pr-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-4">
-            <EnclosureCard
-              v-for="enc in filteredEnclosures"
-              :key="enc.id"
-              :enclosure="enc"
-              :type-name="getTypeName(enc.typeId)"
-              @edit="openEditEnclosure"
-              @delete="deleteEnclosure"
-            />
+          <!-- Siatka Wybiegów -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar pr-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-4">
+              <EnclosureCard
+                v-for="enc in filteredEnclosures"
+                :key="enc.id"
+                :enclosure="enc"
+                :type-name="getTypeName(enc.typeId)"
+                @edit="openEditEnclosure"
+                @delete="deleteEnclosure"
+              />
+            </div>
           </div>
-        </div>
+        </DataStateWrapper>
       </section>
 
       <!-- Sekcja Typów (1/4 szerokości) -->
       <section class="flex-[1] flex flex-col min-h-0 border-l border-gray-100 dark:border-gray-800 pl-6">
-        <div class="flex justify-between items-center mb-4 shrink-0">
-          <h2 class="text-xl font-bold text-[#1a3b22] dark:text-green-400 tracking-tight">Typy wybiegów</h2>
-          <button
-            @click="openAddType"
-            class="bg-white dark:bg-gray-800 text-[#2d6a4f] dark:text-green-400 border border-[#2d6a4f] dark:border-green-400 hover:bg-[#2d6a4f] hover:text-white dark:hover:bg-green-400 dark:hover:text-gray-900 font-semibold py-1.5 px-3 rounded-xl transition-all duration-300 shadow-sm text-sm flex items-center gap-1.5"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Dodaj
-          </button>
-        </div>
+        <SectionHeader
+          title="Typy wybiegów"
+          button-label="Dodaj"
+          button-variant="outline"
+          @action="openAddType"
+        />
 
         <div v-if="isLoadingTypes" class="py-4 text-center text-sm text-gray-400">
           Ładowanie typów...
         </div>
-        
+
         <div v-else class="flex-1 overflow-y-auto custom-scrollbar pr-2">
           <ul class="space-y-2">
-            <li 
-              v-for="t in enclosureTypes" 
+            <li
+              v-for="t in enclosureTypes"
               :key="t.id"
               class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm group"
             >
@@ -117,7 +111,7 @@
         </div>
       </section>
 
-    </div>
+    </div><!-- /px-8 content -->
 
     <!-- Modals -->
     <EnclosureModal
@@ -139,34 +133,33 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import PageHeader from '../../components/PageHeader.vue';
-import enclosureService from '../../services/enclosure.service';
-import EnclosureModal from '../../components/enclosures/EnclosureModal.vue';
+import { ref, computed, onMounted, onActivated } from 'vue';
+import PageBanner        from '../../components/PageBanner.vue';
+import SectionHeader     from '../../components/SectionHeader.vue';
+import DataStateWrapper  from '../../components/DataStateWrapper.vue';
+import enclosureService  from '../../services/enclosure.service';
+import EnclosureModal    from '../../components/enclosures/EnclosureModal.vue';
 import EnclosureTypeModal from '../../components/enclosures/EnclosureTypeModal.vue';
-import EnclosureCard from '../../components/enclosures/EnclosureCard.vue';
+import EnclosureCard     from '../../components/enclosures/EnclosureCard.vue';
 
 // --- STAN ---
-const enclosures = ref([]);
-const enclosureTypes = ref([]);
+const enclosures      = ref([]);
+const enclosureTypes  = ref([]);
 const isLoadingEnclosures = ref(false);
-const isLoadingTypes = ref(false);
+const isLoadingTypes  = ref(false);
 
 const showEnclosureModal = ref(false);
-const showTypeModal = ref(false);
-const selectedEnclosure = ref(null);
-const selectedType = ref(null);
+const showTypeModal      = ref(false);
+const selectedEnclosure  = ref(null);
+const selectedType       = ref(null);
 
 const selectedFilterType = ref(null);
 
 const filteredEnclosures = computed(() => {
-  if (selectedFilterType.value === null) {
-    return enclosures.value;
-  }
+  if (selectedFilterType.value === null) return enclosures.value;
   return enclosures.value.filter(enc => enc.typeId === selectedFilterType.value);
 });
 
-/** Zajęte mapKey (wybiegi już przypisane do lokalizacji na mapie) */
 const takenMapKeys = computed(() =>
   enclosures.value
     .filter(e => e.mapKey && e.id !== selectedEnclosure.value?.id)
@@ -175,7 +168,7 @@ const takenMapKeys = computed(() =>
 
 // --- POBIERANIE DANYCH ---
 const fetchData = async () => {
-  await fetchTypes(); // Najpierw typy by móc wyświetlić etykiety
+  await fetchTypes();
   await fetchEnclosures();
 };
 
@@ -203,9 +196,8 @@ const fetchTypes = async () => {
   }
 };
 
-onMounted(() => {
-  fetchData();
-});
+onMounted(fetchData);
+onActivated(fetchData);
 
 // --- HELPERS ---
 const getTypeName = (id) => {
@@ -221,7 +213,7 @@ const openAddEnclosure = () => {
 };
 
 const openEditEnclosure = (enc) => {
-  selectedEnclosure.value = enc;
+  selectedEnclosure.value  = enc;
   showEnclosureModal.value = true;
 };
 
@@ -243,12 +235,12 @@ const onEnclosureSaved = () => {
 
 // --- AKCJE TYPÓW ---
 const openAddType = () => {
-  selectedType.value = null;
+  selectedType.value  = null;
   showTypeModal.value = true;
 };
 
 const openEditType = (type) => {
-  selectedType.value = type;
+  selectedType.value  = type;
   showTypeModal.value = true;
 };
 

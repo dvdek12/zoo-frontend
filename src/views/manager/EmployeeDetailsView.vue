@@ -272,9 +272,11 @@ import { useRoute, useRouter } from 'vue-router';
 import employeeService from '../../services/employee.service';
 import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
+import { useBreadcrumbStore } from '../../stores/breadcrumb';
 
-const route  = useRoute();
-const router = useRouter();
+const route           = useRoute();
+const router          = useRouter();
+const breadcrumbStore = useBreadcrumbStore();
 
 const employee   = ref(null);
 const isLoading  = ref(false);
@@ -376,6 +378,10 @@ onMounted(async () => {
     const data = await employeeService.getById(route.params.id);
     employee.value = data;
     populateForm(data);
+    // Ustaw dynamiczny breadcrumb na imię i nazwisko
+    const fullName = [data?.firstName ?? data?.FirstName, data?.lastName ?? data?.LastName]
+      .filter(Boolean).join(' ');
+    breadcrumbStore.setLabel(fullName || `Employee #${route.params.id}`);
     // Załaduj ikonkę jeśli istnieje
     const iconId = data?.iconId ?? data?.IconId ?? null;
     if (iconId) {
