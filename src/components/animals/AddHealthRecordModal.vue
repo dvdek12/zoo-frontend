@@ -45,10 +45,10 @@
               v-for="opt in conditionOptions"
               :key="opt.value"
               type="button"
-              @click="form.conditionAdmission = opt.value"
+              @click="form.conditionId = opt.value"
               :class="[
                 'flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border-2 transition-all duration-200 cursor-pointer',
-                form.conditionAdmission === opt.value
+                form.conditionId === opt.value
                   ? `${opt.activeBorder} ${opt.activeBg} shadow-md scale-[1.03]`
                   : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500'
               ]"
@@ -56,7 +56,7 @@
               <span class="text-xl">{{ opt.icon }}</span>
               <span
                 class="text-xs font-semibold text-center leading-tight"
-                :class="form.conditionAdmission === opt.value ? opt.activeText : 'text-gray-600 dark:text-gray-300'"
+                :class="form.conditionId === opt.value ? opt.activeText : 'text-gray-600 dark:text-gray-300'"
               >{{ opt.label }}</span>
             </button>
           </div>
@@ -163,7 +163,7 @@
         </button>
         <button
           type="submit"
-          :disabled="isSaving || form.conditionAdmission === null || form.isVaccinated === null"
+          :disabled="isSaving || form.conditionId === null || form.isVaccinated === null"
           class="bg-[#2d6a4f] hover:bg-[#1a3b22] disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-2 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2 min-w-[160px] justify-center"
         >
           <svg v-if="isSaving" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -182,8 +182,9 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import animalService from '../../services/animal.service';
+import { useAnimalConditions } from '../../composables/useAnimalConditions';
 
 const props = defineProps({
   animalId: { type: [Number, String], required: true },
@@ -191,65 +192,13 @@ const props = defineProps({
 
 const emit = defineEmits(['save', 'close']);
 
-// --- ENUM STANÓW ZDROWIA ---
-const isLoadingConditions = ref(false);
+const { conditions, isLoading: isLoadingConditions, load: loadConditions } = useAnimalConditions();
+const conditionOptions = computed(() => conditions.value);
 
-// Styl dla kolejnych pozycji enuma (cyklicznie)
-const CONDITION_STYLES = [
-  { icon: '😊', activeBorder: 'border-green-500',  activeBg: 'bg-green-50 dark:bg-green-900/20',   activeText: 'text-green-600 dark:text-green-400' },
-  { icon: '😐', activeBorder: 'border-yellow-500', activeBg: 'bg-yellow-50 dark:bg-yellow-900/20', activeText: 'text-yellow-600 dark:text-yellow-400' },
-  { icon: '😟', activeBorder: 'border-red-500',    activeBg: 'bg-red-50 dark:bg-red-900/20',       activeText: 'text-red-600 dark:text-red-400' },
-  { icon: '🔵', activeBorder: 'border-blue-500',   activeBg: 'bg-blue-50 dark:bg-blue-900/20',     activeText: 'text-blue-600 dark:text-blue-400' },
-];
-
-const conditionOptions = ref([]);
-
-const fetchConditions = async () => {
-  isLoadingConditions.value = true;
-  try {
-    const data = await animalService.getAnimalConditions();
-    console.log('[AddHealthRecordModal] Raw enum response:', JSON.stringify(data));
-
-    let arr = [];
-
-    if (Array.isArray(data)) {
-      arr = data.map((item, idx) => {
-        if (typeof item === 'string') return { value: idx, label: item };
-        if (typeof item === 'number') return { value: item, label: String(item) };
-        return {
-          value: item.value ?? item.id ?? item.key ?? idx,
-          label: item.name ?? item.label ?? item.displayName ?? item.key ?? String(idx),
-        };
-      });
-    } else if (data && typeof data === 'object') {
-      // format: { "Dobry": 0, "Przeciętny": 1, ... }
-      arr = Object.entries(data).map(([name, value]) => ({ value, label: name }));
-    }
-
-    if (arr.length === 0) throw new Error('Pusta odpowiedź enuma');
-
-    conditionOptions.value = arr.map((item, idx) => ({
-      ...item,
-      ...CONDITION_STYLES[idx % CONDITION_STYLES.length],
-    }));
-
-    console.log('[AddHealthRecordModal] Mapped conditionOptions:', conditionOptions.value);
-  } catch (err) {
-    console.error('[AddHealthRecordModal] Blad pobierania enumow, fallback:', err);
-    conditionOptions.value = [
-      { value: 0, label: 'Dobry',      ...CONDITION_STYLES[0] },
-      { value: 1, label: 'Przecietny', ...CONDITION_STYLES[1] },
-      { value: 2, label: 'Zly',        ...CONDITION_STYLES[2] },
-    ];
-  } finally {
-    isLoadingConditions.value = false;
-  }
-};
-
-onMounted(fetchConditions);
+onMounted(loadConditions);
 
 const form = reactive({
-  conditionAdmission: null,
+  conditionId: null,
   temperature: '',
   weight: '',
   isVaccinated: null,
@@ -260,13 +209,13 @@ const isSaving  = ref(false);
 const saveError = ref(null);
 
 const handleSave = async () => {
-  if (form.conditionAdmission === null || form.isVaccinated === null || isSaving.value) return;
+  if (form.conditionId === null || form.isVaccinated === null || isSaving.value) return;
 
   isSaving.value = true;
   saveError.value = null;
 
   const dto = {
-    ConditionAdmission: form.conditionAdmission,
+    ConditionId: form.conditionId,
     Temperature: parseFloat(form.temperature) || 0,
     Weight: parseFloat(form.weight) || 0,
     IsVacinated: form.isVaccinated,
