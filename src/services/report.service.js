@@ -28,7 +28,7 @@ class ReportService {
    * @returns {Promise<Array>}
    */
   async getAll() {
-    const response = await axios.get(`${BASE_URL}/getAll`, authHeaders());
+    const response = await axios.get(`${BASE_URL}`, authHeaders());
     return response.data;
   }
 
@@ -37,7 +37,7 @@ class ReportService {
    * @param {number} id
    */
   async getOne(id) {
-    const response = await axios.get(`${BASE_URL}/getOne/${id}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/${id}`, authHeaders());
     return response.data;
   }
 
@@ -47,7 +47,7 @@ class ReportService {
    */
   async create(dto) {
     try {
-      const response = await axios.post(`${BASE_URL}/new/forManager`, dto, authHeaders());
+      const response = await axios.post(`${BASE_URL}/forManager`, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('[ReportService] create error status:', err?.response?.status);

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import authService from './auth.service';
 
-const BASE_URL = 'https://localhost:7293/animals/';
+const BASE_URL = 'https://localhost:7293/animals';
 const ATTRIBUTES_URL = 'https://localhost:7293/attributes';
-const ENUMS_URL = 'https://localhost:7293/enums';
+const CONDITIONS_URL = 'https://localhost:7293/animalCondition';
 
 /**
  * Tworzy nagłówki z tokenem JWT z localStorage.
@@ -20,7 +20,7 @@ class AnimalService {
    * Pobiera listę wszystkich zwierząt.
    */
   async getAll() {
-    const response = await axios.get(BASE_URL + 'getAll', authHeaders());
+    const response = await axios.get(BASE_URL, authHeaders());
     return response.data;
   }
 
@@ -28,7 +28,7 @@ class AnimalService {
    * Pobiera wartości enuma stanów zdrowia zwierzęcia.
    */
   async getAnimalConditions() {
-    const response = await axios.get(`${ENUMS_URL}/animals-condition`, authHeaders());
+    const response = await axios.get(`${CONDITIONS_URL}`, authHeaders());
     return response.data;
   }
 
@@ -37,7 +37,7 @@ class AnimalService {
    * @param {number} id
    */
   async getById(id) {
-    const response = await axios.get(`${BASE_URL}getOne/${id}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/${id}`, authHeaders());
     return response.data;
   }
 
@@ -48,7 +48,7 @@ class AnimalService {
   async create(dto) {
     console.log('dto ->', dto);
     try {
-      const response = await axios.post(BASE_URL + 'create', dto, authHeaders());
+      const response = await axios.post(BASE_URL, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('Status:', err?.response?.status);
@@ -62,7 +62,7 @@ class AnimalService {
    * @param {number} id
    */
   async getHistory(id) {
-    const response = await axios.get(BASE_URL + `getHistory/${id}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/${id}/getHistory`, authHeaders());
     return response.data;
   }
 
@@ -72,7 +72,7 @@ class AnimalService {
    * @param {{ ConditionAdmission, Temperature, Weight, IsVacinated, DateOfLastCheckup }} dto
    */
   async addHistory(id, dto) {
-    const response = await axios.post(`${BASE_URL}addHistory/${id}`, dto, authHeaders());
+    const response = await axios.post(`${BASE_URL}/${id}/addHistory`, dto, authHeaders());
     return response.data;
   }
 
@@ -90,7 +90,7 @@ class AnimalService {
    * @param {number} id
    */
   async remove(id) {
-    const response = await axios.delete(`${BASE_URL}delete`, { ...authHeaders(), params: { id } });
+    const response = await axios.delete(`${BASE_URL}/${id}`, { ...authHeaders(), params: { id } });
     return response.data;
   }
 
@@ -98,7 +98,7 @@ class AnimalService {
    * Pobiera wszystkie atrybuty.
    */
   async getAllAttributes() {
-    const response = await axios.get('https://localhost:7293/attributes', authHeaders());
+    const response = await axios.get(ATTRIBUTES_URL, authHeaders());
     return response.data;
   }
 

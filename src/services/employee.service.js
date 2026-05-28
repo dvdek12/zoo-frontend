@@ -32,6 +32,28 @@ class EmployeeService {
     return response.data;
   }
 
+   /**
+   * Aktualizuje dane pracownika (endpoint pracowniczy).
+   * @param {number} id
+   * @param {{
+   *   FirstName?: string,
+   *   LastName?: string,
+   *   BirthDay?: string,
+   *   PhoneNumber?: string
+   * }} dto
+   */
+    async updateAsEmployee(id, dto) {
+    try {
+      const response = await axios.put(`${BASE_URL}/employee/${id}`, dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[EmployeeService] updateAsEmployee error status:', err?.response?.status);
+      console.error('[EmployeeService] updateAsEmployee error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+
   /**
    * Aktualizuje dane pracownika (endpoint menedżerski).
    * @param {number} id
@@ -47,7 +69,7 @@ class EmployeeService {
    */
   async updateAsManager(id, dto) {
     try {
-      const response = await axios.put(`${BASE_URL}/employee/asManager/${id}`, dto, authHeaders());
+      const response = await axios.put(`${BASE_URL}/employee/${id}/asManager`, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('[EmployeeService] updateAsManager error status:', err?.response?.status);
@@ -71,7 +93,7 @@ class EmployeeService {
    * @returns {Promise<Array>}
    */
   async getAllRoles() {
-    const response = await axios.get(`${BASE_URL}/employee/getAllRoles`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/employee/roles`, authHeaders());
     return response.data;
   }
 
@@ -80,7 +102,7 @@ class EmployeeService {
    * @param {number} id
    */
   async deleteRole(id) {
-    const response = await axios.delete(`${BASE_URL}/employee/roles/delete/${id}`, authHeaders());
+    const response = await axios.delete(`${BASE_URL}/employee/roles/${id}`, authHeaders());
     return response.data;
   }
 
@@ -90,7 +112,7 @@ class EmployeeService {
    */
   async createRole(dto) {
     try {
-      const response = await axios.post(`${BASE_URL}/employee/roles/new`, dto, authHeaders());
+      const response = await axios.post(`${BASE_URL}/employee/roles`, dto, authHeaders());
       return response.data;
     } catch (err) {
       console.error('[EmployeeService] createRole error status:', err?.response?.status);
