@@ -6,76 +6,72 @@
     class="hidden md:flex flex-col justify-between shrink-0 h-screen sticky top-0 border-r border-transparent dark:border-gray-800 bg-[#f4f3ec] dark:bg-[#1a1c1e] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
     :class="collapsed ? 'w-[72px]' : 'w-64'"
   >
-    <!-- TOP: Logo + Nav -->
-    <div class="flex flex-col min-h-0">
+    <!-- TOP: Logo -->
+    <div
+      class="flex items-center transition-all duration-300 overflow-hidden shrink-0"
+      :class="collapsed ? 'px-4 pt-5 pb-3 justify-center' : 'px-8 pt-8 pb-4'"
+    >
+      <template v-if="!collapsed">
+        <div class="flex flex-col">
+          <img src="/logozoone.png" alt="ZooNe Logo" class="w-1/2 object-contain mix-blend-multiply mb-1" />
+          <p class="text-[10px] uppercase font-bold tracking-widest text-[#9e9a8f] mt-1 pl-1">Employee Dashboard</p>
+        </div>
+      </template>
+      <template v-else>
+        <div class="w-9 h-9 rounded-xl bg-[#2d6a4f]/10 dark:bg-green-400/10 flex items-center justify-center">
+          <svg class="w-5 h-5 stroke-[#2d6a4f] dark:stroke-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/>
+            <path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/>
+          </svg>
+        </div>
+      </template>
+    </div>
 
-      <!-- Logo area -->
+    <!-- Nav links (scrollable on short screens) -->
+    <nav class="flex-1 mt-2 px-3 relative flex flex-col gap-1 overflow-y-auto sidebar-scroll">
+      <!-- Animated active highlight -->
       <div
-        class="flex items-center transition-all duration-300 overflow-hidden shrink-0"
-        :class="collapsed ? 'px-4 pt-5 pb-3 justify-center' : 'px-8 pt-8 pb-4'"
+        v-if="activeIndex !== -1"
+        class="absolute left-3 right-3 h-12 bg-white dark:bg-gray-800 rounded-2xl shadow-sm transition-all duration-300 ease-out z-0 pointer-events-none"
+        :style="{ transform: `translateY(${activeIndex * 52}px)` }"
       >
-        <template v-if="!collapsed">
-          <div class="flex flex-col">
-            <img src="/logozoone.png" alt="ZooNe Logo" class="w-1/2 object-contain mix-blend-multiply mb-1" />
-            <p class="text-[10px] uppercase font-bold tracking-widest text-[#9e9a8f] mt-1 pl-1">Employee Dashboard</p>
-          </div>
-        </template>
-        <template v-else>
-          <div class="w-9 h-9 rounded-xl bg-[#2d6a4f]/10 dark:bg-green-400/10 flex items-center justify-center">
-            <svg class="w-5 h-5 stroke-[#2d6a4f] dark:stroke-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/>
-              <path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/>
-            </svg>
-          </div>
-        </template>
+        <div
+          class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#1a3b22] dark:bg-green-400 rounded-full transition-opacity duration-200"
+          :class="collapsed ? 'opacity-0' : 'opacity-100'"
+        />
       </div>
 
-      <!-- Nav links -->
-      <nav class="mt-2 px-3 relative flex flex-col gap-1">
-        <!-- Animated active highlight -->
+      <router-link
+        v-for="(link, index) in links"
+        :key="link.path"
+        :to="link.path"
+        class="flex items-center gap-3 px-3 py-3 rounded-2xl transition-colors relative z-10 group shrink-0"
+        :class="[
+          collapsed ? 'justify-center' : '',
+          activeIndex === index
+            ? 'text-[#1a3b22] dark:text-green-400 font-semibold'
+            : 'text-gray-500 hover:text-[#1a3b22] hover:bg-white/50 dark:text-gray-400 dark:hover:text-green-400 dark:hover:bg-gray-800/50'
+        ]"
+      >
+        <component :is="link.icon" class="w-5 h-5 shrink-0" />
+
+        <span
+          class="whitespace-nowrap overflow-hidden transition-all duration-300"
+          :class="collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'"
+        >
+          {{ link.name }}
+        </span>
+
+        <!-- Tooltip when collapsed -->
         <div
-          v-if="activeIndex !== -1"
-          class="absolute left-3 right-3 h-12 bg-white dark:bg-gray-800 rounded-2xl shadow-sm transition-all duration-300 ease-out z-0 pointer-events-none"
-          :style="{ transform: `translateY(${activeIndex * 52}px)` }"
+          v-if="collapsed"
+          class="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs font-semibold rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50"
         >
-          <div
-            class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#1a3b22] dark:bg-green-400 rounded-full transition-opacity duration-200"
-            :class="collapsed ? 'opacity-0' : 'opacity-100'"
-          />
+          {{ link.name }}
+          <div class="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700" />
         </div>
-
-        <router-link
-          v-for="(link, index) in links"
-          :key="link.path"
-          :to="link.path"
-          class="flex items-center gap-3 px-3 py-3 rounded-2xl transition-colors relative z-10 group"
-          :class="[
-            collapsed ? 'justify-center' : '',
-            activeIndex === index
-              ? 'text-[#1a3b22] dark:text-green-400 font-semibold'
-              : 'text-gray-500 hover:text-[#1a3b22] hover:bg-white/50 dark:text-gray-400 dark:hover:text-green-400 dark:hover:bg-gray-800/50'
-          ]"
-        >
-          <component :is="link.icon" class="w-5 h-5 shrink-0" />
-
-          <span
-            class="whitespace-nowrap overflow-hidden transition-all duration-300"
-            :class="collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'"
-          >
-            {{ link.name }}
-          </span>
-
-          <!-- Tooltip when collapsed -->
-          <div
-            v-if="collapsed"
-            class="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs font-semibold rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50"
-          >
-            {{ link.name }}
-            <div class="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700" />
-          </div>
-        </router-link>
-      </nav>
-    </div>
+      </router-link>
+    </nav>
 
     <!-- BOTTOM: Collapse toggle + User card -->
     <div class="p-3 flex flex-col gap-2 shrink-0">
@@ -293,4 +289,31 @@ function logout() {
 .slide-drawer-leave-to      { transform: translateX(-100%); }
 .slide-drawer-enter-to,
 .slide-drawer-leave-from    { transform: translateX(0); }
+
+/* Slim scrollbar for the nav area */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s;
+}
+.sidebar-scroll:hover {
+  scrollbar-color: rgba(45, 106, 79, 0.25) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(45, 106, 79, 0.25);
+}
+.sidebar-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 106, 79, 0.45);
+}
 </style>
