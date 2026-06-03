@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { jwtDecode } from 'jwt-decode';
 import { computed, ref } from 'vue';
 import AuthService from '../services/auth.service';
+import { startNotificationHub, stopNotificationHub } from '../services/notification.service';
+
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('jwt') ?? null);
@@ -17,6 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
     const data = await AuthService.login(email, password);
     token.value = data.token ?? null;
     userEmail.value = data.email ?? email;
+    await startNotificationHub( () => token.value, (notification) => {
+        console.log("Received notification:", notification);
+      }
+    );
     setUser();
     return data;
   }
@@ -40,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
   setUser();
    
   function logout() {
+    stopNotificationHub();
     localStorage.removeItem('jwt');
     localStorage.removeItem('user_email');
     token.value = null;
