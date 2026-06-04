@@ -226,7 +226,7 @@ import NotificationBell from './NotificationBell.vue';
 import { useAuthStore } from '../stores/auth';
 import {
   LayoutDashboard, Map as MapIcon, Activity,
-  User, LogOut, PawPrint, Users, Fence, ClipboardList, Ticket,
+  User, LogOut, PawPrint, Users, Fence, ClipboardList, Ticket, UtensilsCrossed,
 } from 'lucide-vue-next';
 
 const auth   = useAuthStore();
@@ -259,11 +259,12 @@ const links = computed(() => {
     { name: 'Profile', path: '/profile',   icon: User            },
   ];
   if (auth.hasAnyRole('Manager')) {
-    base.push({ name: 'Animals',    path: '/animals',    icon: PawPrint      });
-    base.push({ name: 'Employees',  path: '/employees',  icon: Users         });
-    base.push({ name: 'Enclosures', path: '/enclosures', icon: Fence         });
-    base.push({ name: 'Tasks',      path: '/tasks',      icon: ClipboardList });
-    base.push({ name: 'Tickets',    path: '/tickets',    icon: Ticket        });
+    base.push({ name: 'Animals',    path: '/animals',    icon: PawPrint         });
+    base.push({ name: 'Employees',  path: '/employees',  icon: Users            });
+    base.push({ name: 'Enclosures', path: '/enclosures', icon: Fence            });
+    base.push({ name: 'Tasks',      path: '/tasks',      icon: ClipboardList    });
+    base.push({ name: 'Tickets',    path: '/tickets',    icon: Ticket           });
+    base.push({ name: 'Food',       path: '/food',       icon: UtensilsCrossed  });
   }
   return base;
 });

@@ -13,6 +13,7 @@ import EmployeeDetailsView from '../views/manager/EmployeeDetailsView.vue'
 import EnclosuresView from '../views/manager/EnclosuresView.vue'
 import TasksView from '../views/manager/TasksView.vue'
 import TicketsView from '../views/manager/TicketsView.vue'
+import FoodView from '../views/manager/FoodView.vue'
 import { useAuthStore } from '../stores/auth'
 import { useBreadcrumbStore } from '../stores/breadcrumb'
 
@@ -105,6 +106,12 @@ const router = createRouter({
       name: 'tickets',
       component: TicketsView,
       meta: { requiresManager: true, breadcrumb: 'Tickets' }
+    },
+    {
+      path: '/food',
+      name: 'food',
+      component: FoodView,
+      meta: { requiresManager: true, breadcrumb: 'Food' }
     }
   ]
 })

@@ -37,7 +37,7 @@
               <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">Task List</h2>
               <p class="text-xs text-gray-400">{{ tasks.length }} tasks in the system</p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
               <div class="relative">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
@@ -59,6 +59,14 @@
                 <option value="active">Active</option>
                 <option value="completed">Completed</option>
                 <option value="overdue">Overdue</option>
+              </select>
+              <select
+                v-model="filterCategory"
+                id="task-filter-category"
+                class="px-3 py-2 text-xs border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 cursor-pointer transition-colors"
+              >
+                <option value="">All categories</option>
+                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
           </div>
@@ -186,9 +194,116 @@
         @unassign="handleUnassign"
       />
 
+      <!-- ═══ CATEGORIES PANEL ═══ -->
+      <div v-if="activeTab === 'categories'" class="flex-1 min-h-0 grid grid-cols-[380px_1fr] gap-6 items-start overflow-y-auto">
+
+        <!-- Left: Add category form -->
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm p-7 sticky top-0">
+          <!-- Header -->
+          <div class="flex items-center gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400 leading-tight">Nowa kategoria</h2>
+              <p class="text-xs text-gray-400 mt-0.5">Dodaj kategorię do grupowania zadań</p>
+            </div>
+          </div>
+
+          <form @submit.prevent="handleCategorySubmit" class="flex flex-col gap-4">
+            <!-- Category name -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-gray-600 dark:text-gray-300 tracking-wide">
+                Nazwa kategorii *
+              </label>
+              <input
+                v-model="catForm.name"
+                id="category-name"
+                type="text"
+                placeholder="np. Karmienie, Czyszczenie, Weterynaria…"
+                required
+                class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all"
+              />
+            </div>
+
+            <!-- Error -->
+            <div v-if="catFormError" class="flex items-center gap-2 px-3.5 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl text-xs text-red-600 dark:text-red-400">
+              <svg class="w-4 h-4 stroke-red-500 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {{ catFormError }}
+            </div>
+
+            <!-- Submit -->
+            <div class="flex justify-end pt-1">
+              <button
+                type="submit"
+                id="submit-category"
+                :disabled="isCatSubmitting"
+                class="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-gradient-to-br from-[#2d6a4f] to-[#1a3b22] rounded-xl shadow-[0_2px_8px_rgba(45,106,79,0.3)] hover:shadow-[0_4px_16px_rgba(45,106,79,0.4)] hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <svg v-if="isCatSubmitting" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                <svg v-else class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Dodaj kategorię
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: Categories list -->
+        <div class="flex flex-col gap-4 min-h-0">
+          <!-- Header -->
+          <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-3.5 flex items-center justify-between shrink-0">
+            <div>
+              <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">Kategorie zadań</h2>
+              <p class="text-xs text-gray-400">{{ categories.length }} {{ categories.length === 1 ? 'kategoria' : categories.length < 5 ? 'kategorie' : 'kategorii' }} zdefiniowanych</p>
+            </div>
+          </div>
+
+          <DataStateWrapper
+            :loading="isLoadingCategories"
+            :error="categoriesError"
+            :empty="categories.length === 0"
+            loading-text="Pobieranie kategorii…"
+            @retry="fetchCategories"
+          >
+            <template #empty>
+              <div class="flex flex-col items-center justify-center gap-2 py-20 text-gray-400">
+                <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-1">
+                  <svg class="w-7 h-7 stroke-gray-300 dark:stroke-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Brak kategorii</p>
+                <p class="text-xs text-gray-300 dark:text-gray-600 text-center">Dodaj pierwszą kategorię używając formularza po lewej</p>
+              </div>
+            </template>
+
+            <!-- Categories grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div
+                v-for="cat in categories"
+                :key="cat.id"
+                class="group bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-4 flex items-center justify-between gap-3 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 text-[11px] font-bold text-gray-400 dark:text-gray-500 shrink-0">#{{ cat.id }}</span>
+                  <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ cat.name }}</p>
+                </div>
+                <button
+                  @click="catDelete.requestDelete(cat)"
+                  :id="`delete-category-${cat.id}`"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                  title="Usuń kategorię"
+                >
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </DataStateWrapper>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Confirm Delete -->
+    <!-- Confirm Delete — Task -->
     <ConfirmDialog
       :model-value="taskShowConfirm"
       @update:model-value="taskShowConfirm = $event"
@@ -199,6 +314,19 @@
       :loading="taskIsDeleting"
       @confirm="taskDelete.confirmDelete"
       @cancel="taskDelete.cancelDelete"
+    />
+
+    <!-- Confirm Delete — Category -->
+    <ConfirmDialog
+      :model-value="catShowConfirm"
+      @update:model-value="catShowConfirm = $event"
+      title="Usuń kategorię"
+      :message="`Czy na pewno chcesz usunąć kategorię &quot;${catPendingDelete?.name ?? ''}&quot;? Zadania przypisane do tej kategorii nie zostaną usunięte.`"
+      confirm-label="Usuń"
+      cancel-label="Anuluj"
+      :loading="catIsDeleting"
+      @confirm="catDelete.confirmDelete"
+      @cancel="catDelete.cancelDelete"
     />
 
     <!-- Toast -->
@@ -232,6 +360,11 @@ const tabs = [
     label: 'Assign',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
   },
+  {
+    key: 'categories',
+    label: 'Categories',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  },
 ];
 const activeTab = ref('tasks');
 
@@ -252,8 +385,9 @@ const isSubmitting = ref(false);
 const formError    = ref(null);
 
 // ═══ FILTERS ═══
-const searchQuery  = ref('');
-const filterStatus = ref('all');
+const searchQuery    = ref('');
+const filterStatus   = ref('all');
+const filterCategory = ref('');
 
 // ═══ TOAST ═══
 const { toastMsg, toastType, showToast } = useToast();
@@ -281,6 +415,7 @@ const filteredTasks = computed(() => {
   if (filterStatus.value === 'active')    list = list.filter(t => !t.isCompleted && !isOverdue(t));
   if (filterStatus.value === 'completed') list = list.filter(t => t.isCompleted);
   if (filterStatus.value === 'overdue')   list = list.filter(t => isOverdue(t) && !t.isCompleted);
+  if (filterCategory.value !== '')        list = list.filter(t => t.categoryId === Number(filterCategory.value));
   return list;
 });
 
@@ -361,6 +496,61 @@ async function fetchRoles() {
     roles.value = Array.isArray(data) ? data : [];
   } catch {}
 }
+
+// ═══ CATEGORIES ═══
+const isLoadingCategories = ref(false);
+const categoriesError     = ref(null);
+
+async function fetchCategories() {
+  isLoadingCategories.value = true;
+  categoriesError.value = null;
+  try {
+    const data = await taskService.getAllCategories();
+    categories.value = (Array.isArray(data) ? data : []).map(c => ({
+      id:   c.id   ?? c.Id,
+      name: c.category ?? c.Category ?? c.name ?? c.Name ?? '',
+    }));
+  } catch (err) {
+    console.error('[TasksView] fetchCategories:', err);
+    categoriesError.value = err?.response?.data?.message ?? 'Failed to load categories.';
+  } finally {
+    isLoadingCategories.value = false;
+  }
+}
+
+// Category form
+const catForm        = ref({ name: '' });
+const isCatSubmitting = ref(false);
+const catFormError   = ref(null);
+
+async function handleCategorySubmit() {
+  catFormError.value    = null;
+  isCatSubmitting.value = true;
+  try {
+    await taskService.createCategory({ Category: catForm.value.name.trim() });
+    catForm.value.name = '';
+    showToast('Category created!');
+    await fetchCategories();
+  } catch (err) {
+    console.error('[TasksView] handleCategorySubmit:', err);
+    catFormError.value = err?.response?.data?.message ?? 'Failed to create category.';
+  } finally {
+    isCatSubmitting.value = false;
+  }
+}
+
+// Category delete
+const catDelete = useDeleteConfirm(async (cat) => {
+  await taskService.deleteCategory(cat.id);
+  categories.value = categories.value.filter(c => c.id !== cat.id);
+  showToast('Category deleted.');
+});
+
+const { showConfirm: catShowConfirm, pendingDelete: catPendingDelete, isDeleting: catIsDeleting } = catDelete;
+
+watch(catDelete.deleteError, (err) => {
+  if (err) showToast(err, 'error');
+});
 
 // ═══ FORM ═══
 async function handleFormSubmit(formData) {
@@ -448,6 +638,7 @@ watch(employees, () => {
 async function initData() {
   await fetchEmployees();
   await fetchRoles();
+  await fetchCategories();
   await fetchTasks();
 }
 onMounted(initData);

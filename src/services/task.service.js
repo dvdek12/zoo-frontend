@@ -109,6 +109,50 @@ class TaskService {
     const response = await axios.delete(`${BASE_URL}/${id}`, authHeaders());
     return response.data;
   }
+
+  // ─── Task Categories ────────────────────────────────────────────
+
+  /**
+   * Pobiera wszystkie kategorie tasków.
+   * @returns {Promise<Array<{id: number, category: string}>>}
+   */
+  async getAllCategories() {
+    const response = await axios.get('https://localhost:7293/taskCategory', authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Pobiera jedną kategorię po ID.
+   * @param {number} id
+   */
+  async getCategoryById(id) {
+    const response = await axios.get(`https://localhost:7293/taskCategory/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Tworzy nową kategorię.
+   * @param {{ Category: string }} dto
+   */
+  async createCategory(dto) {
+    try {
+      const response = await axios.post('https://localhost:7293/taskCategory', dto, authHeaders());
+      return response.data;
+    } catch (err) {
+      console.error('[TaskService] createCategory error status:', err?.response?.status);
+      console.error('[TaskService] createCategory error body:', JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+  /**
+   * Usuwa kategorię po ID.
+   * @param {number} id
+   */
+  async deleteCategory(id) {
+    const response = await axios.delete(`https://localhost:7293/taskCategory/${id}`, authHeaders());
+    return response.data;
+  }
 }
 
 export default new TaskService();
