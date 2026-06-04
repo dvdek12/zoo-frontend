@@ -193,39 +193,38 @@
           </div>
         </div>
 
-        <!-- Enclosure Picker -->
+        <!-- Animal Type Picker -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Wybieg (EnclosureID)
-            <span v-if="form.enclosureId" class="ml-2 text-xs font-normal text-[#2d6a4f] dark:text-green-400 bg-[#f0f9f4] dark:bg-[#132a1e] px-2 py-0.5 rounded-full">
-              Wybrany: {{ enclosures.find(e => e.id === form.enclosureId)?.name }}
-            </span>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            Typ zwierzęcia
+            <span class="ml-1 text-xs font-normal text-gray-400">(opcjonalnie)</span>
           </label>
-          <div class="border border-gray-200 dark:border-gray-600 rounded-xl p-3 bg-gray-50 dark:bg-gray-700/50">
-            <p class="text-xs text-gray-400 mb-2 flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-              Kliknij wybieg aby go przypisać
-            </p>
-            <div class="grid grid-cols-4 gap-2">
-              <button
-                v-for="enc in enclosures"
-                :key="enc.id"
-                type="button"
-                @click="form.enclosureId = enc.id"
-                :class="[
-                  'relative flex flex-col items-center justify-center p-2.5 rounded-xl border-2 transition-all duration-200 cursor-pointer text-center',
-                  form.enclosureId === enc.id
-                    ? 'border-[#2d6a4f] bg-[#f0f9f4] dark:bg-[#132a1e] shadow-md scale-[1.03]'
-                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-[#2d6a4f]/50 hover:bg-[#f8fdfb] dark:hover:bg-[#1a3b22]/30'
-                ]"
-              >
-                <span class="text-xs font-semibold leading-tight" :class="form.enclosureId === enc.id ? 'text-[#2d6a4f] dark:text-green-400' : 'text-gray-700 dark:text-gray-300'">{{ enc.name }}</span>
-                <span class="text-[10px] text-gray-400 leading-tight mt-0.5">ID: {{ enc.id }}</span>
-                <div v-if="form.enclosureId === enc.id" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#2d6a4f] rounded-full flex items-center justify-center shadow">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                </div>
-              </button>
-            </div>
+          <div v-if="isLoadingTypes" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-400">
+            <svg class="animate-spin h-4 w-4 text-[#2d6a4f]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Ładowanie typów…
+          </div>
+          <div v-else class="flex flex-wrap gap-2">
+            <button
+              v-for="type in animalTypes"
+              :key="type.id"
+              type="button"
+              @click="form.animalTypeId = form.animalTypeId === type.id ? null : type.id"
+              :class="[
+                'relative px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-200',
+                form.animalTypeId === type.id
+                  ? 'border-[#2d6a4f] bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 shadow-sm'
+                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-[#2d6a4f]/50'
+              ]"
+            >
+              {{ type.animalTypeName ?? type.name }}
+              <svg v-if="form.animalTypeId === type.id" xmlns="http://www.w3.org/2000/svg" class="inline h-3.5 w-3.5 ml-1.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+            <span v-if="animalTypes.length === 0" class="text-sm text-gray-400 italic">Brak typów — dodaj je w sekcji Typy zwierząt.</span>
           </div>
         </div>
       </div>
@@ -260,19 +259,28 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, onMounted } from 'vue';
 import { useAnimalSearch } from '../../composables/useAnimalSearch';
 import animalService from '../../services/animal.service';
 import iconService from '../../services/icon.service';
-
-const props = defineProps({
-  enclosures: {
-    type: Array,
-    required: true,
-  },
-});
+import animalTypeService from '../../services/animalType.service';
 
 const emit = defineEmits(['save', 'close']);
+
+// --- ANIMAL TYPES ---
+const animalTypes    = ref([]);
+const isLoadingTypes = ref(false);
+
+onMounted(async () => {
+  isLoadingTypes.value = true;
+  try {
+    animalTypes.value = await animalTypeService.getAll();
+  } catch {
+    // cicho ignoruj
+  } finally {
+    isLoadingTypes.value = false;
+  }
+});
 
 // --- ICON UPLOAD ---
 const iconFile = ref(null);
@@ -321,7 +329,7 @@ const form = reactive({
   description: '',
   origin: '',
   dateOfArrival: '',
-  enclosureId: null,
+  animalTypeId: null,
 });
 
 // Stan zapisu
@@ -329,7 +337,7 @@ const isSaving = ref(false);
 const saveError = ref(null);
 
 const resetForm = () => {
-  Object.assign(form, { name: '', raceName: '', description: '', origin: '', dateOfArrival: '', enclosureId: null });
+  Object.assign(form, { name: '', raceName: '', description: '', origin: '', dateOfArrival: '', animalTypeId: null });
   clearResults();
   saveError.value = null;
   removeIcon();
@@ -370,15 +378,11 @@ const handleSave = async () => {
       Origin: form.origin || null,
       DateOfArrival: form.dateOfArrival ? new Date(form.dateOfArrival).toISOString() : null,
       ...(iconId !== null && { IconId: iconId }),
+      ...(form.animalTypeId !== null && { AnimalTypeId: form.animalTypeId }),
     };
-    console.log('Sending DTO:', JSON.stringify(dto));
 
     const saved = await animalService.create(dto);
-    const enclosure = props.enclosures.find(e => e.id === form.enclosureId);
-    emit('save', {
-      ...saved,
-      enclosureName: enclosure?.name ?? null,
-    });
+    emit('save', saved);
     resetForm();
   } catch (err) {
     console.error('[AddAnimalModal] Save error:', err);

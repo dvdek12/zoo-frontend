@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full min-h-full flex flex-col gap-6 overflow-hidden">
+  <div class="min-h-full flex flex-col gap-6">
     <PageBanner
       title="Zwierzęta"
       eyebrow="Zoo Management"
@@ -8,7 +8,7 @@
       image-position="center 40%"
     />
 
-    <div class="px-8 pt-6 flex flex-col gap-6 flex-1 overflow-hidden">
+    <div class="px-8 pt-6 pb-8 flex flex-col gap-6">
 
     <!-- Wyszukiwarka -->
     <SearchBar
@@ -41,8 +41,8 @@
       </DataStateWrapper>
     </section>
 
-    <!-- Atrybuty Sekcja (1/4) -->
-    <section class="flex-[1] flex flex-col min-h-0">
+    <!-- Atrybuty Sekcja -->
+    <section class="flex flex-col min-h-[320px]">
       <SectionHeader
         title="Atrybuty zwierząt"
         button-label="Dodaj"
@@ -52,12 +52,22 @@
       <AttributeTable :attributes="filteredAttributes" @delete="requestDeleteAttribute" />
     </section>
 
+    <!-- Typy zwierząt Sekcja -->
+    <section class="flex flex-col min-h-[320px]">
+      <SectionHeader
+        title="Typy zwierząt"
+        button-label="Dodaj"
+        button-variant="outline"
+        @action="showAnimalTypeModal = true"
+      />
+      <AnimalTypeTable :animal-types="filteredAnimalTypes" @delete="requestDeleteAnimalType" />
+    </section>
+
     </div><!-- /px-8 content -->
 
     <!-- Modals -->
     <AddAnimalModal
       v-if="showAnimalModal"
-      :enclosures="enclosures"
       @save="onAnimalSaved"
       @close="showAnimalModal = false"
     />
@@ -66,6 +76,12 @@
       v-if="showAttrModal"
       @save="onAttributeSaved"
       @close="showAttrModal = false"
+    />
+
+    <AddAnimalTypeModal
+      v-if="showAnimalTypeModal"
+      @save="onAnimalTypeSaved"
+      @close="showAnimalTypeModal = false"
     />
 
     <!-- Dialog potwierdzenia usunięcia zwierzęcia -->
@@ -115,6 +131,30 @@
       @confirm="showAttrDeleteError = false"
       @cancel="showAttrDeleteError = false"
     />
+
+    <!-- Dialog potwierdzenia usunięcia typu -->
+    <ConfirmDialog
+      :model-value="animalTypeShowConfirm"
+      @update:model-value="animalTypeShowConfirm = $event"
+      title="Usuń typ zwierzęcia"
+      :message="`Czy na pewno chcesz usunąć typ ${animalTypePendingDelete?.animalTypeName ?? ''}? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      cancel-label="Anuluj"
+      :loading="animalTypeIsDeleting"
+      @confirm="animalTypeDelete.confirmDelete"
+      @cancel="animalTypeDelete.cancelDelete"
+    />
+
+    <!-- Dialog błędu usunięcia typu -->
+    <ConfirmDialog
+      v-model="showAnimalTypeDeleteError"
+      title="Błąd usuwania"
+      :message="animalTypeDeleteError ?? 'Nie udało się usunąć typu.'"
+      confirm-label="OK"
+      cancel-label=""
+      @confirm="showAnimalTypeDeleteError = false"
+      @cancel="showAnimalTypeDeleteError = false"
+    />
   </div><!-- /outer -->
 </template>
 
@@ -125,19 +165,23 @@ import PageBanner        from '../../components/PageBanner.vue';
 import SearchBar         from '../../components/SearchBar.vue';
 import SectionHeader     from '../../components/SectionHeader.vue';
 import DataStateWrapper  from '../../components/DataStateWrapper.vue';
-import AnimalTable       from '../../components/animals/AnimalTable.vue';
-import AttributeTable    from '../../components/animals/AttributeTable.vue';
-import AddAnimalModal    from '../../components/animals/AddAnimalModal.vue';
-import AddAttributeModal from '../../components/animals/AddAttributeModal.vue';
-import ConfirmDialog     from '../../components/ConfirmDialog.vue';
-import animalService     from '../../services/animal.service';
+import AnimalTable        from '../../components/animals/AnimalTable.vue';
+import AttributeTable     from '../../components/animals/AttributeTable.vue';
+import AnimalTypeTable    from '../../components/animals/AnimalTypeTable.vue';
+import AddAnimalModal     from '../../components/animals/AddAnimalModal.vue';
+import AddAttributeModal  from '../../components/animals/AddAttributeModal.vue';
+import AddAnimalTypeModal from '../../components/animals/AddAnimalTypeModal.vue';
+import ConfirmDialog      from '../../components/ConfirmDialog.vue';
+import animalService      from '../../services/animal.service';
+import animalTypeService  from '../../services/animalType.service';
 import { useDeleteConfirm } from '../../composables/useDeleteConfirm';
 
 const router = useRouter();
 
 // --- MODALS ---
-const showAnimalModal = ref(false);
-const showAttrModal   = ref(false);
+const showAnimalModal     = ref(false);
+const showAttrModal       = ref(false);
+const showAnimalTypeModal = ref(false);
 
 // --- NAWIGACJA ---
 const goToAnimal = (id) => router.push({ name: 'animalDetail', params: { id } });
@@ -177,7 +221,19 @@ const fetchAnimals = async () => {
   loadError.value = null;
   try {
     const data = await animalService.getAll();
-    animals.value = (Array.isArray(data) ? data : [data]).map(mapAnimal);
+    const mapped = (Array.isArray(data) ? data : [data]).map(mapAnimal);
+
+    // Doładuj atrybuty dla każdego zwierzęcia równolegle
+    const attrResults = await Promise.allSettled(
+      mapped.map(a => animalService.getAssignedAttributes(a.id))
+    );
+    attrResults.forEach((result, i) => {
+      if (result.status === 'fulfilled') {
+        mapped[i].attributes = result.value;
+      }
+    });
+
+    animals.value = mapped;
   } catch (err) {
     console.error('[AnimalsView] fetchAnimals error:', err);
     loadError.value = err?.response?.data?.message ?? 'Nie udało się pobrać zwierząt z serwera.';
@@ -290,9 +346,53 @@ const filteredAttributes = computed(() => {
   );
 });
 
+// --- TYPY ZWIERZĄT ---
+const animalTypes = ref([]);
+
+const fetchAnimalTypes = async () => {
+  try {
+    const data = await animalTypeService.getAll();
+    animalTypes.value = Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('[AnimalsView] fetchAnimalTypes error:', err);
+  }
+};
+
+const onAnimalTypeSaved = async () => {
+  showAnimalTypeModal.value = false;
+  await fetchAnimalTypes();
+};
+
+const showAnimalTypeDeleteError = ref(false);
+
+const animalTypeDelete = useDeleteConfirm(async (type) => {
+  await animalTypeService.remove(type.id);
+  animalTypes.value = animalTypes.value.filter(t => t.id !== type.id);
+});
+
+const { showConfirm: animalTypeShowConfirm, pendingDelete: animalTypePendingDelete, isDeleting: animalTypeIsDeleting, deleteError: animalTypeDeleteError } = animalTypeDelete;
+
+const requestDeleteAnimalType = (id) => {
+  const item = animalTypes.value.find(t => t.id === id) ?? { id, animalTypeName: '' };
+  animalTypeDelete.requestDelete(item);
+};
+
+watch(animalTypeDeleteError, (err) => {
+  if (err) showAnimalTypeDeleteError.value = true;
+});
+
+const filteredAnimalTypes = computed(() => {
+  const q = searchQuery.value.toLowerCase().trim();
+  if (!q) return animalTypes.value;
+  return animalTypes.value.filter(t =>
+    (t.animalTypeName ?? t.name ?? '').toLowerCase().includes(q)
+  );
+});
+
 function initData() {
   fetchAnimals();
   fetchAttributes();
+  fetchAnimalTypes();
 }
 onMounted(initData);
 onActivated(initData);

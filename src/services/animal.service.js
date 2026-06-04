@@ -86,6 +86,15 @@ class AnimalService {
   }
 
   /**
+   * Pobiera atrybuty przypisane do konkretnego zwierzęcia (z ID rekordu AnimalAttribute).
+   * @param {number} animalId
+   */
+  async getAssignedAttributes(animalId) {
+    const response = await axios.get(`${BASE_URL}/${animalId}/attributes`, authHeaders());
+    return response.data;
+  }
+
+  /**
    * Pobiera wszystkie atrybuty.
    */
   async getAllAttributes() {
@@ -116,6 +125,39 @@ class AnimalService {
    */
   async removeAttribute(id) {
     const response = await axios.delete(`${ATTRIBUTES_URL}/${id}`, authHeaders());
+    return response.data;
+  }
+
+  /**
+   * Przypisuje atrybut do zwierzęcia.
+   * @param {number} animalId
+   * @param {number} attributeId
+   * @param {string} attributeValue
+   */
+  async assignAttribute(animalId, attributeId, attributeValue = '') {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/${animalId}/attribute`,
+        { AttributeId: Number(attributeId), AttributeValue: attributeValue },
+        authHeaders()
+      );
+      return response.data;
+    } catch (err) {
+      console.error('[AnimalService] assignAttribute error:', err?.response?.status, JSON.stringify(err?.response?.data, null, 2));
+      throw err;
+    }
+  }
+
+  /**
+   * Odpina atrybut od zwierzęcia.
+   * @param {number} animalId
+   * @param {number} attributeId
+   */
+  async unassignAttribute(animalId, attributeId) {
+    const response = await axios.delete(
+      `${BASE_URL}/${animalId}/attribute/${attributeId}`,
+      authHeaders()
+    );
     return response.data;
   }
 }

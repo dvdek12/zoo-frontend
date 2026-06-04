@@ -37,16 +37,25 @@
 
     <!-- Atrybuty -->
     <template #cell-attributes="{ row }">
-      <div class="flex flex-wrap gap-1.5">
+      <div class="flex flex-wrap gap-1.5 items-center">
         <span
-          v-for="attr in row.attributes"
-          :key="attr.name"
+          v-for="attr in row.attributes.slice(0, MAX_ATTRS)"
+          :key="attr.id ?? attr.name"
           class="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded border border-gray-200 dark:border-gray-600"
         >
-          <span class="font-semibold" v-html="highlight(attr.name, query)" />:
-          <span v-html="highlight(String(attr.value ?? ''), query)" />
+          <span class="font-semibold" v-html="highlight(attr.name, query)" />
+          <template v-if="attr.value">:
+            <span v-html="highlight(String(attr.value), query)" />
+          </template>
         </span>
-        <span v-if="row.attributes.length === 0" class="text-xs text-gray-400">Brak atrybutów</span>
+        <span
+          v-if="row.attributes.length > MAX_ATTRS"
+          :title="row.attributes.slice(MAX_ATTRS).map(a => a.name).join(', ')"
+          class="px-2 py-0.5 bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-semibold rounded border border-[#2d6a4f]/20 cursor-default"
+        >
+          +{{ row.attributes.length - MAX_ATTRS }} więcej
+        </span>
+        <span v-if="row.attributes.length === 0" class="text-xs text-gray-400 italic">Brak</span>
       </div>
     </template>
 
@@ -100,6 +109,8 @@ defineProps({
 defineEmits(['delete', 'row-click']);
 
 const { highlight } = useHighlight();
+
+const MAX_ATTRS = 3;
 
 const columns = [
   { key: 'icon',       label: 'Ikona',    width: 'w-16',  align: 'center' },

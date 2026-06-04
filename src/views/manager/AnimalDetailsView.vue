@@ -154,14 +154,73 @@
       <!-- Attributes -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
         <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Atrybuty</h2>
-        <div v-if="animal.attributes && animal.attributes.length > 0" class="flex flex-wrap gap-3">
-          <div
-            v-for="attr in animal.attributes"
-            :key="attr.name ?? attr.attributeName"
-            class="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/60 rounded-xl px-4 py-2.5 border border-gray-200 dark:border-gray-600"
+
+        <!-- Assign control -->
+        <div class="flex items-center gap-3 mb-5 flex-wrap">
+          <select
+            v-model="selectedAttributeId"
+            id="attr-select"
+            class="flex-1 min-w-[200px] px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors"
           >
-            <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">{{ attr.name ?? attr.attributeName }}</span>
-            <span class="text-[#2d6a4f] dark:text-green-400 font-bold text-sm">{{ attr.value ?? attr.attributeValue ?? '—' }}</span>
+            <option value="">Wybierz atrybut do przypisania…</option>
+            <option
+              v-for="attr in availableAttributes"
+              :key="attr.id"
+              :value="attr.id"
+            >
+              {{ attr.attributeName ?? attr.name ?? attr.AttributeName }}
+            </option>
+          </select>
+          <input
+            v-model="selectedAttributeValue"
+            type="text"
+            placeholder="Wartość (opcjonalna)"
+            :disabled="!selectedAttributeId"
+            class="w-44 px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 disabled:opacity-40 transition-colors"
+          />
+          <button
+            @click="assignAttr"
+            :disabled="!selectedAttributeId || isAssigning"
+            id="assign-attribute-btn"
+            class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#2d6a4f] hover:bg-[#1a3b22] rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <svg v-if="isAssigning" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            <svg v-else class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Przypisz
+          </button>
+        </div>
+
+        <!-- Error msg -->
+        <p v-if="attrError" class="text-xs text-red-500 mb-3">{{ attrError }}</p>
+
+        <!-- Attribute chips -->
+        <div v-if="assignedAttributes.length > 0" class="flex flex-wrap gap-2">
+          <div
+            v-for="attr in assignedAttributes"
+            :key="attr.id ?? attr.attributeId"
+            class="group flex items-center gap-2 bg-[#f0f9f4] dark:bg-[#132a1e] border border-[#2d6a4f]/20 dark:border-green-700/40 rounded-xl px-3.5 py-2 transition-all hover:shadow-sm"
+          >
+            <span class="text-sm font-semibold text-[#1a3b22] dark:text-green-300">
+              {{ attr.attributeName ?? attr.name ?? attr.AttributeName ?? '—' }}
+            </span>
+            <span v-if="attr.attributeValue ?? attr.value" class="text-xs text-[#2d6a4f] dark:text-green-400 opacity-70">
+              {{ attr.attributeValue ?? attr.value }}
+            </span>
+            <button
+              @click="unassignAttr(attr)"
+              :id="`remove-attr-${attr.id ?? attr.attributeId}`"
+              class="w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 opacity-0 group-hover:opacity-100 transition-all ml-1 cursor-pointer"
+              title="Odepnij atrybut"
+            >
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
         </div>
         <p v-else class="text-gray-400 italic text-sm">To zwierzę nie ma przypisanych atrybutów.</p>
@@ -296,16 +355,16 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import animalService from '../../services/animal.service';
 import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
 import { useAnimalConditions } from '../../composables/useAnimalConditions';
+import { useBreadcrumbStore } from '../../stores/breadcrumb';
 import AddHealthRecordModal from '../../components/animals/AddHealthRecordModal.vue';
 
 const { load: loadConditions, labelFor: conditionLabel, colorFor: conditionColor } = useAnimalConditions();
-import { useBreadcrumbStore } from '../../stores/breadcrumb';
 
 const route           = useRoute();
 const router          = useRouter();
@@ -314,6 +373,66 @@ const breadcrumbStore = useBreadcrumbStore();
 const animal    = ref(null);
 const isLoading = ref(false);
 const error     = ref(null);
+
+// ─── ATRYBUTY ───────────────────────────────────────────────────────────────
+const allAttributes       = ref([]);   // wszystkie dostępne atrybuty z /attributes
+const assignedAttributes  = ref([]);   // atrybuty przypisane do tego zwierzęcia
+const selectedAttributeId = ref('');
+const selectedAttributeValue = ref('');
+const isAssigning         = ref(false);
+const attrError           = ref(null);
+
+// tylko te atrybuty, które nie są jeszcze przypisane
+const availableAttributes = computed(() => {
+  const assignedIds = new Set(assignedAttributes.value.map(a => a.id ?? a.attributeId));
+  return allAttributes.value.filter(a => !assignedIds.has(a.id));
+});
+
+async function fetchAllAttributes() {
+  try {
+    const data = await animalService.getAllAttributes();
+    allAttributes.value = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error('[AnimalDetailsView] fetchAllAttributes:', e);
+  }
+}
+
+async function fetchAssignedAttributes(animalId) {
+  try {
+    const data = await animalService.getAssignedAttributes(animalId);
+    assignedAttributes.value = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error('[AnimalDetailsView] fetchAssignedAttributes:', e);
+  }
+}
+
+async function assignAttr() {
+  if (!selectedAttributeId.value || isAssigning.value) return;
+  attrError.value = null;
+  isAssigning.value = true;
+  try {
+    await animalService.assignAttribute(route.params.id, selectedAttributeId.value, selectedAttributeValue.value);
+    selectedAttributeId.value = '';
+    selectedAttributeValue.value = '';
+    await fetchAssignedAttributes(route.params.id);
+  } catch (e) {
+    attrError.value = e?.response?.data?.message ?? 'Nie udało się przypisać atrybutu.';
+  } finally {
+    isAssigning.value = false;
+  }
+}
+
+async function unassignAttr(attr) {
+  const attrId = attr.id ?? attr.attributeId;
+  try {
+    await animalService.unassignAttribute(route.params.id, attrId);
+    assignedAttributes.value = assignedAttributes.value.filter(
+      a => (a.id ?? a.attributeId) !== attrId
+    );
+  } catch (e) {
+    attrError.value = e?.response?.data?.message ?? 'Nie udało się odpiąć atrybutu.';
+  }
+}
 
 // --- IKONKA ---
 const iconFileInput    = ref(null);
@@ -406,17 +525,20 @@ watch(
     error.value = null;
     animal.value = null;
     iconPreviewUrl.value = null;
+    assignedAttributes.value = [];
+    selectedAttributeId.value = '';
+    attrError.value = null;
     try {
       const data = await animalService.getById(id);
       animal.value = data;
-      // Ustaw dynamiczny breadcrumb na nazwę zwierzęcia
       breadcrumbStore.setLabel(data?.name ?? `Animal #${id}`);
+
       const iconId = data?.iconId ?? data?.IconId ?? null;
       if (iconId) {
         try {
           iconPreviewUrl.value = await iconService.getById(iconId);
         } catch {
-          // cicho ignoruj — brak ikonki nie blokuje widoku
+          // cicho ignoruj
         }
       }
     } catch (err) {
@@ -426,6 +548,8 @@ watch(
       isLoading.value = false;
     }
     fetchHistory(id);
+    fetchAllAttributes();
+    fetchAssignedAttributes(id);
   },
   { immediate: true }
 );
