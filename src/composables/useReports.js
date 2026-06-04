@@ -2,52 +2,41 @@ import { ref, computed } from 'vue';
 import reportService from '../services/report.service';
 import employeeService from '../services/employee.service';
 import { useAuthStore } from '../stores/auth';
+import { toArray, getErrorMessage } from '../utils/normalize';
+import { formatDateShort, camelToWords, highlight } from '../utils/formatters';
 
-/**
- * Composable zarządzający logiką raportów:
- * - pobieranie listy, typów, pracowników
- * - tworzenie, usuwanie
- * - generowanie i podgląd PDF
- * - formatowanie danych
- */
 export function useReports() {
   const auth = useAuthStore();
 
-  // ── State ────────────────────────────────────────────────────────────────────
-  const reports       = ref([]);
-  const reportTypes   = ref([]);
-  const employees     = ref([]);
-  const searchQuery   = ref('');
-  const sortOrder     = ref('desc');
-  const currentAuthorId = ref(null);
+  const reports           = ref([]);
+  const reportTypes       = ref([]);
+  const employees         = ref([]);
+  const searchQuery       = ref('');
+  const sortOrder         = ref('desc');
+  const currentAuthorId   = ref(null);
 
-  const loadingReports = ref(false);
-  const loadingTypes   = ref(false);
+  const loadingReports    = ref(false);
+  const loadingTypes      = ref(false);
 
-  // PDF
-  const pdfLoadingId     = ref(null);
-  const previewLoadingId = ref(null);
-  const previewReport    = ref(null);
-  const previewBlobUrl   = ref(null);
-  const showPreview      = ref(false);
+  const pdfLoadingId      = ref(null);
+  const previewLoadingId  = ref(null);
+  const previewReport     = ref(null);
+  const previewBlobUrl    = ref(null);
+  const showPreview       = ref(false);
 
-  // Delete
-  const reportToDelete  = ref(null);
-  const showDeleteModal  = ref(false);
-  const deleting         = ref(false);
+  const reportToDelete    = ref(null);
+  const showDeleteModal   = ref(false);
+  const deleting          = ref(false);
 
-  // Create
-  const creating     = ref(false);
-  const createError  = ref('');
-  const form         = ref({ title: '', type: '', employeeId: null, animalId: null, enclosureId: null });
+  const creating          = ref(false);
+  const createError       = ref('');
+  const form              = ref({ title: '', type: '', employeeId: null, animalId: null, enclosureId: null });
 
-  // Toast
   const toast = ref({ show: false, message: '', type: 'success' });
 
-  // ── Computed ─────────────────────────────────────────────────────────────────
   const filteredReports = computed(() => {
     let list = [...reports.value];
-    const q = searchQuery.value.trim().toLowerCase();
+    const q  = searchQuery.value.trim().toLowerCase();
     if (q) list = list.filter(r => r.title?.toLowerCase().includes(q));
     list.sort((a, b) => {
       const diff = new Date(b.createdAt) - new Date(a.createdAt);
@@ -56,21 +45,12 @@ export function useReports() {
     return list;
   });
 
-  // ── Formatowanie ─────────────────────────────────────────────────────────────
   function formatType(type) {
     if (type == null) return '-';
-    const num = typeof type === 'string' ? parseInt(type, 10) : type;
+    const num   = typeof type === 'string' ? parseInt(type, 10) : type;
     const found = reportTypes.value.find(t => t.value === num);
     if (found) return found.label;
-    return typeof type === 'string' ? type.replace(/([A-Z])/g, ' $1').trim() : `Type ${type}`;
-  }
-
-  function formatDate(dateStr) {
-    if (!dateStr) return '-';
-    const d = new Date(dateStr);
-    if (isNaN(d)) return '-';
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-      + ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return typeof type === 'string' ? camelToWords(type) : `Type ${type}`;
   }
 
   function getAuthorName(authorId) {
@@ -81,12 +61,7 @@ export function useReports() {
   }
 
   function highlightText(text) {
-    const q = searchQuery.value.trim();
-    const safe = (str) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    if (!q || !text) return safe(text ?? '');
-    const escaped = safe(text);
-    const escapedQ = safe(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return escaped.replace(new RegExp(`(${escapedQ})`, 'gi'), '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>');
+    return highlight(text ?? '', searchQuery.value.trim());
   }
 
   function showToast(message, type = 'success') {
@@ -99,16 +74,15 @@ export function useReports() {
   }
 
   function resetForm() {
-    form.value = { title: '', type: '', employeeId: null, animalId: null, enclosureId: null };
+    form.value     = { title: '', type: '', employeeId: null, animalId: null, enclosureId: null };
     createError.value = '';
   }
 
-  // ── Fetch ─────────────────────────────────────────────────────────────────────
   async function fetchReports() {
     loadingReports.value = true;
     try {
-      const raw = await reportService.getAll();
-      reports.value = raw.map(r => ({
+      const raw       = await reportService.getAll();
+      reports.value   = toArray(raw).map(r => ({
         id:        r.id        ?? r.Id,
         title:     r.title     ?? r.Title,
         type:      r.type      ?? r.Type,
@@ -128,19 +102,19 @@ export function useReports() {
       const raw = await reportService.getTypes();
       if (Array.isArray(raw)) {
         reportTypes.value = raw.map((item, idx) => {
-          if (typeof item === 'string') return { value: idx, label: item.replace(/([A-Z])/g, ' $1').trim() };
+          if (typeof item === 'string') return { value: idx, label: camelToWords(item) };
           if (typeof item === 'number') return { value: item, label: `Type ${item}` };
           if (item && typeof item === 'object') {
             const val  = item.id ?? item.value ?? idx;
             const name = item.name ?? item.label ?? `Type ${val}`;
-            return { value: val, label: String(name).replace(/([A-Z])/g, ' $1').trim() };
+            return { value: val, label: camelToWords(String(name)) };
           }
           return { value: idx, label: String(item) };
         });
       } else if (raw && typeof raw === 'object') {
         reportTypes.value = Object.entries(raw).map(([k, v]) => ({
           value: parseInt(k, 10),
-          label: String(v).replace(/([A-Z])/g, ' $1').trim(),
+          label: camelToWords(String(v)),
         }));
       }
     } catch (e) {
@@ -153,9 +127,7 @@ export function useReports() {
   async function fetchEmployees() {
     try {
       employees.value = await employeeService.getAll();
-    } catch (e) {
-      console.error('[useReports] fetchEmployees:', e);
-    }
+    } catch {}
   }
 
   async function fetchCurrentAuthorId() {
@@ -164,9 +136,7 @@ export function useReports() {
       const email = auth.userEmail?.toLowerCase() ?? '';
       const me    = list.find(e => (e.email ?? e.Email ?? '').toLowerCase() === email);
       if (me) currentAuthorId.value = me.id ?? me.Id;
-    } catch (e) {
-      console.error('[useReports] fetchCurrentAuthorId:', e);
-    }
+    } catch {}
   }
 
   async function initData() {
@@ -174,13 +144,12 @@ export function useReports() {
     await fetchCurrentAuthorId();
   }
 
-  // ── Create ────────────────────────────────────────────────────────────────────
   async function handleCreate() {
     createError.value = '';
-    creating.value = true;
+    creating.value    = true;
     if (!currentAuthorId.value) {
-      createError.value = 'Nie można ustalić ID pracownika. Odśwież stronę.';
-      creating.value = false;
+      createError.value = 'Cannot determine employee ID. Please refresh.';
+      creating.value    = false;
       return;
     }
     try {
@@ -196,16 +165,12 @@ export function useReports() {
       showToast('Report created successfully!');
       await fetchReports();
     } catch (err) {
-      const d = err?.response?.data;
-      createError.value = d?.errors
-        ? Object.values(d.errors).flat().join(' ')
-        : d?.message ?? d?.title ?? 'Failed to create report.';
+      createError.value = getErrorMessage(err, 'Failed to create report.');
     } finally {
       creating.value = false;
     }
   }
 
-  // ── PDF ───────────────────────────────────────────────────────────────────────
   async function handleGeneratePDF(report) {
     if (!report) return;
     pdfLoadingId.value = report.id;
@@ -225,7 +190,7 @@ export function useReports() {
     previewBlobUrl.value   = null;
     showPreview.value      = true;
     try {
-      const blob = await reportService.getPDFBlob(report.id);
+      const blob           = await reportService.getPDFBlob(report.id);
       previewBlobUrl.value = window.URL.createObjectURL(blob);
     } catch {
       showToast('Failed to load PDF preview.', 'error');
@@ -244,9 +209,8 @@ export function useReports() {
     previewReport.value = null;
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────────────
   function confirmDelete(report) {
-    reportToDelete.value = report;
+    reportToDelete.value  = report;
     showDeleteModal.value = true;
   }
 
@@ -261,25 +225,21 @@ export function useReports() {
     } catch {
       showToast('Failed to delete report.', 'error');
     } finally {
-      deleting.value = false;
-      reportToDelete.value = null;
+      deleting.value        = false;
+      reportToDelete.value  = null;
     }
   }
 
   return {
-    // state
     reports, reportTypes, searchQuery, sortOrder, loadingReports, loadingTypes,
     creating, createError, form,
     pdfLoadingId, previewLoadingId, previewReport, previewBlobUrl, showPreview,
     reportToDelete, showDeleteModal, deleting,
     toast,
-    // computed
     filteredReports,
-    // actions
     initData, fetchReports, resetForm, toggleSort,
     handleCreate, handleGeneratePDF, handlePreviewPDF, closePreview,
     confirmDelete, handleDelete,
-    // formatters
-    formatType, formatDate, getAuthorName, highlightText, showToast,
+    formatType, formatDateShort, getAuthorName, highlightText, showToast,
   };
 }

@@ -1,96 +1,15 @@
-import axios from 'axios';
-import authService from './auth.service';
+import http from '../api/http';
 
-const BASE_URL = 'https://localhost:7293/tickets';
+const BASE = '/tickets';
 
-/**
- * Tworzy nagłówki z tokenem JWT z localStorage.
- */
-const authHeaders = () => ({
-  headers: {
-    'Authorization': `Bearer ${authService.getToken()}`,
-    'Content-Type': 'application/json',
-  },
-});
+export default {
+  getEntryTypes:    ()        => http.get(`${BASE}/entryType`).then(r => r.data),
+  createEntryType:  (dto)     => http.post(`${BASE}/entryType`, dto).then(r => r.data),
+  deleteEntryType:  (id)      => http.delete(`${BASE}/entryType/${id}`).then(r => r.data),
 
-class TicketService {
-  // ── Entry Types ────────────────────────────────────────────────
-
-  /**
-   * Pobiera listę wszystkich typów biletów (publiczny endpoint).
-   */
-  async getEntryTypes() {
-    const response = await axios.get(`${BASE_URL}/entryType`);
-    return response.data;
-  }
-
-  /**
-   * Tworzy nowy typ biletu (manager only).
-   * @param {{ typeName: string, price: number }} dto
-   */
-  async createEntryType(dto) {
-    const response = await axios.post(`${BASE_URL}/entryType`, dto, authHeaders());
-    return response.data;
-  }
-
-  /**
-   * Usuwa typ biletu po ID (manager only).
-   * @param {number} id
-   */
-  async deleteEntryType(id) {
-    const response = await axios.delete(`${BASE_URL}/entryType/${id}`, authHeaders());
-    return response.data;
-  }
-
-  // ── Tickets ────────────────────────────────────────────────────
-
-  /**
-   * Pobiera listę wszystkich biletów (manager only).
-   * @returns {TicketsAllDto[]}
-   */
-  async getAll() {
-    const response = await axios.get(`${BASE_URL}`, authHeaders());
-    return response.data;
-  }
-
-  /**
-   * Kupuje bilet (client only).
-   * @param {{ clientId: number, entryTypeIds: Record<number, number> }} dto
-   * @returns {TicketDetailsDto}
-   */
-  async purchase(dto) {
-    const response = await axios.post(`${BASE_URL}`, dto, authHeaders());
-    return response.data;
-  }
-
-  /**
-   * Pobiera szczegóły ticketu po ID.
-   * @param {number} id
-   * @returns {TicketDetailsDto}
-   */
-  async getById(id) {
-    const response = await axios.get(`${BASE_URL}/${id}`, authHeaders());
-    return response.data;
-  }
-
-  /**
-   * Usuwa ticket po ID.
-   * @param {number} id
-   */
-  async remove(id) {
-    const response = await axios.delete(`${BASE_URL}/${id}`, authHeaders());
-    return response.data;
-  }
-
-  /**
-   * Pobiera tickety dla konkretnego klienta.
-   * @param {number} clientId
-   * @returns {TicketsForClientDto[]}
-   */
-  async getForClient(clientId) {
-    const response = await axios.get(`${BASE_URL}/forClient/${clientId}`, authHeaders());
-    return response.data;
-  }
-}
-
-export default new TicketService();
+  getAll:           ()        => http.get(BASE).then(r => r.data),
+  purchase:         (dto)     => http.post(BASE, dto).then(r => r.data),
+  getById:          (id)      => http.get(`${BASE}/${id}`).then(r => r.data),
+  remove:           (id)      => http.delete(`${BASE}/${id}`).then(r => r.data),
+  getForClient:     (clientId) => http.get(`${BASE}/forClient/${clientId}`).then(r => r.data),
+};

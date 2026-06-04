@@ -1,40 +1,29 @@
-import axios from "axios";
-import * as signalR from "@microsoft/signalr";
+import axios from 'axios';
 
-
-const URL = "https://localhost:7293/Account/";
+const BASE = `${import.meta.env.VITE_API_BASE}/Account/`;
 
 class AuthService {
-
-    async login(email, password) {
-        try {
-            const response = await axios.post(URL + "Login", { email, password });
-            if (response.data.token) {
-                localStorage.setItem("jwt", response.data.token);
-                localStorage.setItem("user_email", response.data.email);
-                console.log('response.data:', response.data);
-                console.log('response.data.token type:', typeof response.data.token);
-                console.log('response.data.token value:', response.data.token);
-            }
-            return response.data;
-        } catch (error) {
-            console.error('Login failed:', error);
-            throw error;
-        }
+  async login(email, password) {
+    const response = await axios.post(`${BASE}Login`, { email, password });
+    if (response.data.token) {
+      localStorage.setItem('jwt', response.data.token);
+      localStorage.setItem('user_email', response.data.email);
     }
+    return response.data;
+  }
 
-    async register(firstName, lastName, birthDate, email, phone, password) {
-        const response = await axios.post(URL + "Register", { firstName, lastName, birthDate, email, phone, password });
-        return response.data;
-    }
+  async register(firstName, lastName, birthDate, email, phone, password) {
+    const response = await axios.post(`${BASE}Register`, { firstName, lastName, birthDate, email, phone, password });
+    return response.data;
+  }
 
-    logout() {
-        localStorage.removeItem("jwt");
-    }
+  logout() {
+    localStorage.removeItem('jwt');
+  }
 
-    getToken() {
-        return localStorage.getItem("jwt");
-    }
+  getToken() {
+    return localStorage.getItem('jwt');
+  }
 }
 
 export default new AuthService();
