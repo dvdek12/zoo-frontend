@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import { computed, ref } from 'vue';
 import AuthService from '../services/auth.service';
 import { startNotificationHub, stopNotificationHub } from '../services/notification.service';
+import { useNotificationToast } from '../composables/useNotificationToast';
 
 
 export const useAuthStore = defineStore('auth', () => {
@@ -19,10 +20,10 @@ export const useAuthStore = defineStore('auth', () => {
     const data = await AuthService.login(email, password);
     token.value = data.token ?? null;
     userEmail.value = data.email ?? email;
-    await startNotificationHub( () => token.value, (notification) => {
-        console.log("Received notification:", notification);
-      }
-    );
+    await startNotificationHub(() => token.value, (notification) => {
+      const notifStore = useNotificationToast();
+      notifStore.add(notification);
+    });
     setUser();
     return data;
   }

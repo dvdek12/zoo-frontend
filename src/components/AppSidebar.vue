@@ -107,6 +107,7 @@
             <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium leading-tight">Lead Zoologist</p>
           </div>
           <div class="flex items-center gap-1">
+            <NotificationBell />
             <ThemeToggle />
             <button @click="logout" title="Wyloguj" class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors shrink-0 cursor-pointer">
               <LogOut class="w-4 h-4" />
@@ -221,6 +222,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted, computed, watch } from 'vue';
 import ThemeToggle from './ThemeToggle.vue';
+import NotificationBell from './NotificationBell.vue';
 import { useAuthStore } from '../stores/auth';
 import {
   LayoutDashboard, Map as MapIcon, Activity,

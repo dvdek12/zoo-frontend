@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import MainLayout from './layouts/MainLayout.vue';
 import ClientLayout from './layouts/ClientLayout.vue';
 import NavProgressBar from './components/NavProgressBar.vue';
+import NotificationToast from './components/NotificationToast.vue';
 import { useThemeStore } from './stores/theme';
 import { useAuthStore } from './stores/auth';
 
@@ -25,6 +26,9 @@ const layout = computed(() => {
 <template>
   <!-- Global navigation progress bar -->
   <NavProgressBar />
+
+  <!-- Toasty dla powiadomień SignalR (prawy górny róg) -->
+  <NotificationToast />
 
   <!-- Main app layout (employee / manager) -->
   <ClientLayout v-if="layout === 'client'">
