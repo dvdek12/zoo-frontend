@@ -29,7 +29,7 @@ class TicketService {
    * @param {{ typeName: string, price: number }} dto
    */
   async createEntryType(dto) {
-    const response = await axios.post(`${BASE_URL}/entryType/new`, dto, authHeaders());
+    const response = await axios.post(`${BASE_URL}/entryType`, dto, authHeaders());
     return response.data;
   }
 
@@ -38,7 +38,7 @@ class TicketService {
    * @param {number} id
    */
   async deleteEntryType(id) {
-    const response = await axios.delete(`${BASE_URL}/entryType/delete/${id}`, authHeaders());
+    const response = await axios.delete(`${BASE_URL}/entryType/${id}`, authHeaders());
     return response.data;
   }
 

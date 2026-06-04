@@ -28,7 +28,7 @@ class ReportService {
    * @returns {Promise<Array>}
    */
   async getAll() {
-    const response = await axios.get(`${BASE_URL}`, authHeaders());
+    const response = await axios.get(`${BASE_URL}/forEmployee`, authHeaders());
     return response.data;
   }
 
