@@ -1,4 +1,6 @@
-import * as signalR from "@microsoft/signalr";
+import * as signalR from '@microsoft/signalr';
+
+const HUB_URL = `${import.meta.env.VITE_API_BASE}/hubs/notifications`;
 
 let connection = null;
 
@@ -8,14 +10,11 @@ export async function startNotificationHub(tokenFactory, onNotification) {
   }
 
   connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7293/hubs/notifications", {
-      accessTokenFactory: tokenFactory
-    })
-    .withAutomaticReconnect()  
+    .withUrl(HUB_URL, { accessTokenFactory: tokenFactory })
+    .withAutomaticReconnect()
     .build();
 
-  connection.on("ReceiveNotification", onNotification);
-
+  connection.on('ReceiveNotification', onNotification);
   await connection.start();
   return connection;
 }

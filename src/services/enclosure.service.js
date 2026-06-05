@@ -1,85 +1,21 @@
-import axios from 'axios';
-import { useAuthStore } from '../stores/auth';
+import http from '../api/http';
 
-const API_URL = 'https://localhost:7293/enclosure';
+const BASE = '/enclosure';
 
-class EnclosureService {
-  _getAuthHeader() {
-    const auth = useAuthStore();
-    return {
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-      },
-    };
-  }
+export default {
+  getAll:         ()              => http.get(BASE).then(r => r.data),
+  getOne:         (id)            => http.get(`${BASE}/${id}`).then(r => r.data),
+  create:         (data)          => http.post(BASE, data).then(r => r.data),
+  update:         (id, data)      => http.put(`${BASE}/${id}`, data).then(r => r.data),
+  remove:         (id)            => http.delete(`${BASE}/${id}`).then(r => r.data),
 
-  // --- Enclosures ---
+  getAllTypes:     ()              => http.get(`${BASE}/type`).then(r => r.data),
+  createType:     (data)          => http.post(`${BASE}/type`, data).then(r => r.data),
+  updateType:     (id, data)      => http.put(`${BASE}/type/${id}`, data).then(r => r.data),
+  removeType:     (id)            => http.delete(`${BASE}/type/${id}`).then(r => r.data),
 
-  async getAll() {
-    const response = await axios.get(`${API_URL}`, this._getAuthHeader());
-    return response.data;
-  }
-
-  async getOne(id) {
-    const response = await axios.get(`${API_URL}/${id}`, this._getAuthHeader());
-    return response.data;
-  }
-
-  async create(data) {
-    const response = await axios.post(`${API_URL}`, data, this._getAuthHeader());
-    return response.data;
-  }
-
-  async update(id, data) {
-    const response = await axios.put(`${API_URL}/${id}`, data, this._getAuthHeader());
-    return response.data;
-  }
-
-  async remove(id) {
-    const response = await axios.delete(`${API_URL}/${id}`, this._getAuthHeader());
-    return response.data;
-  }
-
-  // --- Enclosure Types ---
-
-  async getAllTypes() {
-    const response = await axios.get(`${API_URL}/type`, this._getAuthHeader());
-    return response.data;
-  }
-
-  async createType(data) {
-    const response = await axios.post(`${API_URL}/type`, data, this._getAuthHeader());
-    return response.data;
-  }
-
-  async updateType(id, data) {
-    const response = await axios.put(`${API_URL}/type/${id}`, data, this._getAuthHeader());
-    return response.data;
-  }
-
-  async removeType(id) {
-    const response = await axios.delete(`${API_URL}/type/${id}`, this._getAuthHeader());
-    return response.data;
-  }
-
-  // --- Animal Assignment ---
-
-  async assignAnimal(enclosureId, animalId) {
-    const response = await axios.put(
-      `${API_URL}/${enclosureId}/assignAnimal/${animalId}`,
-      {},
-      this._getAuthHeader(),
-    );
-    return response.data;
-  }
-
-  async unassignAnimal(enclosureId, animalId) {
-    const response = await axios.delete(
-      `${API_URL}/${enclosureId}/assignAnimal/${animalId}`,
-      this._getAuthHeader(),
-    );
-    return response.data;
-  }
-}
-
-export default new EnclosureService();
+  assignAnimal:   (enclosureId, animalId) =>
+    http.put(`${BASE}/${enclosureId}/assignAnimal/${animalId}`, {}).then(r => r.data),
+  unassignAnimal: (enclosureId, animalId) =>
+    http.delete(`${BASE}/${enclosureId}/assignAnimal/${animalId}`).then(r => r.data),
+};

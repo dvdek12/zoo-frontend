@@ -1,170 +1,145 @@
 <template>
   <div class="min-h-full flex flex-col gap-6">
     <PageBanner
-      title="Zwierzęta"
+      title="Animals"
       eyebrow="Zoo Management"
-      subtitle="Zarządzaj listą zwierząt przebywających na terenie obiektu."
+      subtitle="Manage the list of animals at the facility."
       image="/banner_animals.png"
       image-position="center 40%"
     />
 
     <div class="px-8 pt-6 pb-8 flex flex-col gap-6">
 
-    <!-- Wyszukiwarka -->
-    <SearchBar
-      v-model="searchQuery"
-      placeholder="Wyszukaj zwierzę (po nazwie, gatunku, atrybutach) lub atrybut..."
-    />
-
-    <!-- Zwierzęta Sekcja (3/4) -->
-    <section class="flex-[3] flex flex-col min-h-0">
-      <SectionHeader
-        title=""
-        button-label="Dodaj zwierzę"
-        button-id="open-add-animal-modal"
-        @action="showAnimalModal = true"
+      <SearchBar
+        v-model="searchQuery"
+        placeholder="Search animal (by name, species, attributes)..."
       />
 
-      <DataStateWrapper
-        :loading="isLoadingAnimals"
-        :error="loadError"
-        :empty="false"
-        loading-text="Pobieranie zwierząt…"
-        @retry="fetchAnimals"
-      >
-        <AnimalTable
-          :animals="filteredAnimals"
-          :query="searchQuery"
-          @delete="requestDeleteAnimal"
-          @row-click="goToAnimal"
+      <!-- Animals Section -->
+      <section class="flex-[3] flex flex-col min-h-0">
+        <SectionHeader
+          title=""
+          button-label="Add animal"
+          button-id="open-add-animal-modal"
+          @action="showAnimalModal = true"
         />
-      </DataStateWrapper>
-    </section>
+        <DataStateWrapper
+          :loading="isLoadingAnimals"
+          :error="loadError"
+          :empty="false"
+          loading-text="Loading animals…"
+          @retry="fetchAnimals"
+        >
+          <AnimalTable
+            :animals="filteredAnimals"
+            :query="searchQuery"
+            @delete="requestDeleteAnimal"
+            @row-click="goToAnimal"
+          />
+        </DataStateWrapper>
+      </section>
 
-    <!-- Atrybuty Sekcja -->
-    <section class="flex flex-col min-h-[320px]">
-      <SectionHeader
-        title="Atrybuty zwierząt"
-        button-label="Dodaj"
-        button-variant="outline"
-        @action="showAttrModal = true"
-      />
-      <AttributeTable :attributes="filteredAttributes" @delete="requestDeleteAttribute" />
-    </section>
+      <!-- Attributes Section -->
+      <section class="flex flex-col min-h-[320px]">
+        <SectionHeader
+          title="Animal Attributes"
+          button-label="Add"
+          button-variant="outline"
+          @action="showAttrModal = true"
+        />
+        <AttributeTable :attributes="filteredAttributes" @delete="requestDeleteAttribute" />
+      </section>
 
-    <!-- Typy zwierząt Sekcja -->
-    <section class="flex flex-col min-h-[320px]">
-      <SectionHeader
-        title="Typy zwierząt"
-        button-label="Dodaj"
-        button-variant="outline"
-        @action="showAnimalTypeModal = true"
-      />
-      <AnimalTypeTable :animal-types="filteredAnimalTypes" @delete="requestDeleteAnimalType" />
-    </section>
-
-    </div><!-- /px-8 content -->
+      <!-- Animal Types Section -->
+      <section class="flex flex-col min-h-[320px]">
+        <SectionHeader
+          title="Animal Types"
+          button-label="Add"
+          button-variant="outline"
+          @action="showAnimalTypeModal = true"
+        />
+        <AnimalTypeTable :animal-types="filteredAnimalTypes" @delete="requestDeleteAnimalType" />
+      </section>
+    </div>
 
     <!-- Modals -->
-    <AddAnimalModal
-      v-if="showAnimalModal"
-      @save="onAnimalSaved"
-      @close="showAnimalModal = false"
-    />
+    <AddAnimalModal     v-if="showAnimalModal"     @save="onAnimalSaved"     @close="showAnimalModal = false" />
+    <AddAttributeModal  v-if="showAttrModal"       @save="onAttributeSaved"  @close="showAttrModal = false" />
+    <AddAnimalTypeModal v-if="showAnimalTypeModal" @save="onAnimalTypeSaved" @close="showAnimalTypeModal = false" />
 
-    <AddAttributeModal
-      v-if="showAttrModal"
-      @save="onAttributeSaved"
-      @close="showAttrModal = false"
-    />
-
-    <AddAnimalTypeModal
-      v-if="showAnimalTypeModal"
-      @save="onAnimalTypeSaved"
-      @close="showAnimalTypeModal = false"
-    />
-
-    <!-- Dialog potwierdzenia usunięcia zwierzęcia -->
+    <!-- Delete dialogs -->
     <ConfirmDialog
       :model-value="animalShowConfirm"
       @update:model-value="animalShowConfirm = $event"
-      title="Usuń zwierzę"
-      :message="`Czy na pewno chcesz usunąć ${animalPendingDelete?.name ?? 'to zwierzę'}? Tej operacji nie można cofnąć.`"
-      confirm-label="Usuń"
-      cancel-label="Anuluj"
+      title="Delete animal"
+      :message="`Are you sure you want to delete ${animalPendingDelete?.name ?? 'this animal'}? This action cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
       :loading="animalIsDeleting"
       @confirm="animalDelete.confirmDelete"
       @cancel="animalDelete.cancelDelete"
     />
-
-    <!-- Dialog błędu usunięcia zwierzęcia -->
     <ConfirmDialog
       v-model="showAnimalDeleteError"
-      title="Błąd usuwania"
-      :message="animalDeleteError ?? 'Nie udało się usunąć zwierzęcia.'"
+      title="Delete error"
+      :message="animalDeleteError ?? 'Failed to delete animal.'"
       confirm-label="OK"
       cancel-label=""
       @confirm="showAnimalDeleteError = false"
       @cancel="showAnimalDeleteError = false"
     />
 
-    <!-- Dialog potwierdzenia usunięcia atrybutu -->
     <ConfirmDialog
       :model-value="attrShowConfirm"
       @update:model-value="attrShowConfirm = $event"
-      title="Usuń atrybut"
-      :message="`Czy na pewno chcesz usunąć atrybut ${attrPendingDelete?.name ?? ''}? Tej operacji nie można cofnąć.`"
-      confirm-label="Usuń"
-      cancel-label="Anuluj"
+      title="Delete attribute"
+      :message="`Are you sure you want to delete attribute ${attrPendingDelete?.name ?? ''}? This action cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
       :loading="attrIsDeleting"
       @confirm="attrDelete.confirmDelete"
       @cancel="attrDelete.cancelDelete"
     />
-
-    <!-- Dialog błędu usunięcia atrybutu -->
     <ConfirmDialog
       v-model="showAttrDeleteError"
-      title="Błąd usuwania"
-      :message="attrDeleteError ?? 'Nie udało się usunąć atrybutu.'"
+      title="Delete error"
+      :message="attrDeleteError ?? 'Failed to delete attribute.'"
       confirm-label="OK"
       cancel-label=""
       @confirm="showAttrDeleteError = false"
       @cancel="showAttrDeleteError = false"
     />
 
-    <!-- Dialog potwierdzenia usunięcia typu -->
     <ConfirmDialog
       :model-value="animalTypeShowConfirm"
       @update:model-value="animalTypeShowConfirm = $event"
-      title="Usuń typ zwierzęcia"
-      :message="`Czy na pewno chcesz usunąć typ ${animalTypePendingDelete?.animalTypeName ?? ''}? Tej operacji nie można cofnąć.`"
-      confirm-label="Usuń"
-      cancel-label="Anuluj"
+      title="Delete animal type"
+      :message="`Are you sure you want to delete type ${animalTypePendingDelete?.animalTypeName ?? ''}? This action cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
       :loading="animalTypeIsDeleting"
       @confirm="animalTypeDelete.confirmDelete"
       @cancel="animalTypeDelete.cancelDelete"
     />
-
-    <!-- Dialog błędu usunięcia typu -->
     <ConfirmDialog
       v-model="showAnimalTypeDeleteError"
-      title="Błąd usuwania"
-      :message="animalTypeDeleteError ?? 'Nie udało się usunąć typu.'"
+      title="Delete error"
+      :message="animalTypeDeleteError ?? 'Failed to delete type.'"
       confirm-label="OK"
       cancel-label=""
       @confirm="showAnimalTypeDeleteError = false"
       @cancel="showAnimalTypeDeleteError = false"
     />
-  </div><!-- /outer -->
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onActivated, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import PageBanner        from '../../components/PageBanner.vue';
-import SearchBar         from '../../components/SearchBar.vue';
-import SectionHeader     from '../../components/SectionHeader.vue';
-import DataStateWrapper  from '../../components/DataStateWrapper.vue';
+import PageBanner         from '../../components/PageBanner.vue';
+import SearchBar          from '../../components/SearchBar.vue';
+import SectionHeader      from '../../components/SectionHeader.vue';
+import DataStateWrapper   from '../../components/DataStateWrapper.vue';
 import AnimalTable        from '../../components/animals/AnimalTable.vue';
 import AttributeTable     from '../../components/animals/AttributeTable.vue';
 import AnimalTypeTable    from '../../components/animals/AnimalTypeTable.vue';
@@ -175,156 +150,114 @@ import ConfirmDialog      from '../../components/ConfirmDialog.vue';
 import animalService      from '../../services/animal.service';
 import animalTypeService  from '../../services/animalType.service';
 import { useDeleteConfirm } from '../../composables/useDeleteConfirm';
+import { toArray, getErrorMessage } from '../../utils/normalize';
 
 const router = useRouter();
 
-// --- MODALS ---
 const showAnimalModal     = ref(false);
 const showAttrModal       = ref(false);
 const showAnimalTypeModal = ref(false);
+const searchQuery         = ref('');
 
-// --- NAWIGACJA ---
 const goToAnimal = (id) => router.push({ name: 'animalDetail', params: { id } });
 
-// --- SEARCH ---
-const searchQuery = ref('');
-
-// --- WYBIEGI ---
-const enclosures = ref([
-  { id: 1, name: 'Savanna',     icon: '🦁' },
-  { id: 2, name: 'Aquarium',    icon: '🐟' },
-  { id: 3, name: 'Jungle',      icon: '🌿' },
-  { id: 4, name: 'Arctic',      icon: '🧊' },
-  { id: 5, name: 'Aviary',      icon: '🦜' },
-  { id: 6, name: 'Reptile',     icon: '🦎' },
-  { id: 7, name: 'Nocturnal',   icon: '🦇' },
-  { id: 8, name: 'Petting Zoo', icon: '🐑' },
-]);
-
-// --- ZWIERZĘTA ---
+// --- ANIMALS ---
 const animals          = ref([]);
 const isLoadingAnimals = ref(false);
 const loadError        = ref(null);
 
-const mapAnimal = (a) => ({
-  id:         a.id,
-  iconId:     a.iconId     ?? null,
-  name:       a.name        ?? '',
-  species:    a.raceName    ?? a.species ?? 'Nieznany',
-  image:      a.image       ?? 'https://images.unsplash.com/photo-1564756543161-1d54eb84e4f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  status:     a.status      ?? 'W zoo',
-  attributes: a.attributes  ?? [],
-});
+const ATTRIBUTE_TYPE_LABELS = { 0: 'Text (String)', 1: 'Number', 2: 'Yes/No (Boolean)', 3: 'Date' };
 
-const fetchAnimals = async () => {
+function mapAnimal(a) {
+  return {
+    id:         a.id,
+    iconId:     a.iconId   ?? null,
+    name:       a.name     ?? '',
+    species:    a.raceName ?? a.species ?? 'Unknown',
+    image:      a.image    ?? 'https://images.unsplash.com/photo-1564756543161-1d54eb84e4f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    status:     a.status   ?? 'In zoo',
+    attributes: a.attributes ?? [],
+  };
+}
+
+async function fetchAnimals() {
   isLoadingAnimals.value = true;
-  loadError.value = null;
+  loadError.value        = null;
   try {
-    const data = await animalService.getAll();
-    const mapped = (Array.isArray(data) ? data : [data]).map(mapAnimal);
+    const data   = await animalService.getAll();
+    const mapped = toArray(data).map(mapAnimal);
 
-    // Doładuj atrybuty dla każdego zwierzęcia równolegle
-    const attrResults = await Promise.allSettled(
-      mapped.map(a => animalService.getAssignedAttributes(a.id))
-    );
+    const attrResults = await Promise.allSettled(mapped.map(a => animalService.getAssignedAttributes(a.id)));
     attrResults.forEach((result, i) => {
-      if (result.status === 'fulfilled') {
-        mapped[i].attributes = result.value;
-      }
+      if (result.status === 'fulfilled') mapped[i].attributes = result.value;
     });
 
     animals.value = mapped;
   } catch (err) {
-    console.error('[AnimalsView] fetchAnimals error:', err);
-    loadError.value = err?.response?.data?.message ?? 'Nie udało się pobrać zwierząt z serwera.';
+    loadError.value = getErrorMessage(err, 'Failed to load animals.');
   } finally {
     isLoadingAnimals.value = false;
   }
-};
+}
 
-const onAnimalSaved = async () => {
-  showAnimalModal.value = false;
-  await fetchAnimals();
-};
+const onAnimalSaved = async () => { showAnimalModal.value = false; await fetchAnimals(); };
 
-// --- DELETE ZWIERZĘ (useDeleteConfirm) ---
 const showAnimalDeleteError = ref(false);
-
 const animalDelete = useDeleteConfirm(async (animal) => {
   await animalService.remove(animal.id);
   animals.value = animals.value.filter(a => a.id !== animal.id);
 });
-
-// Destrukturyzacja refs żeby template mógł je czytać bezpośrednio
 const { showConfirm: animalShowConfirm, pendingDelete: animalPendingDelete, isDeleting: animalIsDeleting, deleteError: animalDeleteError } = animalDelete;
+const requestDeleteAnimal = (id) => animalDelete.requestDelete(animals.value.find(a => a.id === id) ?? { id, name: '' });
+watch(animalDeleteError, (err) => { if (err) showAnimalDeleteError.value = true; });
 
-const requestDeleteAnimal = (id) => {
-  const item = animals.value.find(a => a.id === id) ?? { id, name: '' };
-  animalDelete.requestDelete(item);
-};
+// --- ATTRIBUTES ---
+const attributes = ref([]);
 
-// Obserwuj błąd usunięcia — jeśli wystąpił, pokaż dialog błędu
-watch(animalDeleteError, (err) => {
-  if (err) showAnimalDeleteError.value = true;
-});
-
-// --- ATRYBUTY ---
-const attributes          = ref([]);
-const isLoadingAttributes = ref(false);
-
-const mapAttributeType = (typeEnum) => {
-  if (typeof typeEnum === 'string') return typeEnum;
-  switch (typeEnum) {
-    case 0: return 'Tekst (String)';
-    case 1: return 'Liczba (Number)';
-    case 2: return 'Tak/Nie (Boolean)';
-    case 3: return 'Data (Date)';
-    default: return String(typeEnum ?? 'Nieznany typ');
-  }
-};
-
-const fetchAttributes = async () => {
-  isLoadingAttributes.value = true;
+async function fetchAttributes() {
   try {
-    const data = await animalService.getAllAttributes();
-    attributes.value = (Array.isArray(data) ? data : [data]).map(a => ({
+    const data      = await animalService.getAllAttributes();
+    attributes.value = toArray(data).map(a => ({
       id:   a.id || a.attributeId || Math.random(),
-      name: a.attributeName || a.name || 'Nieznana nazwa',
-      type: mapAttributeType(a.attributeType ?? a.type),
+      name: a.attributeName || a.name || 'Unknown',
+      type: ATTRIBUTE_TYPE_LABELS[a.attributeType ?? a.type] ?? String(a.attributeType ?? a.type ?? 'Unknown type'),
     }));
-  } catch (err) {
-    console.error('[AnimalsView] Błąd pobierania atrybutów:', err);
-  } finally {
-    isLoadingAttributes.value = false;
-  }
-};
+  } catch {}
+}
 
-const onAttributeSaved = async () => {
-  showAttrModal.value = false;
-  await fetchAttributes();
-};
+const onAttributeSaved = async () => { showAttrModal.value = false; await fetchAttributes(); };
 
-// --- DELETE ATRYBUT (useDeleteConfirm) ---
 const showAttrDeleteError = ref(false);
-
 const attrDelete = useDeleteConfirm(async (attr) => {
   await animalService.removeAttribute(attr.id);
   attributes.value = attributes.value.filter(a => a.id !== attr.id);
 });
-
-// Destrukturyzacja refs
 const { showConfirm: attrShowConfirm, pendingDelete: attrPendingDelete, isDeleting: attrIsDeleting, deleteError: attrDeleteError } = attrDelete;
+const requestDeleteAttribute = (id) => attrDelete.requestDelete(attributes.value.find(a => a.id === id) ?? { id, name: '' });
+watch(attrDeleteError, (err) => { if (err) showAttrDeleteError.value = true; });
 
-const requestDeleteAttribute = (id) => {
-  const item = attributes.value.find(a => a.id === id) ?? { id, name: '' };
-  attrDelete.requestDelete(item);
-};
+// --- ANIMAL TYPES ---
+const animalTypes = ref([]);
 
-watch(attrDeleteError, (err) => {
-  if (err) showAttrDeleteError.value = true;
+async function fetchAnimalTypes() {
+  try {
+    const data       = await animalTypeService.getAll();
+    animalTypes.value = Array.isArray(data) ? data : [];
+  } catch {}
+}
+
+const onAnimalTypeSaved = async () => { showAnimalTypeModal.value = false; await fetchAnimalTypes(); };
+
+const showAnimalTypeDeleteError = ref(false);
+const animalTypeDelete = useDeleteConfirm(async (type) => {
+  await animalTypeService.remove(type.id);
+  animalTypes.value = animalTypes.value.filter(t => t.id !== type.id);
 });
+const { showConfirm: animalTypeShowConfirm, pendingDelete: animalTypePendingDelete, isDeleting: animalTypeIsDeleting, deleteError: animalTypeDeleteError } = animalTypeDelete;
+const requestDeleteAnimalType = (id) => animalTypeDelete.requestDelete(animalTypes.value.find(t => t.id === id) ?? { id, animalTypeName: '' });
+watch(animalTypeDeleteError, (err) => { if (err) showAnimalTypeDeleteError.value = true; });
 
-// --- FILTROWANIE ---
+// --- FILTERS ---
 const filteredAnimals = computed(() => {
   const q = searchQuery.value.toLowerCase().trim();
   if (!q) return animals.value;
@@ -332,61 +265,20 @@ const filteredAnimals = computed(() => {
     a.name.toLowerCase().includes(q) ||
     a.species.toLowerCase().includes(q) ||
     a.status.toLowerCase().includes(q) ||
-    a.attributes.some(attr =>
-      attr.name.toLowerCase().includes(q) || String(attr.value ?? '').toLowerCase().includes(q)
-    )
+    a.attributes.some(attr => attr.name.toLowerCase().includes(q) || String(attr.value ?? '').toLowerCase().includes(q))
   );
 });
 
 const filteredAttributes = computed(() => {
   const q = searchQuery.value.toLowerCase().trim();
   if (!q) return attributes.value;
-  return attributes.value.filter(a =>
-    a.name.toLowerCase().includes(q) || a.type.toLowerCase().includes(q)
-  );
-});
-
-// --- TYPY ZWIERZĄT ---
-const animalTypes = ref([]);
-
-const fetchAnimalTypes = async () => {
-  try {
-    const data = await animalTypeService.getAll();
-    animalTypes.value = Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error('[AnimalsView] fetchAnimalTypes error:', err);
-  }
-};
-
-const onAnimalTypeSaved = async () => {
-  showAnimalTypeModal.value = false;
-  await fetchAnimalTypes();
-};
-
-const showAnimalTypeDeleteError = ref(false);
-
-const animalTypeDelete = useDeleteConfirm(async (type) => {
-  await animalTypeService.remove(type.id);
-  animalTypes.value = animalTypes.value.filter(t => t.id !== type.id);
-});
-
-const { showConfirm: animalTypeShowConfirm, pendingDelete: animalTypePendingDelete, isDeleting: animalTypeIsDeleting, deleteError: animalTypeDeleteError } = animalTypeDelete;
-
-const requestDeleteAnimalType = (id) => {
-  const item = animalTypes.value.find(t => t.id === id) ?? { id, animalTypeName: '' };
-  animalTypeDelete.requestDelete(item);
-};
-
-watch(animalTypeDeleteError, (err) => {
-  if (err) showAnimalTypeDeleteError.value = true;
+  return attributes.value.filter(a => a.name.toLowerCase().includes(q) || a.type.toLowerCase().includes(q));
 });
 
 const filteredAnimalTypes = computed(() => {
   const q = searchQuery.value.toLowerCase().trim();
   if (!q) return animalTypes.value;
-  return animalTypes.value.filter(t =>
-    (t.animalTypeName ?? t.name ?? '').toLowerCase().includes(q)
-  );
+  return animalTypes.value.filter(t => (t.animalTypeName ?? t.name ?? '').toLowerCase().includes(q));
 });
 
 function initData() {

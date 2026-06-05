@@ -1,30 +1,9 @@
-import axios from 'axios';
-import authService from './auth.service';
+import http from '../api/http';
 
-const BASE_URL = 'https://localhost:7293/AnimalTypes';
+const BASE = '/AnimalTypes';
 
-const authHeaders = () => ({
-  headers: {
-    'Authorization': `Bearer ${authService.getToken()}`,
-    'Content-Type': 'application/json',
-  },
-});
-
-class AnimalTypeService {
-  async getAll() {
-    const response = await axios.get(BASE_URL, authHeaders());
-    return response.data;
-  }
-
-  async create(animalTypeName) {
-    const response = await axios.post(BASE_URL, { AnimalTypeName: animalTypeName }, authHeaders());
-    return response.data;
-  }
-
-  async remove(id) {
-    const response = await axios.delete(`${BASE_URL}/${id}`, authHeaders());
-    return response.data;
-  }
-}
-
-export default new AnimalTypeService();
+export default {
+  getAll:  ()     => http.get(BASE).then(r => r.data),
+  create:  (name) => http.post(BASE, { AnimalTypeName: name }).then(r => r.data),
+  remove:  (id)   => http.delete(`${BASE}/${id}`).then(r => r.data),
+};
