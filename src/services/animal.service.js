@@ -11,6 +11,7 @@ export default {
   getHistory:           (id)                        => http.get(`${BASE}/${id}/getHistory`).then(r => r.data),
   addHistory:           (id, dto)                   => http.post(`${BASE}/${id}/addHistory`, dto).then(r => r.data),
   create:               (dto)                       => http.post(BASE, dto).then(r => r.data),
+  update:               (id, dto)                   => http.put(`${BASE}/${id}`, dto).then(r => r.data),
   remove:               (id)                        => http.delete(`${BASE}/${id}`, { params: { id } }).then(r => r.data),
 
   getAssignedAttributes: (animalId)                 => http.get(`${BASE}/${animalId}/attributes`).then(r => r.data),

@@ -92,19 +92,40 @@
               <span class="bg-white/20 backdrop-blur-sm text-white text-xs font-mono px-2 py-0.5 rounded-lg">#{{ animal.id }}</span>
               <span class="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-0.5 rounded-full font-semibold">{{ animal.status ?? 'In zoo' }}</span>
             </div>
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1">{{ animal.name }}</h1>
-            <p class="text-green-200 dark:text-cyan-300 italic text-lg">{{ animal.raceName ?? animal.species ?? 'Unknown species' }}</p>
-            <p v-if="animal.origin" class="text-green-100/70 text-sm mt-1 flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-              </svg>
-              {{ animal.origin }}
-            </p>
+            <!-- Name inline edit -->
+            <h1
+              :contenteditable="true"
+              spellcheck="false"
+              @blur="onFieldBlur('name', $event)"
+              @keydown.enter.prevent="$event.target.blur()"
+              class="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1 outline-none rounded-lg px-1 -mx-1 cursor-text hover:bg-white/10 focus:bg-white/20 transition-colors"
+            >{{ animal.name }}</h1>
+            <!-- RaceName inline edit -->
+            <p
+              :contenteditable="true"
+              spellcheck="false"
+              @blur="onFieldBlur('raceName', $event)"
+              @keydown.enter.prevent="$event.target.blur()"
+              class="text-green-200 dark:text-cyan-300 italic text-lg outline-none rounded-lg px-1 -mx-1 cursor-text hover:bg-white/10 focus:bg-white/20 transition-colors"
+            >{{ animal.raceName ?? animal.species ?? 'Unknown species' }}</p>
+            <!-- Origin inline edit -->
+            <p
+              :contenteditable="true"
+              spellcheck="false"
+              @blur="onFieldBlur('origin', $event)"
+              @keydown.enter.prevent="$event.target.blur()"
+              class="text-green-100/70 text-sm mt-1 outline-none rounded-lg px-1 -mx-1 cursor-text hover:bg-white/10 focus:bg-white/20 transition-colors min-w-[80px]"
+            >{{ animal.origin ?? '' }}</p>
           </div>
           <!-- Date badge -->
-          <div v-if="animal.dateOfArrival" class="shrink-0 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center text-white">
+          <div class="shrink-0 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center text-white">
             <p class="text-xs text-green-200 dark:text-cyan-300 mb-1 uppercase tracking-wider font-semibold">Date of arrival</p>
-            <p class="text-2xl font-bold">{{ formatDate(animal.dateOfArrival) }}</p>
+            <input
+              type="date"
+              :value="animal.dateOfArrival ? animal.dateOfArrival.slice(0,10) : ''"
+              @change="onFieldBlur('dateOfArrival', $event)"
+              class="text-xl font-bold bg-transparent text-white text-center outline-none cursor-pointer hover:bg-white/10 rounded-lg px-2 py-0.5 transition-colors w-full"
+            />
           </div>
         </div>
       </div>
@@ -115,8 +136,12 @@
         <!-- Description -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Description</h2>
-          <p v-if="animal.description" class="text-gray-700 dark:text-gray-200 leading-relaxed">{{ animal.description }}</p>
-          <p v-else class="text-gray-400 italic text-sm">No description.</p>
+          <p
+            :contenteditable="true"
+            spellcheck="false"
+            @blur="onFieldBlur('description', $event)"
+            class="text-gray-700 dark:text-gray-200 leading-relaxed outline-none rounded-lg px-2 py-1 -mx-2 cursor-text hover:bg-gray-50 dark:hover:bg-gray-700/50 focus:bg-gray-50 dark:focus:bg-gray-700/50 transition-colors min-h-[2rem] empty:before:content-['Click_to_add_description…'] empty:before:text-gray-400 empty:before:italic empty:before:text-sm"
+          >{{ animal.description ?? '' }}</p>
         </div>
 
         <!-- Details -->
@@ -125,15 +150,34 @@
           <dl class="space-y-3">
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Species</dt>
-              <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.raceName ?? animal.species ?? '—' }}</dd>
+              <dd
+                :contenteditable="true"
+                spellcheck="false"
+                @blur="onFieldBlur('raceName', $event)"
+                @keydown.enter.prevent="$event.target.blur()"
+                class="text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 cursor-text hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 transition-colors"
+              >{{ animal.raceName ?? animal.species ?? '' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Origin</dt>
-              <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.origin ?? '—' }}</dd>
+              <dd
+                :contenteditable="true"
+                spellcheck="false"
+                @blur="onFieldBlur('origin', $event)"
+                @keydown.enter.prevent="$event.target.blur()"
+                class="text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 cursor-text hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 transition-colors"
+              >{{ animal.origin ?? '' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Date of arrival</dt>
-              <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.dateOfArrival ? formatDate(animal.dateOfArrival) : '—' }}</dd>
+              <dd class="text-sm font-semibold text-gray-800 dark:text-white">
+                <input
+                  type="date"
+                  :value="animal.dateOfArrival ? animal.dateOfArrival.slice(0,10) : ''"
+                  @change="onFieldBlur('dateOfArrival', $event)"
+                  class="bg-transparent text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                />
+              </dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Enclosure (ID)</dt>
@@ -503,6 +547,38 @@ const onIconChange = async (e) => {
     if (iconFileInput.value) iconFileInput.value.value = '';
   }
 };
+
+// --- EDYCJA INLINE ---
+async function onFieldBlur(field, event) {
+  const newValue = field === 'dateOfArrival'
+    ? event.target.value
+    : event.target.innerText.trim();
+
+  const current = field === 'dateOfArrival'
+    ? (animal.value.dateOfArrival ? animal.value.dateOfArrival.slice(0, 10) : '')
+    : (animal.value[field] ?? '');
+
+  if (newValue === current) return;
+  if (field === 'name' && !newValue) {
+    event.target.innerText = animal.value.name;
+    return;
+  }
+
+  try {
+    await animalService.update(route.params.id, {
+      Name:          field === 'name'          ? newValue : (animal.value.name ?? ''),
+      RaceName:      field === 'raceName'       ? newValue : (animal.value.raceName ?? null),
+      Origin:        field === 'origin'         ? newValue : (animal.value.origin ?? null),
+      DateOfArrival: field === 'dateOfArrival'  ? newValue : (animal.value.dateOfArrival ?? null),
+      Description:   field === 'description'   ? newValue : (animal.value.description ?? null),
+    });
+    animal.value = { ...animal.value, [field]: newValue || null };
+    if (field === 'name') breadcrumbStore.setLabel(newValue);
+  } catch (err) {
+    console.error('[AnimalDetailsView] inline save error:', err);
+    if (field !== 'dateOfArrival') event.target.innerText = animal.value[field] ?? '';
+  }
+}
 
 // --- HISTORIA ---
 const history          = ref([]);
