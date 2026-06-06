@@ -9,17 +9,13 @@ const CONDITION_STYLES = [
 ];
 
 const FALLBACK_CONDITIONS = [
-  { value: 1, label: 'Dobry' },
-  { value: 2, label: 'Przeciętny' },
-  { value: 3, label: 'Zły' },
+  { value: 1, label: 'Good' },
+  { value: 2, label: 'Average' },
+  { value: 3, label: 'Poor' },
 ];
 
-/**
- * Normalizes animal condition API payloads into { value, label } pairs.
- */
 export function parseAnimalConditions(data) {
   if (!data) return [];
-
   if (Array.isArray(data)) {
     return data.map((item, idx) => {
       if (typeof item === 'string') return { value: idx + 1, label: item };
@@ -30,31 +26,23 @@ export function parseAnimalConditions(data) {
       };
     });
   }
-
   if (typeof data === 'object') {
     return Object.entries(data).map(([name, value]) => ({
       value: typeof value === 'number' ? value : Number(value),
       label: name,
     }));
   }
-
   return [];
 }
 
 export function withConditionStyles(items) {
-  return items.map((item, idx) => ({
-    ...item,
-    ...CONDITION_STYLES[idx % CONDITION_STYLES.length],
-  }));
+  return items.map((item, idx) => ({ ...item, ...CONDITION_STYLES[idx % CONDITION_STYLES.length] }));
 }
 
-/**
- * Shared loader for /animalCondition — used by health history UI.
- */
 export function useAnimalConditions() {
   const conditions = ref([]);
-  const isLoading = ref(false);
-  const loadError = ref(null);
+  const isLoading  = ref(false);
+  const loadError  = ref(null);
 
   const load = async () => {
     isLoading.value = true;
@@ -62,44 +50,34 @@ export function useAnimalConditions() {
     try {
       const data = await animalService.getAnimalConditions();
       let parsed = parseAnimalConditions(data);
-      if (parsed.length === 0) throw new Error('Pusta odpowiedź API');
+      if (parsed.length === 0) throw new Error('Empty API response');
       conditions.value = withConditionStyles(parsed);
     } catch (err) {
       console.error('[useAnimalConditions] load error:', err);
-      loadError.value = 'Nie udało się pobrać stanów zdrowia.';
+      loadError.value  = 'Failed to load health conditions.';
       conditions.value = withConditionStyles(FALLBACK_CONDITIONS);
     } finally {
       isLoading.value = false;
     }
   };
 
-  const findById = (id) => conditions.value.find((c) => c.value === id);
-
+  const findById    = (id)    => conditions.value.find((c) => c.value === id);
   const findByLabel = (label) => {
     if (!label) return null;
     const normalized = String(label).toLowerCase();
     return conditions.value.find((c) => String(c.label).toLowerCase() === normalized);
   };
-
   const labelFor = (entry) => {
     if (!entry) return '—';
     if (entry.condition ?? entry.Condition) return entry.condition ?? entry.Condition;
     const id = entry.conditionId ?? entry.ConditionId ?? entry.conditionAdmission;
     return findById(id)?.label ?? '—';
   };
-
   const colorFor = (entry) => {
     const label = labelFor(entry);
     const match = findByLabel(label);
     return match?.color ?? 'text-gray-600 dark:text-gray-300';
   };
 
-  return {
-    conditions,
-    isLoading,
-    loadError,
-    load,
-    labelFor,
-    colorFor,
-  };
+  return { conditions, isLoading, loadError, load, labelFor, colorFor };
 }

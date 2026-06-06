@@ -24,7 +24,7 @@ defineProps({
   },
   placeholder: {
     type: String,
-    default: 'Wyszukaj...',
+    default: 'Search...',
   },
   id: {
     type: String,

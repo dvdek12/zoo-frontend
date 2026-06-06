@@ -8,7 +8,7 @@
       <!-- First Name & Last Name -->
       <div class="flex gap-4">
         <div class="flex-1">
-          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Imię</label>
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">First Name</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
               <UserIcon class="w-5 h-5" />
@@ -16,18 +16,18 @@
             <input
               type="text"
               v-model="regFirstName"
-              placeholder="Jan"
+              placeholder="John"
               required
               class="w-full pl-10 pr-4 py-4 bg-[#e8e7e3]/60 focus:bg-[#e8e7e3] border border-transparent focus:border-gray-300 rounded text-gray-800 placeholder-gray-400 focus:outline-none transition-colors"
             />
           </div>
         </div>
         <div class="flex-1">
-          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Nazwisko</label>
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Last Name</label>
           <input
             type="text"
             v-model="regLastName"
-            placeholder="Kowalski"
+            placeholder="Doe"
             required
             class="w-full px-4 py-4 bg-[#e8e7e3]/60 focus:bg-[#e8e7e3] border border-transparent focus:border-gray-300 rounded text-gray-800 placeholder-gray-400 focus:outline-none transition-colors"
           />
@@ -36,7 +36,7 @@
 
       <!-- Date of Birth -->
       <div>
-        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Data urodzenia</label>
+        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Date of Birth</label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
             <CalendarIcon class="w-5 h-5" />
@@ -60,7 +60,7 @@
           <input
             type="email"
             v-model="regEmail"
-            placeholder="jan.kowalski@gmail.com"
+            placeholder="john.doe@gmail.com"
             required
             class="w-full pl-10 pr-4 py-4 bg-[#e8e7e3]/60 focus:bg-[#e8e7e3] border border-transparent focus:border-gray-300 rounded text-gray-800 placeholder-gray-400 focus:outline-none transition-colors"
           />
@@ -70,7 +70,7 @@
       <!-- Phone (optional) -->
       <div>
         <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
-          Telefon <span class="text-gray-400 font-normal normal-case tracking-normal">(opcjonalne)</span>
+          Phone <span class="text-gray-400 font-normal normal-case tracking-normal">(optional)</span>
         </label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
@@ -87,7 +87,7 @@
 
       <!-- Password -->
       <div>
-        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Hasło</label>
+        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Password</label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
             <KeyRound class="w-5 h-5" />
@@ -95,7 +95,7 @@
           <input
             :type="showPassword ? 'text' : 'password'"
             v-model="regPassword"
-            placeholder="Min. 8 znaków"
+            placeholder="Min. 8 characters"
             required
             class="w-full pl-10 pr-10 py-4 bg-[#e8e7e3]/60 focus:bg-[#e8e7e3] border border-transparent focus:border-gray-300 rounded text-gray-800 placeholder-gray-400 focus:outline-none transition-colors"
           />
@@ -117,12 +117,12 @@
       >
         <span v-if="isLoading" class="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
         <template v-else>
-          Utwórz konto
+          Create account
           <ArrowRight class="w-5 h-5" />
         </template>
       </button>
 
-      <!-- Komunikaty odpowiedzi -->
+      <!-- Response messages -->
       <Transition name="msg-fade">
         <div v-if="messages.length > 0" :class="[
           'mt-4 px-4 py-3 rounded-lg text-sm font-medium',
@@ -162,12 +162,12 @@ const isSuccess = ref(false);
 const router = useRouter();
 
 /**
- * Wyciąga listę komunikatów z różnych formatów odpowiedzi błędu backendu.
- * Backend zwraca: [ { code, description }, ... ]  (tablica na root level)
+ * Extracts a list of messages from various backend error response formats.
+ * Backend returns: [ { code, description }, ... ]  (root level array)
  */
 function parseErrors(error) {
   const data = error?.response?.data;
-  if (!data) return ['Wystąpił nieoczekiwany błąd. Spróbuj ponownie.'];
+  if (!data) return ['An unexpected error occurred. Please try again.'];
 
   // ✅ ASP.NET Identity: root-level array [ { code, description } ]
   if (Array.isArray(data)) {
@@ -175,7 +175,7 @@ function parseErrors(error) {
     if (msgs.length) return msgs;
   }
 
-  // ASP.NET Identity opakowane: { errors: [ { code, description } ] }
+  // ASP.NET Identity wrapped: { errors: [ { code, description } ] }
   if (Array.isArray(data.errors)) {
     const msgs = data.errors.map(e => (typeof e === 'object' ? e.description ?? e.message ?? JSON.stringify(e) : String(e)));
     if (msgs.length) return msgs;
@@ -191,7 +191,7 @@ function parseErrors(error) {
   if (data.title)   return [String(data.title)];
   if (typeof data === 'string' && data.trim()) return [data.trim()];
 
-  return ['Wystąpił nieoczekiwany błąd. Spróbuj ponownie.'];
+  return ['An unexpected error occurred. Please try again.'];
 }
 
 const handleRegister = async () => {
@@ -209,7 +209,7 @@ const handleRegister = async () => {
     );
 
     isSuccess.value = true;
-    messages.value = ['Konto zostało utworzone! Możesz się teraz zalogować.'];
+    messages.value = ['Account has been created! You can now log in.'];
     setTimeout(() => router.push('/login'), 1500);
 
   } catch (error) {

@@ -3,7 +3,7 @@
     <PageBanner
       title="Dashboard"
       eyebrow="Zoo Management"
-      :subtitle="`Witaj z powrotem, ${auth.userEmail}!`"
+      :subtitle="`Welcome back, ${auth.userEmail}!`"
       image="/banner_dashboard.png"
       image-position="center 55%"
     />
@@ -22,7 +22,7 @@
             v-model="searchQuery"
             id="dashboard-search"
             type="text"
-            placeholder="Szukaj zadania..."
+            placeholder="Search tasks..."
             class="w-full pl-10 pr-9 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors shadow-sm"
           />
           <button
@@ -61,7 +61,7 @@
 
         <!-- Result count (when searching) -->
         <p v-if="searchQuery" class="text-xs text-gray-400 ml-auto shrink-0">
-          {{ filteredTasks.length }} wynik{{ filteredTasks.length === 1 ? '' : filteredTasks.length < 5 ? 'i' : 'ów' }}
+          {{ filteredTasks.length }} result{{ filteredTasks.length === 1 ? '' : 's' }}
         </p>
       </div>
 
@@ -70,7 +70,7 @@
       <!-- Loading -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center flex-1 gap-4">
         <div class="w-10 h-10 rounded-full border-[3px] border-[#2d6a4f]/20 border-t-[#2d6a4f] animate-spin"></div>
-        <p class="text-sm text-gray-400 font-medium">Pobieranie zadań…</p>
+        <p class="text-sm text-gray-400 font-medium">Loading tasks…</p>
       </div>
 
       <!-- Error -->
@@ -80,10 +80,10 @@
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </div>
-        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Błąd ładowania zadań</p>
+        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Failed to load tasks</p>
         <p class="text-xs text-gray-400 text-center max-w-xs">{{ error }}</p>
         <button @click="fetchTasks" class="px-4 py-2 text-xs font-bold bg-[#2d6a4f] text-white rounded-lg hover:bg-[#1a3b22] transition-colors">
-          Spróbuj ponownie
+          Try again
         </button>
       </div>
 
@@ -95,10 +95,10 @@
           </svg>
         </div>
         <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">
-          {{ searchQuery ? 'Brak wyników dla: "' + searchQuery + '"' : tasks.length === 0 ? 'Brak przypisanych zadań' : 'Brak zadań w tej kategorii' }}
+          {{ searchQuery ? 'No results for: "' + searchQuery + '"' : tasks.length === 0 ? 'No tasks assigned' : 'No tasks in this category' }}
         </p>
         <p class="text-xs text-gray-300 dark:text-gray-600 text-center">
-          {{ searchQuery ? 'Sprawdź pisownię lub wyczyść wyszukiwanie.' : tasks.length === 0 ? 'Manager nie przypisał Ci jeszcze żadnych zadań.' : 'Zmień filtr lub wyszukiwanie.' }}
+          {{ searchQuery ? 'Check the spelling or clear the search.' : tasks.length === 0 ? 'Your manager has not assigned any tasks yet.' : 'Change the filter or search query.' }}
         </p>
       </div>
 
@@ -143,11 +143,11 @@
                   ></h4>
                   <span v-if="isToday(task.deadline) && !task.isCompleted"
                     class="bg-[#2d6a4f] text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
-                    Dzisiaj
+                    Today
                   </span>
                   <span v-if="isOverdue(task.deadline) && !task.isCompleted"
                     class="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
-                    Przeterminowane
+                    Overdue
                   </span>
                 </div>
               </div>
@@ -178,7 +178,7 @@
                       : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                 ]"
               >
-                {{ task.isCompleted ? 'Zakończone' : isOverdue(task.deadline) ? 'Przeterminowane' : 'W toku' }}
+                {{ task.isCompleted ? 'Completed' : isOverdue(task.deadline) ? 'Overdue' : 'In progress' }}
               </span>
             </div>
 
@@ -232,10 +232,10 @@ const searchedTasks = computed(() => {
 });
 
 const filters = computed(() => [
-  { key: 'all',       label: 'Wszystkie',      count: searchedTasks.value.length },
-  { key: 'active',    label: 'Aktywne',         count: searchedTasks.value.filter(t => !t.isCompleted && !isOverdue(t.deadline)).length },
-  { key: 'overdue',   label: 'Przeterminowane', count: searchedTasks.value.filter(t => !t.isCompleted && isOverdue(t.deadline)).length },
-  { key: 'completed', label: 'Zakończone',      count: searchedTasks.value.filter(t => t.isCompleted).length },
+  { key: 'all',       label: 'All',       count: searchedTasks.value.length },
+  { key: 'active',    label: 'Active',    count: searchedTasks.value.filter(t => !t.isCompleted && !isOverdue(t.deadline)).length },
+  { key: 'overdue',   label: 'Overdue',   count: searchedTasks.value.filter(t => !t.isCompleted && isOverdue(t.deadline)).length },
+  { key: 'completed', label: 'Completed', count: searchedTasks.value.filter(t => t.isCompleted).length },
 ]);
 
 const filteredTasks = computed(() => {
@@ -251,7 +251,7 @@ const filteredTasks = computed(() => {
 // ── Helpers ───────────────────────────────────────────────────────────
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  return new Intl.DateTimeFormat('pl-PL', {
+  return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   }).format(new Date(dateStr));
@@ -269,7 +269,7 @@ async function fetchTasks() {
     const employee = await employeeService.findByEmail(email);
 
     if (!employee) {
-      error.value = `Nie znaleziono pracownika dla konta: ${email}`;
+      error.value = `No employee found for account: ${email}`;
       return;
     }
 
@@ -278,13 +278,13 @@ async function fetchTasks() {
 
     tasks.value = (Array.isArray(data) ? data : []).map(t => ({
       id:          t.id          ?? t.Id,
-      name:        t.name        ?? t.Name        ?? '(bez tytułu)',
+      name:        t.name        ?? t.Name        ?? '(untitled)',
       description: t.description ?? t.Description ?? '',
       deadline:    t.deadline    ?? t.Deadline     ?? null,
       isCompleted: t.isCompleted ?? t.IsCompleted  ?? false,
     }));
 
-    // Sortuj: dzisiejsze i aktywne pierwsze wg deadline, zakończone na końcu
+    // Sort: today's and active tasks first by deadline, completed last
     tasks.value.sort((a, b) => {
       if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
       if (!a.deadline && !b.deadline) return 0;
@@ -294,7 +294,7 @@ async function fetchTasks() {
     });
   } catch (err) {
     console.error('[DashboardView] fetchTasks:', err);
-    error.value = err?.response?.data?.message ?? 'Nie udało się pobrać zadań.';
+    error.value = err?.response?.data?.message ?? 'Failed to load tasks.';
   } finally {
     isLoading.value = false;
   }

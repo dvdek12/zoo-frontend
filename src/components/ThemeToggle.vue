@@ -8,7 +8,7 @@ const themeStore = useThemeStore();
 <template>
   <button
     @click="themeStore.toggleTheme()"
-    title="Przełącz motyw"
+    title="Toggle theme"
     class="flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-200
            text-gray-600 hover:text-gray-900 hover:bg-gray-100
            dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800"

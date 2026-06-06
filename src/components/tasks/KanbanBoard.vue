@@ -20,7 +20,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          Pobieranie pracowników…
+          Fetching employees...
         </div>
 
         <!-- Employee columns -->
@@ -46,7 +46,7 @@
               <h3 class="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight">
                 {{ emp.firstName }} {{ emp.lastName }}
               </h3>
-              <p class="text-[11px] text-gray-400 leading-tight">{{ emp.roleName ?? 'Pracownik' }}</p>
+              <p class="text-[11px] text-gray-400 leading-tight">{{ emp.roleName ?? 'Employee' }}</p>
             </div>
             <span class="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[11px] font-bold flex items-center justify-center shrink-0">
               {{ getEmpTasks(emp.id).length }}
@@ -82,7 +82,7 @@
                   @click="$emit('unassign', task)"
                   :id="`unassign-task-${task.id}`"
                   class="w-4 h-4 flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded cursor-pointer transition-colors shrink-0"
-                  title="Odepnij zadanie"
+                  title="Unassign task"
                 >
                   <svg class="w-2.5 h-2.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -109,7 +109,7 @@
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 5v14M5 12l7 7 7-7"/>
               </svg>
-              Przeciągnij zadanie tutaj
+              Drag task here
             </div>
           </div>
         </div>
@@ -130,8 +130,8 @@
             </svg>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-[#1a3b22] dark:text-green-400">Pula zadań</h3>
-            <p class="text-xs text-gray-400">{{ unassignedCount }} nieprzypisanych</p>
+            <h3 class="text-sm font-bold text-[#1a3b22] dark:text-green-400">Task pool</h3>
+            <p class="text-xs text-gray-400">{{ unassignedCount }} unassigned</p>
           </div>
         </div>
         <!-- Pool search -->
@@ -143,7 +143,7 @@
             v-model="poolSearchInternal"
             id="pool-search"
             type="text"
-            placeholder="Szukaj zadań..."
+            placeholder="Search tasks..."
             class="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors"
           />
         </div>
@@ -196,7 +196,7 @@
                   <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/>
                   <circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
                 </svg>
-                Przeciągnij
+                Drag
               </div>
             </div>
           </div>
@@ -209,7 +209,7 @@
             <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
             </svg>
-            {{ poolSearchInternal ? 'Brak wyników' : 'Wszystkie zadania są przypisane' }}
+            {{ poolSearchInternal ? 'No results' : 'All tasks are assigned' }}
           </div>
         </template>
       </div>
@@ -222,7 +222,7 @@
 import { ref, computed } from 'vue';
 
 const props = defineProps({
-  /** Lista wszystkich zadań (z assignedEmployeeId) */
+  /** List of all tasks (with assignedEmployeeId) */
   tasks: {
     type: Array,
     default: () => [],

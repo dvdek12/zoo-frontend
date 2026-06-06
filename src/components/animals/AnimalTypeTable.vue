@@ -4,7 +4,7 @@
     :rows="animalTypes"
     row-key="id"
   >
-    <!-- Nazwa -->
+    <!-- Name -->
     <template #cell-name="{ row }">
       <div class="flex items-center gap-2">
         <div class="w-6 h-6 rounded-md bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 flex items-center justify-center font-bold text-xs">
@@ -14,11 +14,11 @@
       </div>
     </template>
 
-    <!-- Akcje -->
+    <!-- Actions -->
     <template #cell-actions="{ row }">
       <button
         class="text-gray-400 hover:text-red-500 transition-colors p-1"
-        title="Usuń"
+        title="Delete"
         @click.stop="$emit('delete', row.id)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,7 +29,7 @@
 
     <!-- Empty state -->
     <template #empty>
-      <p class="text-sm text-gray-400 py-4">Brak typów zwierząt.</p>
+      <p class="text-sm text-gray-400 py-4">No animal types.</p>
     </template>
   </DataTable>
 </template>
@@ -44,7 +44,7 @@ defineProps({
 defineEmits(['delete']);
 
 const columns = [
-  { key: 'name',    label: 'Nazwa typu' },
-  { key: 'actions', label: 'Akcje', width: 'w-24', align: 'right' },
+  { key: 'name',    label: 'Type name' },
+  { key: 'actions', label: 'Actions', width: 'w-24', align: 'right' },
 ];
 </script>

@@ -24,7 +24,7 @@
         @click="$emit('retry')"
         class="text-sm text-[#2d6a4f] hover:underline"
       >
-        Spróbuj ponownie
+        Try again
       </button>
     </div>
   </div>
@@ -38,7 +38,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
           </svg>
         </div>
-        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Brak danych</p>
+        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No data</p>
       </div>
     </slot>
   </div>
@@ -49,31 +49,11 @@
 
 <script setup>
 defineProps({
-  /** Czy trwa ładowanie danych */
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  /** Komunikat błędu lub null */
-  error: {
-    type: String,
-    default: null,
-  },
-  /** Czy zbiór danych jest pusty (po załadowaniu) */
-  empty: {
-    type: Boolean,
-    default: false,
-  },
-  /** Tekst podczas ładowania */
-  loadingText: {
-    type: String,
-    default: 'Wczytywanie...',
-  },
-  /** Czy pokazać przycisk "Spróbuj ponownie" */
-  retryable: {
-    type: Boolean,
-    default: true,
-  },
+  loading:     { type: Boolean, default: false },
+  error:       { type: String,  default: null },
+  empty:       { type: Boolean, default: false },
+  loadingText: { type: String,  default: 'Loading...' },
+  retryable:   { type: Boolean, default: true },
 });
 
 defineEmits(['retry']);

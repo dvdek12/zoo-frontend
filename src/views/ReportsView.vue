@@ -2,9 +2,9 @@
   <div class="flex-1 flex flex-col h-full overflow-hidden relative">
 
     <PageBanner
-      title="Raporty"
+      title="Reports"
       eyebrow="Zoo Management"
-      subtitle="Generuj i eksportuj raporty zoologiczne dla zwierząt, pracowników i wybiegów."
+      subtitle="Generate and export zoological reports for animals, employees, and enclosures."
       image="/banner_reports.png"
       image-position="center 40%"
     />

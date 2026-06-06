@@ -15,8 +15,8 @@
             </svg>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Nowy wpis zdrowotny</h3>
-            <p class="text-xs text-gray-400 mt-0.5">Uzupełnij wyniki badania weterynaryjnego</p>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">New health record</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Fill in veterinary checkup results</p>
           </div>
         </div>
         <button type="button" @click="$emit('close')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -29,17 +29,17 @@
       <!-- Body -->
       <div class="p-6 overflow-y-auto custom-scrollbar space-y-5">
 
-        <!-- Stan zdrowia -->
+        <!-- Health condition -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Stan zdrowia <span class="text-red-400">*</span>
+            Health condition <span class="text-red-400">*</span>
           </label>
           <!-- Loading skeleton -->
           <div v-if="isLoadingConditions" class="grid grid-cols-3 gap-2">
             <div v-for="i in 3" :key="i" class="h-16 rounded-xl bg-gray-100 dark:bg-gray-700 animate-pulse" />
           </div>
 
-          <!-- Przyciski enum -->
+          <!-- Enum buttons -->
           <div v-else class="grid grid-cols-3 gap-2">
             <button
               v-for="opt in conditionOptions"
@@ -62,11 +62,11 @@
           </div>
         </div>
 
-        <!-- Temperatura + Waga -->
+        <!-- Temperature + Weight -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-              Temperatura (°C) <span class="text-red-400">*</span>
+              Temperature (°C) <span class="text-red-400">*</span>
             </label>
             <div class="relative">
               <input
@@ -76,14 +76,14 @@
                 min="30"
                 max="45"
                 class="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
-                placeholder="np. 38.5"
+                placeholder="e.g. 38.5"
               />
               <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-mono">°C</span>
             </div>
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-              Waga (kg) <span class="text-red-400">*</span>
+              Weight (kg) <span class="text-red-400">*</span>
             </label>
             <div class="relative">
               <input
@@ -92,16 +92,16 @@
                 step="0.1"
                 min="0"
                 class="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
-                placeholder="np. 120"
+                placeholder="e.g. 120"
               />
               <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-mono">kg</span>
             </div>
           </div>
         </div>
 
-        <!-- Szczepienie -->
+        <!-- Vaccination -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Szczepienie</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vaccination</label>
           <div class="flex gap-3">
             <button
               type="button"
@@ -116,7 +116,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
-              Zaszczepiony
+              Vaccinated
             </button>
             <button
               type="button"
@@ -131,22 +131,22 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
               </svg>
-              Niezaszczepiony
+              Unvaccinated
             </button>
           </div>
         </div>
 
-        <!-- Data ostatniego checkupu -->
+        <!-- Date of last checkup -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Data ostatniego badania
+            Date of last checkup
           </label>
           <input
             v-model="form.dateOfLastCheckup"
             type="datetime-local"
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
           />
-          <p class="text-xs text-gray-400 mt-1">Pozostaw puste aby użyć aktualnej daty i godziny.</p>
+          <p class="text-xs text-gray-400 mt-1">Leave empty to use current date and time.</p>
         </div>
       </div>
 
@@ -159,7 +159,7 @@
       <!-- Footer -->
       <div class="p-5 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700 shrink-0">
         <button type="button" :disabled="isSaving" @click="$emit('close')" class="px-5 py-2 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
-          Anuluj
+          Cancel
         </button>
         <button
           type="submit"
@@ -173,7 +173,7 @@
           <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
           </svg>
-          {{ isSaving ? 'Zapisywanie…' : 'Zapisz wpis' }}
+          {{ isSaving ? 'Saving...' : 'Save record' }}
         </button>
       </div>
     </form>
@@ -232,7 +232,7 @@ const handleSave = async () => {
     saveError.value =
       err?.response?.data?.message ??
       err?.response?.data ??
-      'Nie udało się zapisać wpisu. Sprawdź połączenie z API.';
+      'Failed to save the record. Check API connection.';
   } finally {
     isSaving.value = false;
   }

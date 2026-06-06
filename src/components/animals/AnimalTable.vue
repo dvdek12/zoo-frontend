@@ -6,12 +6,12 @@
     :clickable="true"
     @row-click="$emit('row-click', $event)"
   >
-    <!-- Ikona -->
+    <!-- Icon -->
     <template #cell-icon="{ row }">
       <AnimalIconCell :icon-id="row.iconId" :name="row.name" />
     </template>
 
-    <!-- Nazwa -->
+    <!-- Name -->
     <template #cell-name="{ row }">
       <span
         class="font-bold text-gray-900 dark:text-white text-lg"
@@ -19,7 +19,7 @@
       />
     </template>
 
-    <!-- Gatunek -->
+    <!-- Species -->
     <template #cell-species="{ row }">
       <span
         class="text-gray-500 dark:text-gray-400 italic text-sm"
@@ -35,7 +35,7 @@
       />
     </template>
 
-    <!-- Atrybuty -->
+    <!-- Attributes -->
     <template #cell-attributes="{ row }">
       <div class="flex flex-wrap gap-1.5 items-center">
         <span
@@ -53,17 +53,17 @@
           :title="row.attributes.slice(MAX_ATTRS).map(a => a.name).join(', ')"
           class="px-2 py-0.5 bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-semibold rounded border border-[#2d6a4f]/20 cursor-default"
         >
-          +{{ row.attributes.length - MAX_ATTRS }} więcej
+          +{{ row.attributes.length - MAX_ATTRS }} more
         </span>
-        <span v-if="row.attributes.length === 0" class="text-xs text-gray-400 italic">Brak</span>
+        <span v-if="row.attributes.length === 0" class="text-xs text-gray-400 italic">None</span>
       </div>
     </template>
 
-    <!-- Akcje -->
+    <!-- Actions -->
     <template #cell-actions="{ row }">
       <button
         class="text-gray-400 hover:text-red-500 transition-colors p-2"
-        title="Usuń"
+        title="Delete"
         @click.stop="$emit('delete', row.id)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,13 +76,13 @@
     <template #empty>
       <img
         :src="sadPandaImg"
-        alt="Smutna panda"
+        alt="Sad panda"
         class="w-80 opacity-55 grayscale mb-4"
         draggable="false"
       />
-      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">Brak zwierząt w zoo</p>
+      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">No animals in the zoo</p>
       <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
-        Nasza panda jest smutna — nie ma tu żadnych zwierząt.<br>Dodaj pierwsze, klikając przycisk powyżej.
+        Our panda is sad — there are no animals here.<br>Add the first one by clicking the button above.
       </p>
     </template>
   </DataTable>
@@ -113,17 +113,17 @@ const { highlight } = useHighlight();
 const MAX_ATTRS = 3;
 
 const columns = [
-  { key: 'icon',       label: 'Ikona',    width: 'w-16',  align: 'center' },
-  { key: 'name',       label: 'Nazwa' },
-  { key: 'species',    label: 'Gatunek' },
+  { key: 'icon',       label: 'Icon',       width: 'w-16',  align: 'center' },
+  { key: 'name',       label: 'Name' },
+  { key: 'species',    label: 'Species' },
   { key: 'status',     label: 'Status' },
-  { key: 'attributes', label: 'Atrybuty' },
-  { key: 'actions',    label: 'Akcje',    width: 'w-24',  align: 'right' },
+  { key: 'attributes', label: 'Attributes' },
+  { key: 'actions',    label: 'Actions',    width: 'w-24',  align: 'right' },
 ];
 
 /**
- * Subkomponent renderujący ikonkę zwierzęcia.
- * Używa useIcon per-instancja (każdy wiersz ma własny stan ładowania).
+ * Subcomponent rendering the animal icon.
+ * Uses useIcon per-instance (each row has its own loading state).
  */
 const AnimalIconCell = defineComponent({
   name: 'AnimalIconCell',

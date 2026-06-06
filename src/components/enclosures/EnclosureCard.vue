@@ -6,7 +6,7 @@
     <!-- ── FULL MAP (dimmed) + highlighted shape ───────────────── -->
     <div class="shape-area relative overflow-hidden" style="height: 148px;">
 
-      <!-- Pełna mapa SVG z przyciemnieniem -->
+      <!-- Full SVG map with dimming -->
       <svg
         class="absolute inset-0 w-full h-full"
         viewBox="0 0 1274 717"
@@ -21,13 +21,13 @@
           </filter>
         </defs>
 
-        <!-- Warstwa 1: tło mapy -->
+        <!-- Layer 1: map background -->
         <image href="/src/assets/map.png" x="0" y="0" width="1274" height="717" />
 
-        <!-- Warstwa 2: mocna czarna nakładka na całą mapę -->
+        <!-- Layer 2: strong black overlay on the whole map -->
         <rect x="0" y="0" width="1274" height="717" fill="rgba(0,0,0,0.78)" />
 
-        <!-- Warstwa 3 (gdy mapKey przypisany): ledwo widoczne obrysy pozostałych wybiegów -->
+        <!-- Layer 3 (when mapKey is assigned): barely visible outlines of other enclosures -->
         <template v-if="shape">
           <path
             v-for="s in ALL_SHAPES"
@@ -39,7 +39,7 @@
             stroke-width="0.8"
           />
 
-          <!-- Warstwa 4: glow wybranego kształtu -->
+          <!-- Layer 4: glow of the selected shape -->
           <path
             :d="shape.d"
             :fill="shape.color + 'aa'"
@@ -49,7 +49,7 @@
             :filter="`url(#glow-${enclosure.id})`"
           />
 
-          <!-- Warstwa 5: właściwy kształt — solid, mocno kontrastowy -->
+          <!-- Layer 5: actual shape — solid, high contrast -->
           <path
             :d="shape.d"
             :fill="shape.color + 'ee'"
@@ -61,20 +61,20 @@
         </template>
       </svg>
 
-      <!-- Fallback jeśli brak mapKey -->
+      <!-- Fallback if mapKey is missing -->
       <div v-if="!shape" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-50 text-gray-300">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
         </svg>
-        <span class="text-xs font-medium">Brak lokalizacji na mapie</span>
+        <span class="text-xs font-medium">No location on the map</span>
       </div>
 
-      <!-- Przyciski akcji — góra lewa przy hover -->
+      <!-- Action buttons — top left on hover -->
       <div class="absolute top-3 left-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <button
           @click.stop="$emit('edit', enclosure)"
           class="p-1.5 rounded-lg bg-white/90 backdrop-blur-sm shadow text-blue-500 hover:bg-blue-50 transition-colors"
-          title="Edytuj"
+          title="Edit"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -83,7 +83,7 @@
         <button
           @click.stop="$emit('delete', enclosure.id)"
           class="p-1.5 rounded-lg bg-white/90 backdrop-blur-sm shadow text-red-400 hover:bg-red-50 transition-colors"
-          title="Usuń"
+          title="Delete"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -112,7 +112,7 @@
       </div>
 
       <p class="text-xs text-gray-400 dark:text-gray-500 line-clamp-2 leading-relaxed">
-        {{ enclosure.description || 'Brak opisu.' }}
+        {{ enclosure.description || 'No description.' }}
       </p>
 
       <div class="mt-3 pt-2.5 border-t flex items-center justify-between" :style="{ borderColor: shape ? shape.color + '22' : '#f3f4f6' }">
@@ -120,7 +120,7 @@
         <span v-if="enclosure.mapKey" class="text-[10px] font-bold" :style="{ color: shape ? shape.color : '#6b7280' }">
           ⬡ {{ enclosure.mapKey }}
         </span>
-        <span v-else class="text-[10px] text-gray-300 italic">brak mapKey</span>
+        <span v-else class="text-[10px] text-gray-300 italic">no mapKey</span>
       </div>
     </div>
   </div>

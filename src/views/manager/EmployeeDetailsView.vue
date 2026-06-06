@@ -7,7 +7,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
-      <span class="text-sm">Ładowanie danych pracownika…</span>
+      <span class="text-sm">Loading employee data…</span>
     </div>
 
     <!-- Error (fetch) -->
@@ -18,7 +18,7 @@
         </svg>
       </div>
       <p class="text-red-500 font-semibold">{{ fetchError }}</p>
-      <button @click="router.back()" class="text-sm text-[#2d6a4f] hover:underline">← Wróć</button>
+      <button @click="router.back()" class="text-sm text-[#2d6a4f] hover:underline">← Go back</button>
     </div>
 
     <!-- Content -->
@@ -32,7 +32,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
-        Wróć do listy pracowników
+        Back to employee list
       </button>
 
       <!-- Hero card -->
@@ -47,7 +47,7 @@
             <div
               class="relative w-28 h-28 rounded-full cursor-pointer group"
               @click="iconFileInput?.click()"
-              title="Kliknij aby zmienić zdjęcie"
+              title="Click to change photo"
             >
               <!-- Zdjęcie lub avatar z inicjałami -->
               <img
@@ -69,7 +69,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span class="text-white text-xs font-semibold drop-shadow">Zmień</span>
+                  <span class="text-white text-xs font-semibold drop-shadow">Change</span>
                 </div>
               </div>
               <!-- Spinner podczas uploadu -->
@@ -90,7 +90,7 @@
             <div class="flex items-center gap-3 mb-1">
               <span class="bg-white/20 backdrop-blur-sm text-white text-xs font-mono px-2 py-0.5 rounded-lg">#{{ employee.id }}</span>
               <span class="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-0.5 rounded-full font-semibold">
-                {{ employee.roleName ?? 'Pracownik' }}
+                {{ employee.roleName ?? 'Employee' }}
               </span>
             </div>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1">
@@ -100,7 +100,7 @@
           </div>
           <!-- Date badge -->
           <div v-if="employee.birthDay" class="shrink-0 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center text-white">
-            <p class="text-xs text-blue-200 mb-1 uppercase tracking-wider font-semibold">Data urodzenia</p>
+            <p class="text-xs text-blue-200 mb-1 uppercase tracking-wider font-semibold">Date of birth</p>
             <p class="text-2xl font-bold">{{ formatDate(employee.birthDay) }}</p>
           </div>
         </div>
@@ -115,8 +115,8 @@
             </svg>
           </div>
           <div>
-            <h2 class="text-sm font-semibold text-gray-800 dark:text-white">Edytuj dane pracownika</h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Wszystkie pola są opcjonalne — wypełnij tylko te, które chcesz zmienić</p>
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-white">Edit employee data</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">All fields are optional — only fill in those you want to change</p>
           </div>
         </div>
 
@@ -125,7 +125,7 @@
           <!-- Imię + Nazwisko -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label for="edit-firstname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Imię</label>
+              <label for="edit-firstname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">First name</label>
               <input
                 id="edit-firstname"
                 v-model="form.firstName"
@@ -136,7 +136,7 @@
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label for="edit-lastname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Nazwisko</label>
+              <label for="edit-lastname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Last name</label>
               <input
                 id="edit-lastname"
                 v-model="form.lastName"
@@ -163,7 +163,7 @@
           <!-- Data urodzenia + Telefon -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label for="edit-birthday" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Data urodzenia</label>
+              <label for="edit-birthday" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Date of birth</label>
               <input
                 id="edit-birthday"
                 v-model="form.birthDay"
@@ -172,7 +172,7 @@
               />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label for="edit-phone" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Telefon</label>
+              <label for="edit-phone" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Phone</label>
               <input
                 id="edit-phone"
                 v-model="form.phoneNumber"
@@ -186,14 +186,14 @@
           <!-- Rola + ID Supervisora -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label for="edit-role" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Rola</label>
+              <label for="edit-role" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Role</label>
               <!-- Loading roles -->
               <div v-if="rolesLoading" class="input-field flex items-center gap-2 text-gray-400">
                 <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                <span class="text-sm">Ładowanie ról…</span>
+                <span class="text-sm">Loading roles…</span>
               </div>
               <select
                 v-else
@@ -201,14 +201,14 @@
                 v-model.number="form.roleId"
                 class="input-field"
               >
-                <option :value="null">— nie zmieniaj —</option>
+                <option :value="null">— do not change —</option>
                 <option v-for="role in roles" :key="role.id" :value="role.id">
                   {{ role.name }} 
                 </option>
               </select>
             </div>
             <div class="flex flex-col gap-1.5">
-              <label for="edit-supervisor" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">ID Supervisora</label>
+              <label for="edit-supervisor" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Supervisor ID</label>
               <input
                 id="edit-supervisor"
                 v-model.number="form.supervisorId"
@@ -233,7 +233,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Dane pracownika zostały zaktualizowane pomyślnie!
+            Employee data updated successfully!
           </div>
 
           <!-- Actions -->
@@ -244,7 +244,7 @@
               @click="router.back()"
               class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-medium text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              Anuluj
+              Cancel
             </button>
             <button
               id="submit-edit-employee"
@@ -256,7 +256,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
               </svg>
-              <span>{{ isSaving ? 'Zapisywanie…' : 'Zapisz zmiany' }}</span>
+              <span>{{ isSaving ? 'Saving…' : 'Save changes' }}</span>
             </button>
           </div>
         </form>
@@ -311,7 +311,7 @@ const onIconChange = async (e) => {
     iconPreviewUrl.value = URL.createObjectURL(file);
   } catch (err) {
     console.error('[EmployeeDetailsView] icon update error:', err);
-    iconUploadError.value = 'Nie udało się zapisać zdjęcia.';
+    iconUploadError.value = 'Failed to save photo.';
   } finally {
     isIconUploading.value = false;
     if (iconFileInput.value) iconFileInput.value.value = '';
@@ -352,7 +352,7 @@ const initials = computed(() => {
 
 const formatDate = (iso) => {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('pl-PL', { day: '2-digit', month: 'long', year: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
 const toDateInputValue = (iso) => {
@@ -393,7 +393,7 @@ onMounted(async () => {
     }
   } catch (err) {
     console.error('[EmployeeDetailsView] fetch error:', err);
-    fetchError.value = err?.response?.data?.message ?? 'Nie udało się pobrać danych pracownika.';
+    fetchError.value = err?.response?.data?.message ?? 'Failed to load employee data.';
   } finally {
     isLoading.value = false;
   }
@@ -428,7 +428,7 @@ const submitUpdate = async () => {
     saveError.value =
       err?.response?.data?.message ??
       (typeof err?.response?.data === 'string' ? err.response.data : null) ??
-      'Nie udało się zapisać zmian. Spróbuj ponownie.';
+      'Failed to save changes. Please try again.';
   } finally {
     isSaving.value = false;
   }

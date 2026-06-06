@@ -1,9 +1,9 @@
 <template>
   <div class="h-full flex flex-col">
     <PageBanner
-      title="Profil"
+      title="Profile"
       eyebrow="Zoo Management"
-      subtitle="Zarządzaj swoimi danymi i ustawieniami konta."
+      subtitle="Manage your personal data and account settings."
       image="/banner_profile.png"
       image-position="center 40%"
     />

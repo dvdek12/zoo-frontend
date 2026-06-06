@@ -6,7 +6,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
-      <span class="text-sm">Ładowanie profilu…</span>
+      <span class="text-sm">Loading profile...</span>
     </div>
 
     <div v-else-if="loadError" class="mb-6 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
@@ -26,46 +26,46 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">Imię</label>
+          <label class="block text-sm font-semibold text-gray-700">First Name</label>
           <input
             v-model="form.firstName"
             type="text"
             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#2d6a4f] focus:ring-2 focus:ring-[#2d6a4f] focus:ring-opacity-20 transition-all outline-none"
-            placeholder="Wprowadź imię"
+            placeholder="Enter first name"
             required
           />
         </div>
 
         <div class="space-y-2">
-          <label class="block text-sm font-semibold text-gray-700">Nazwisko</label>
+          <label class="block text-sm font-semibold text-gray-700">Last Name</label>
           <input
             v-model="form.lastName"
             type="text"
             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#2d6a4f] focus:ring-2 focus:ring-[#2d6a4f] focus:ring-opacity-20 transition-all outline-none"
-            placeholder="Wprowadź nazwisko"
+            placeholder="Enter last name"
             required
           />
         </div>
       </div>
 
       <div class="space-y-2 mb-6">
-        <label class="block text-sm font-semibold text-gray-700">Adres e-mail</label>
+        <label class="block text-sm font-semibold text-gray-700">Email address</label>
         <input
           v-model="form.email"
           type="email"
           readonly
           class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
         />
-        <p class="text-xs text-gray-400">E-mail może zmienić tylko menedżer.</p>
+        <p class="text-xs text-gray-400">Email can only be changed by a manager.</p>
       </div>
 
       <div class="space-y-2 mb-8">
-        <label class="block text-sm font-semibold text-gray-700">Numer telefonu</label>
+        <label class="block text-sm font-semibold text-gray-700">Phone number</label>
         <input
           v-model="form.phone"
           type="tel"
           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#2d6a4f] focus:ring-2 focus:ring-[#2d6a4f] focus:ring-opacity-20 transition-all outline-none"
-          placeholder="Wprowadź numer (opcjonalnie)"
+          placeholder="Enter number (optional)"
         />
       </div>
 
@@ -94,7 +94,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          {{ isSaving ? 'Zapisywanie...' : 'Zapisz zmiany' }}
+          {{ isSaving ? 'Saving...' : 'Save changes' }}
         </button>
       </div>
     </template>
@@ -144,13 +144,13 @@ onMounted(async () => {
   try {
     const email = auth.userEmail;
     if (!email) {
-      loadError.value = 'Brak adresu e-mail w sesji. Zaloguj się ponownie.';
+      loadError.value = 'No email in session. Please log in again.';
       return;
     }
 
     const employee = await employeeService.findByEmail(email);
     if (!employee) {
-      loadError.value = 'Nie znaleziono profilu pracownika powiązanego z tym kontem.';
+      loadError.value = 'No employee profile found associated with this account.';
       return;
     }
 
@@ -159,7 +159,7 @@ onMounted(async () => {
     console.error('[EditProfileForm] load error:', err);
     loadError.value =
       err?.response?.data?.message ??
-      'Nie udało się pobrać danych profilu.';
+      'Failed to load profile data.';
   } finally {
     isLoadingProfile.value = false;
   }
@@ -181,7 +181,7 @@ const saveProfile = async () => {
 
   try {
     await employeeService.updateAsEmployee(employeeId.value, dto);
-    successMessage.value = 'Ustawienia profilu zostały pomyślnie zapisane.';
+    successMessage.value = 'Profile settings have been successfully saved.';
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
@@ -190,7 +190,7 @@ const saveProfile = async () => {
     saveError.value =
       err?.response?.data?.message ??
       (typeof err?.response?.data === 'string' ? err.response.data : null) ??
-      'Nie udało się zapisać zmian. Spróbuj ponownie.';
+      'Failed to save changes. Please try again.';
   } finally {
     isSaving.value = false;
   }

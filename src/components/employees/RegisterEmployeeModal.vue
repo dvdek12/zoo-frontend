@@ -19,9 +19,9 @@
         <div class="px-8 pt-7 pb-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0">
           <div>
             <h2 id="register-employee-title" class="text-xl font-bold text-[#1a3b22] dark:text-green-400 tracking-tight">
-              Zarejestruj pracownika
+              Register employee
             </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Uzupełnij dane nowego członka zespołu</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Fill in the details of the new team member</p>
           </div>
           <button
             id="close-register-employee-modal"
@@ -38,31 +38,31 @@
         <form @submit.prevent="submit" class="overflow-y-auto flex-1 custom-scrollbar">
           <div class="px-8 py-6 flex flex-col gap-5">
 
-            <!-- Imię + Nazwisko -->
+            <!-- First Name + Last Name -->
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <label for="emp-firstname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Imię *</label>
+                <label for="emp-firstname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">First Name *</label>
                 <input
                   id="emp-firstname"
                   v-model="form.firstName"
                   type="text"
                   required
                   maxlength="50"
-                  placeholder="Jan"
+                  placeholder="John"
                   class="input-field"
                   :class="{ 'border-red-400': errors.firstName }"
                 />
                 <span v-if="errors.firstName" class="text-xs text-red-500">{{ errors.firstName }}</span>
               </div>
               <div class="flex flex-col gap-1.5">
-                <label for="emp-lastname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Nazwisko *</label>
+                <label for="emp-lastname" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Last Name *</label>
                 <input
                   id="emp-lastname"
                   v-model="form.lastName"
                   type="text"
                   required
                   maxlength="50"
-                  placeholder="Kowalski"
+                  placeholder="Doe"
                   class="input-field"
                   :class="{ 'border-red-400': errors.lastName }"
                 />
@@ -85,16 +85,16 @@
               <span v-if="errors.email" class="text-xs text-red-500">{{ errors.email }}</span>
             </div>
 
-            <!-- Hasło -->
+            <!-- Password -->
             <div class="flex flex-col gap-1.5">
-              <label for="emp-password" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Hasło *</label>
+              <label for="emp-password" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Password *</label>
               <div class="relative">
                 <input
                   id="emp-password"
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
                   required
-                  placeholder="Minimum 8 znaków"
+                  placeholder="Minimum 8 characters"
                   class="input-field pr-10"
                   :class="{ 'border-red-400': errors.password }"
                 />
@@ -111,9 +111,9 @@
               <span v-if="errors.password" class="text-xs text-red-500">{{ errors.password }}</span>
             </div>
 
-            <!-- Data urodzenia -->
+            <!-- Date of birth -->
             <div class="flex flex-col gap-1.5">
-              <label for="emp-birthday" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Data urodzenia *</label>
+              <label for="emp-birthday" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Date of birth *</label>
               <input
                 id="emp-birthday"
                 v-model="form.birthDay"
@@ -125,9 +125,9 @@
               <span v-if="errors.birthDay" class="text-xs text-red-500">{{ errors.birthDay }}</span>
             </div>
 
-            <!-- Telefon -->
+            <!-- Phone number -->
             <div class="flex flex-col gap-1.5">
-              <label for="emp-phone" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Telefon <span class="text-gray-400 normal-case font-normal">(opcjonalnie)</span></label>
+              <label for="emp-phone" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Phone number <span class="text-gray-400 normal-case font-normal">(optional)</span></label>
               <input
                 id="emp-phone"
                 v-model="form.phoneNumber"
@@ -137,27 +137,27 @@
               />
             </div>
 
-            <!-- Supervisor ID + Role ID (opcjonalne) -->
+            <!-- Supervisor ID + Role ID (optional) -->
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-1.5">
-                <label for="emp-supervisor" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">ID Supervisora <span class="text-gray-400 normal-case font-normal">(opcj.)</span></label>
+                <label for="emp-supervisor" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Supervisor ID <span class="text-gray-400 normal-case font-normal">(opt.)</span></label>
                 <input
                   id="emp-supervisor"
                   v-model.number="form.supervisorId"
                   type="number"
                   min="1"
-                  placeholder="np. 1"
+                  placeholder="e.g. 1"
                   class="input-field"
                 />
               </div>
               <div class="flex flex-col gap-1.5">
-                <label for="emp-role" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">ID Roli <span class="text-gray-400 normal-case font-normal">(opcj.)</span></label>
+                <label for="emp-role" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Role ID <span class="text-gray-400 normal-case font-normal">(opt.)</span></label>
                 <input
                   id="emp-role"
                   v-model.number="form.roleId"
                   type="number"
                   min="1"
-                  placeholder="np. 2"
+                  placeholder="e.g. 2"
                   class="input-field"
                 />
               </div>
@@ -166,8 +166,8 @@
             <!-- Icon Upload -->
             <div class="flex flex-col gap-1.5">
               <label class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                Zdjęcie / Ikonka
-                <span class="text-gray-400 normal-case font-normal ml-1">(opcjonalnie)</span>
+                Photo / Icon
+                <span class="text-gray-400 normal-case font-normal ml-1">(optional)</span>
               </label>
               <div
                 class="relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer p-5"
@@ -192,7 +192,7 @@
                 <!-- Preview -->
                 <div v-if="iconPreview" class="flex flex-col items-center gap-2">
                   <div class="relative">
-                    <img :src="iconPreview" alt="Podgląd" class="w-20 h-20 rounded-2xl object-cover shadow-md border-2 border-[#2d6a4f]/30" />
+                    <img :src="iconPreview" alt="Preview" class="w-20 h-20 rounded-2xl object-cover shadow-md border-2 border-[#2d6a4f]/30" />
                     <button
                       type="button"
                       @click.stop="removeIcon"
@@ -212,8 +212,8 @@
                     </svg>
                   </div>
                   <div class="text-center">
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Przeciągnij plik lub <span class="text-[#2d6a4f] dark:text-green-400 underline underline-offset-2">kliknij</span></p>
-                    <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WebP — maks. 5 MB</p>
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Drag a file or <span class="text-[#2d6a4f] dark:text-green-400 underline underline-offset-2">click</span></p>
+                    <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WebP — max. 5 MB</p>
                   </div>
                 </template>
 
@@ -234,7 +234,7 @@
             <!-- Success -->
             <div v-if="success" class="flex items-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-sm text-green-700 dark:text-green-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              Pracownik został zarejestrowany pomyślnie!
+              Employee registered successfully!
             </div>
           </div>
         </form>
@@ -247,7 +247,7 @@
             @click="$emit('close')"
             class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-medium text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            Anuluj
+            Cancel
           </button>
           <button
             id="submit-register-employee"
@@ -260,7 +260,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            <span>{{ isLoading ? 'Rejestrowanie…' : 'Zarejestruj' }}</span>
+            <span>{{ isLoading ? 'Registering…' : 'Register' }}</span>
           </button>
         </div>
       </div>
@@ -296,11 +296,11 @@ const onIconDrop = (e) => {
 const setIconFile = (file) => {
   iconUploadError.value = null;
   if (!file.type.startsWith('image/')) {
-    iconUploadError.value = 'Dozwolone są tylko pliki graficzne (PNG, JPG, WebP).';
+    iconUploadError.value = 'Only image files are allowed (PNG, JPG, WebP).';
     return;
   }
   if (file.size > 5 * 1024 * 1024) {
-    iconUploadError.value = 'Plik jest zbyt duży. Maksymalny rozmiar to 5 MB.';
+    iconUploadError.value = 'File is too large. Maximum size is 5 MB.';
     return;
   }
   iconFile.value = file;
@@ -340,11 +340,11 @@ const errors = reactive({
 
 const validate = () => {
   let valid = true;
-  errors.firstName = form.firstName.trim() ? '' : 'Imię jest wymagane';
-  errors.lastName  = form.lastName.trim()  ? '' : 'Nazwisko jest wymagane';
-  errors.email     = form.email.trim()     ? '' : 'Email jest wymagany';
-  errors.birthDay  = form.birthDay         ? '' : 'Data urodzenia jest wymagana';
-  errors.password  = form.password.length >= 1 ? '' : 'Hasło jest wymagane';
+  errors.firstName = form.firstName.trim() ? '' : 'First name is required';
+  errors.lastName  = form.lastName.trim()  ? '' : 'Last name is required';
+  errors.email     = form.email.trim()     ? '' : 'Email is required';
+  errors.birthDay  = form.birthDay         ? '' : 'Date of birth is required';
+  errors.password  = form.password.length >= 1 ? '' : 'Password is required';
 
   for (const k in errors) { if (errors[k]) valid = false; }
   return valid;
@@ -369,16 +369,16 @@ const submit = async () => {
 
   isLoading.value = true;
   try {
-    // Krok 1: jeśli wybrano ikonkę — wyślij ją najpierw i pobierz iconId
+    // Step 1: if an icon was selected — upload it first and get iconId
     let iconId = null;
     if (iconFile.value) {
       const iconResult = await iconService.upload(iconFile.value);
-      // Backend zwraca obiekt z polem id lub iconId
+      // Backend returns an object with id or iconId field
       iconId = iconResult?.id ?? iconResult?.iconId ?? null;
       console.log('[RegisterEmployeeModal] Icon uploaded, iconId:', iconId);
     }
 
-    // Krok 2: zarejestruj pracownika z IconId (jeśli dostępne)
+    // Step 2: register employee with IconId (if available)
     const finalDto = {
       ...dto,
       ...(iconId !== null && { IconId: iconId }),
@@ -386,13 +386,13 @@ const submit = async () => {
 
     await employeeService.register(finalDto);
     success.value = true;
-    // Emituj zdarzenie po krótkim opóźnieniu (żeby user zobaczył sukces)
+    // Emit event after a short delay (so the user can see the success)
     setTimeout(() => emit('save'), 1200);
   } catch (err) {
     serverError.value =
       err?.response?.data?.message ??
       (typeof err?.response?.data === 'string' ? err.response.data : null) ??
-      'Nie udało się zarejestrować pracownika. Spróbuj ponownie.';
+      'Failed to register employee. Please try again.';
   } finally {
     isLoading.value = false;
   }

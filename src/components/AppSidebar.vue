@@ -78,7 +78,7 @@
       <button
         @click="collapsed = !collapsed"
         class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl text-gray-400 hover:text-[#1a3b22] dark:hover:text-green-400 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-all duration-200 cursor-pointer"
-        :title="collapsed ? 'Rozwiń sidebar' : 'Zwiń sidebar'"
+        :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
       >
         <svg
           class="w-4 h-4 shrink-0 transition-transform duration-300"
@@ -92,7 +92,7 @@
           class="text-xs font-semibold overflow-hidden transition-all duration-300"
           :class="collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'"
         >
-          Zwiń panel
+          Collapse panel
         </span>
       </button>
 
@@ -107,9 +107,25 @@
             <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium leading-tight">Lead Zoologist</p>
           </div>
           <div class="flex items-center gap-1">
-            <NotificationBell />
-            <ThemeToggle />
-            <button @click="logout" title="Wyloguj" class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors shrink-0 cursor-pointer">
+            <!-- Bell link -->
+            <router-link
+              to="/notifications"
+              title="Notifications"
+              class="relative w-8 h-8 flex items-center justify-center rounded-xl transition-colors shrink-0"
+              :class="$route.path === '/notifications'
+                ? 'text-[#1a3b22] dark:text-green-400 bg-gray-100 dark:bg-gray-700'
+                : 'text-gray-400 hover:text-[#1a3b22] dark:hover:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
+            >
+              <Bell class="w-4 h-4" />
+              <span
+                v-if="notifStore.unreadCount > 0"
+                class="absolute -top-1 -right-1 min-w-[14px] h-3.5 px-0.5 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center leading-none"
+              >
+                {{ notifStore.unreadCount > 99 ? '99+' : notifStore.unreadCount }}
+              </span>
+            </router-link>
+            <!-- Logout -->
+            <button @click="logout" title="Logout" class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors shrink-0 cursor-pointer">
               <LogOut class="w-4 h-4" />
             </button>
           </div>
@@ -131,7 +147,7 @@
   <button
     class="md:hidden fixed top-4 left-4 z-50 w-10 h-10 flex items-center justify-center rounded-2xl bg-[#f4f3ec] dark:bg-[#1a1c1e] shadow-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800 transition-all duration-200"
     @click="mobileOpen = true"
-    aria-label="Otwórz menu"
+    aria-label="Open menu"
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="3" y1="6" x2="21" y2="6"/>
@@ -205,7 +221,25 @@
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Lead Zoologist</p>
               </div>
               <div class="flex items-center gap-1">
-                <ThemeToggle />
+                <!-- Bell link -->
+                <router-link
+                  to="/notifications"
+                  @click="mobileOpen = false"
+                  title="Notifications"
+                  class="relative w-8 h-8 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                  :class="$route.path === '/notifications'
+                    ? 'text-[#1a3b22] dark:text-green-400 bg-gray-100 dark:bg-gray-700'
+                    : 'text-gray-400 hover:text-[#1a3b22] dark:hover:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
+                >
+                  <Bell class="w-4 h-4" />
+                  <span
+                    v-if="notifStore.unreadCount > 0"
+                    class="absolute -top-1 -right-1 min-w-[14px] h-3.5 px-0.5 rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center leading-none"
+                  >
+                    {{ notifStore.unreadCount > 99 ? '99+' : notifStore.unreadCount }}
+                  </span>
+                </router-link>
+                <!-- Logout -->
                 <button @click="logout" class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors cursor-pointer">
                   <LogOut class="w-4 h-4" />
                 </button>
@@ -221,13 +255,14 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted, computed, watch } from 'vue';
-import ThemeToggle from './ThemeToggle.vue';
-import NotificationBell from './NotificationBell.vue';
 import { useAuthStore } from '../stores/auth';
 import {
   LayoutDashboard, Map as MapIcon, Activity,
-  User, LogOut, PawPrint, Users, Fence, ClipboardList, Ticket, UtensilsCrossed,
+  User, LogOut, PawPrint, Users, Fence, ClipboardList, Ticket, UtensilsCrossed, Bell,
 } from 'lucide-vue-next';
+import { useNotificationToast } from '../composables/useNotificationToast';
+
+const notifStore = useNotificationToast();
 
 const auth   = useAuthStore();
 const route  = useRoute();

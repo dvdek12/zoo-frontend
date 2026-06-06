@@ -7,7 +7,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
-      <span class="text-sm">Ładowanie danych zwierzęcia…</span>
+      <span class="text-sm">Loading animal data…</span>
     </div>
 
     <!-- Error -->
@@ -18,7 +18,7 @@
         </svg>
       </div>
       <p class="text-red-500 font-semibold">{{ error }}</p>
-      <button @click="router.back()" class="text-sm text-[#2d6a4f] hover:underline">← Wróć</button>
+      <button @click="router.back()" class="text-sm text-[#2d6a4f] hover:underline">← Go back</button>
     </div>
 
     <!-- Content -->
@@ -32,7 +32,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
-        Wróć do listy zwierząt
+        Back to animal list
       </button>
 
       <!-- Hero card -->
@@ -46,7 +46,7 @@
             <div
               class="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl cursor-pointer group"
               @click="iconFileInput?.click()"
-              title="Kliknij aby zmienić ikonkę"
+              title="Click to change icon"
             >
               <!-- Aktualna ikonka lub placeholder -->
               <img
@@ -70,7 +70,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span class="text-white text-xs font-semibold drop-shadow">Zmień</span>
+                  <span class="text-white text-xs font-semibold drop-shadow">Change</span>
                 </div>
               </div>
               <!-- Spinner podczas uploadu -->
@@ -90,10 +90,10 @@
           <div class="flex-1 text-white">
             <div class="flex items-center gap-3 mb-1">
               <span class="bg-white/20 backdrop-blur-sm text-white text-xs font-mono px-2 py-0.5 rounded-lg">#{{ animal.id }}</span>
-              <span class="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-0.5 rounded-full font-semibold">{{ animal.status ?? 'W zoo' }}</span>
+              <span class="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-0.5 rounded-full font-semibold">{{ animal.status ?? 'In zoo' }}</span>
             </div>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1">{{ animal.name }}</h1>
-            <p class="text-green-200 dark:text-cyan-300 italic text-lg">{{ animal.raceName ?? animal.species ?? 'Nieznany gatunek' }}</p>
+            <p class="text-green-200 dark:text-cyan-300 italic text-lg">{{ animal.raceName ?? animal.species ?? 'Unknown species' }}</p>
             <p v-if="animal.origin" class="text-green-100/70 text-sm mt-1 flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
@@ -103,7 +103,7 @@
           </div>
           <!-- Date badge -->
           <div v-if="animal.dateOfArrival" class="shrink-0 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center text-white">
-            <p class="text-xs text-green-200 dark:text-cyan-300 mb-1 uppercase tracking-wider font-semibold">Data przybycia</p>
+            <p class="text-xs text-green-200 dark:text-cyan-300 mb-1 uppercase tracking-wider font-semibold">Date of arrival</p>
             <p class="text-2xl font-bold">{{ formatDate(animal.dateOfArrival) }}</p>
           </div>
         </div>
@@ -114,36 +114,36 @@
 
         <!-- Description -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Opis</h2>
+          <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Description</h2>
           <p v-if="animal.description" class="text-gray-700 dark:text-gray-200 leading-relaxed">{{ animal.description }}</p>
-          <p v-else class="text-gray-400 italic text-sm">Brak opisu.</p>
+          <p v-else class="text-gray-400 italic text-sm">No description.</p>
         </div>
 
         <!-- Details -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Szczegóły</h2>
+          <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Details</h2>
           <dl class="space-y-3">
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-              <dt class="text-sm text-gray-500 dark:text-gray-400">Gatunek</dt>
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Species</dt>
               <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.raceName ?? animal.species ?? '—' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-              <dt class="text-sm text-gray-500 dark:text-gray-400">Pochodzenie</dt>
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Origin</dt>
               <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.origin ?? '—' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-              <dt class="text-sm text-gray-500 dark:text-gray-400">Data przybycia</dt>
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Date of arrival</dt>
               <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.dateOfArrival ? formatDate(animal.dateOfArrival) : '—' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-              <dt class="text-sm text-gray-500 dark:text-gray-400">Wybieg (ID)</dt>
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Enclosure (ID)</dt>
               <dd class="text-sm font-semibold text-gray-800 dark:text-white">{{ animal.enclosureId ?? '—' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Status</dt>
               <dd>
                 <span class="bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1.5 rounded-full border border-[#2d6a4f]/20">
-                  {{ animal.status ?? 'W zoo' }}
+                  {{ animal.status ?? 'In zoo' }}
                 </span>
               </dd>
             </div>
@@ -153,16 +153,28 @@
 
       <!-- Attributes -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-        <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Atrybuty</h2>
+        <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Attributes</h2>
 
         <!-- Assign control -->
         <div class="flex items-center gap-3 mb-5 flex-wrap">
+          <!-- Filter by AnimalType -->
+          <select
+            v-model="selectedAnimalTypeFilter"
+            class="w-44 px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors"
+          >
+            <option :value="null">All types</option>
+            <option value="global">Global only</option>
+            <option v-for="type in animalTypes" :key="type.id" :value="type.id">
+              {{ type.animalTypeName ?? type.name }}
+            </option>
+          </select>
+
           <select
             v-model="selectedAttributeId"
             id="attr-select"
             class="flex-1 min-w-[200px] px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors"
           >
-            <option value="">Wybierz atrybut do przypisania…</option>
+            <option value="">Select an attribute to assign…</option>
             <option
               v-for="attr in availableAttributes"
               :key="attr.id"
@@ -174,7 +186,7 @@
           <input
             v-model="selectedAttributeValue"
             type="text"
-            placeholder="Wartość (opcjonalna)"
+            placeholder="Value (optional)"
             :disabled="!selectedAttributeId"
             class="w-44 px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 disabled:opacity-40 transition-colors"
           />
@@ -191,7 +203,7 @@
             <svg v-else class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
             </svg>
-            Przypisz
+            Assign
           </button>
         </div>
 
@@ -215,7 +227,7 @@
               @click="unassignAttr(attr)"
               :id="`remove-attr-${attr.id ?? attr.attributeId}`"
               class="w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 opacity-0 group-hover:opacity-100 transition-all ml-1 cursor-pointer"
-              title="Odepnij atrybut"
+              title="Unassign attribute"
             >
               <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -223,7 +235,7 @@
             </button>
           </div>
         </div>
-        <p v-else class="text-gray-400 italic text-sm">To zwierzę nie ma przypisanych atrybutów.</p>
+        <p v-else class="text-gray-400 italic text-sm">This animal has no assigned attributes.</p>
       </div>
 
       <!-- Historia zdrowia -->
@@ -236,11 +248,11 @@
             </svg>
           </div>
           <div>
-            <h2 class="text-base font-bold text-gray-800 dark:text-white">Historia zdrowia</h2>
-            <p class="text-xs text-gray-400 dark:text-gray-500">Wyniki badań i kontrole weterynaryjne</p>
+            <h2 class="text-base font-bold text-gray-800 dark:text-white">Health history</h2>
+            <p class="text-xs text-gray-400 dark:text-gray-500">Test results and veterinary checkups</p>
           </div>
           <span class="ml-auto bg-[#f0f9f4] dark:bg-[#132a1e] text-[#2d6a4f] dark:text-green-400 text-xs font-bold px-3 py-1 rounded-full">
-            {{ history.length }} wpisów
+            {{ history.length }} entries
           </span>
           <button
             type="button"
@@ -250,7 +262,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
             </svg>
-            Dodaj wpis
+            Add entry
           </button>
         </div>
 
@@ -260,7 +272,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          <span class="text-sm">Pobieranie historii zdrowia…</span>
+          <span class="text-sm">Loading health history…</span>
         </div>
 
         <!-- Error -->
@@ -276,7 +288,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <p class="text-sm italic">Brak wpisów historii dla tego zwierzęcia.</p>
+          <p class="text-sm italic">No history entries for this animal.</p>
         </div>
 
         <!-- Oś czasu -->
@@ -311,13 +323,13 @@
                 <!-- Temperatura -->
                 <div class="flex flex-col items-center justify-center gap-1 py-4 px-3">
                   <span class="text-lg font-extrabold text-gray-800 dark:text-white leading-none">{{ entry.temperature ?? entry.Temperature ?? '—' }}<span class="text-xs font-normal text-gray-400 ml-0.5">°C</span></span>
-                  <span class="text-xs text-gray-400 dark:text-gray-500">Temperatura</span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500">Temperature</span>
                 </div>
 
                 <!-- Waga -->
                 <div class="flex flex-col items-center justify-center gap-1 py-4 px-3">
                   <span class="text-lg font-extrabold text-gray-800 dark:text-white leading-none">{{ entry.weight ?? entry.Weight ?? '—' }}<span class="text-xs font-normal text-gray-400 ml-0.5">kg</span></span>
-                  <span class="text-xs text-gray-400 dark:text-gray-500">Waga</span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500">Weight</span>
                 </div>
 
                 <!-- Szczepienie -->
@@ -325,8 +337,8 @@
                   <span
                     class="text-sm font-bold leading-none"
                     :class="isVacinated(entry) ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
-                  >{{ isVacinated(entry) ? 'Tak' : 'Nie' }}</span>
-                  <span class="text-xs text-gray-400 dark:text-gray-500">Szczepienie</span>
+                  >{{ isVacinated(entry) ? 'Yes' : 'No' }}</span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500">Vaccination</span>
                 </div>
 
                 <!-- Stan zdrowia -->
@@ -334,7 +346,7 @@
                   <span class="text-sm font-bold leading-none" :class="conditionColor(entry)">
                     {{ conditionLabel(entry) }}
                   </span>
-                  <span class="text-xs text-gray-400 dark:text-gray-500">Stan zdrowia</span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500">Health status</span>
                 </div>
               </div>
             </div>
@@ -358,6 +370,7 @@
 import { ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import animalService from '../../services/animal.service';
+import animalTypeService from '../../services/animalType.service';
 import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
 import { useAnimalConditions } from '../../composables/useAnimalConditions';
@@ -379,13 +392,33 @@ const allAttributes       = ref([]);   // wszystkie dostępne atrybuty z /attrib
 const assignedAttributes  = ref([]);   // atrybuty przypisane do tego zwierzęcia
 const selectedAttributeId = ref('');
 const selectedAttributeValue = ref('');
+const selectedAnimalTypeFilter = ref(null);
 const isAssigning         = ref(false);
 const attrError           = ref(null);
+
+const animalTypes = ref([]);
+
+async function fetchAnimalTypes() {
+  try {
+    const data = await animalTypeService.getAll();
+    animalTypes.value = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error('[AnimalDetailsView] fetchAnimalTypes:', e);
+  }
+}
 
 // tylko te atrybuty, które nie są jeszcze przypisane
 const availableAttributes = computed(() => {
   const assignedIds = new Set(assignedAttributes.value.map(a => a.id ?? a.attributeId));
-  return allAttributes.value.filter(a => !assignedIds.has(a.id));
+  let filtered = allAttributes.value.filter(a => !assignedIds.has(a.id));
+
+  if (selectedAnimalTypeFilter.value === 'global') {
+    filtered = filtered.filter(a => (a.animalTypeId ?? a.AnimalTypeId) == null);
+  } else if (selectedAnimalTypeFilter.value !== null) {
+    filtered = filtered.filter(a => (a.animalTypeId ?? a.AnimalTypeId) === selectedAnimalTypeFilter.value);
+  }
+
+  return filtered;
 });
 
 async function fetchAllAttributes() {
@@ -416,7 +449,7 @@ async function assignAttr() {
     selectedAttributeValue.value = '';
     await fetchAssignedAttributes(route.params.id);
   } catch (e) {
-    attrError.value = e?.response?.data?.message ?? 'Nie udało się przypisać atrybutu.';
+    attrError.value = e?.response?.data?.message ?? 'Failed to assign attribute.';
   } finally {
     isAssigning.value = false;
   }
@@ -430,7 +463,7 @@ async function unassignAttr(attr) {
       a => (a.id ?? a.attributeId) !== attrId
     );
   } catch (e) {
-    attrError.value = e?.response?.data?.message ?? 'Nie udało się odpiąć atrybutu.';
+    attrError.value = e?.response?.data?.message ?? 'Failed to unassign attribute.';
   }
 }
 
@@ -463,7 +496,7 @@ const onIconChange = async (e) => {
     iconPreviewUrl.value = URL.createObjectURL(file);
   } catch (err) {
     console.error('[AnimalDetailsView] icon update error:', err);
-    iconUploadError.value = 'Nie udało się zapisać ikonki.';
+    iconUploadError.value = 'Failed to save icon.';
   } finally {
     isIconUploading.value = false;
     if (iconFileInput.value) iconFileInput.value.value = '';
@@ -485,14 +518,14 @@ const onHealthSaved = async () => {
 
 const formatDate = (iso) => {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('pl-PL', { day: '2-digit', month: 'long', year: 'numeric' });
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
 const formatDateTime = (iso) => {
   if (!iso) return '—';
   const d = new Date(iso);
-  return d.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', year: 'numeric' })
-    + ', ' + d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 };
 
 const isVacinated = (entry) => entry.isVacinated ?? entry.IsVacinated ?? false;
@@ -509,7 +542,7 @@ const fetchHistory = async (id) => {
       return;
     }
     console.error('[AnimalDetailsView] fetchHistory error:', err);
-    historyError.value = err?.response?.data?.message ?? 'Nie udało się pobrać historii zwierzęcia.';
+    historyError.value = err?.response?.data?.message ?? 'Failed to load animal history.';
   } finally {
     isLoadingHistory.value = false;
   }
@@ -543,13 +576,14 @@ watch(
       }
     } catch (err) {
       console.error('[AnimalDetailsView] fetch error:', err);
-      error.value = err?.response?.data?.message ?? 'Nie udało się pobrać danych zwierzęcia.';
+      error.value = err?.response?.data?.message ?? 'Failed to load animal data.';
     } finally {
       isLoading.value = false;
     }
     fetchHistory(id);
     fetchAllAttributes();
     fetchAssignedAttributes(id);
+    fetchAnimalTypes();
   },
   { immediate: true }
 );

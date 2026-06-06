@@ -95,7 +95,7 @@ const handleLogin = async () => {
     const data = error?.response?.data;
     if (data?.message) errorMessage.value = data.message;
     else if (typeof data === 'string' && data.trim()) errorMessage.value = data.trim();
-    else errorMessage.value = 'Nieprawidłowy email lub hasło.';
+    else errorMessage.value = 'Invalid email or password.';
     console.error('Login error:', error);
   } finally {
     isLoading.value = false;

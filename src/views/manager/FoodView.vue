@@ -13,21 +13,21 @@
       <!-- ── LEFT: Add form ── -->
       <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm p-7 sticky top-0">
         <div class="mb-6">
-          <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400 leading-tight">Nowy typ jedzenia</h2>
-          <p class="text-xs text-gray-400 mt-0.5">Dodaj nowy typ karmy dla zwierząt</p>
+          <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400 leading-tight">New food type</h2>
+          <p class="text-xs text-gray-400 mt-0.5">Add a new animal food type</p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
           <!-- FoodName -->
           <div class="flex flex-col gap-1.5">
             <label for="food-name" class="text-xs font-semibold text-gray-600 dark:text-gray-300 tracking-wide uppercase">
-              Nazwa *
+              Name *
             </label>
             <input
               v-model="form.foodName"
               id="food-name"
               type="text"
-              placeholder="np. Mięso, Warzywa, Owady, Ryby…"
+              placeholder="e.g., Meat, Vegetables, Insects, Fish…"
               required
               class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all"
             />
@@ -57,7 +57,7 @@
               <svg v-else class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
               </svg>
-              Dodaj typ jedzenia
+              Add food type
             </button>
           </div>
         </form>
@@ -69,11 +69,11 @@
         <!-- Header bar -->
         <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 shrink-0">
           <div>
-            <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">Typy jedzenia</h2>
+            <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">Food types</h2>
             <p class="text-xs text-gray-400">
               {{ foodTypes.length }}
-              {{ foodTypes.length === 1 ? 'typ' : foodTypes.length < 5 ? 'typy' : 'typów' }}
-              zdefiniowanych
+              {{ foodTypes.length === 1 ? 'type' : 'types' }}
+              defined
             </p>
           </div>
 
@@ -86,7 +86,7 @@
               v-model="searchQuery"
               id="food-search"
               type="text"
-              placeholder="Szukaj…"
+              placeholder="Search…"
               class="pl-9 pr-8 py-2 text-xs border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors w-44"
             />
             <button
@@ -104,7 +104,7 @@
           :loading="isLoading"
           :error="loadError"
           :empty="filteredFoodTypes.length === 0"
-          loading-text="Pobieranie typów jedzenia…"
+          loading-text="Fetching food types…"
           @retry="fetchFoodTypes"
         >
           <template #empty>
@@ -115,10 +115,10 @@
                 </svg>
               </div>
               <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                {{ searchQuery ? `Brak wyników dla "${searchQuery}"` : 'Brak typów jedzenia' }}
+                {{ searchQuery ? `No results for "${searchQuery}"` : 'No food types' }}
               </p>
               <p class="text-xs text-gray-300 dark:text-gray-600 text-center">
-                {{ searchQuery ? 'Zmień frazę wyszukiwania.' : 'Dodaj pierwszy typ używając formularza po lewej.' }}
+                {{ searchQuery ? 'Change search phrase.' : 'Add your first type using the form on the left.' }}
               </p>
             </div>
           </template>
@@ -143,7 +143,7 @@
                 @click="foodDelete.requestDelete(ft)"
                 :id="`delete-food-${ft.id}`"
                 class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-                title="Usuń"
+                title="Delete"
               >
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
@@ -159,10 +159,10 @@
     <ConfirmDialog
       :model-value="showConfirm"
       @update:model-value="showConfirm = $event"
-      title="Usuń typ jedzenia"
-      :message="`Czy na pewno chcesz usunąć typ jedzenia &quot;${pendingDelete?.foodName ?? ''}&quot;? Tej operacji nie można cofnąć.`"
-      confirm-label="Usuń"
-      cancel-label="Anuluj"
+      title="Delete food type"
+      :message="`Are you sure you want to delete the food type &quot;${pendingDelete?.foodName ?? ''}&quot;? This operation cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
       :loading="isDeleting"
       @confirm="foodDelete.confirmDelete"
       @cancel="foodDelete.cancelDelete"
@@ -217,7 +217,7 @@ async function fetchFoodTypes() {
     }));
   } catch (err) {
     console.error('[FoodView] fetchFoodTypes:', err);
-    loadError.value = err?.response?.data?.message ?? 'Nie udało się pobrać typów jedzenia.';
+    loadError.value = err?.response?.data?.message ?? 'Failed to fetch food types.';
   } finally {
     isLoading.value = false;
   }
@@ -230,11 +230,11 @@ async function handleSubmit() {
   try {
     await foodService.createFoodType({ FoodName: form.value.foodName.trim() });
     form.value.foodName = '';
-    showToast('Typ jedzenia dodany!');
+    showToast('Food type added!');
     await fetchFoodTypes();
   } catch (err) {
     console.error('[FoodView] handleSubmit:', err);
-    formError.value = err?.response?.data?.message ?? 'Nie udało się dodać typu jedzenia.';
+    formError.value = err?.response?.data?.message ?? 'Failed to add food type.';
   } finally {
     isSubmitting.value = false;
   }
@@ -244,7 +244,7 @@ async function handleSubmit() {
 const foodDelete = useDeleteConfirm(async (ft) => {
   await foodService.deleteFoodType(ft.id);
   foodTypes.value = foodTypes.value.filter(f => f.id !== ft.id);
-  showToast('Typ jedzenia usunięty.');
+  showToast('Food type deleted.');
 });
 
 const { showConfirm, pendingDelete, isDeleting } = foodDelete;

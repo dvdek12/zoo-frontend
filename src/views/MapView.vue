@@ -6,7 +6,7 @@
       <svg class="w-4 h-4 stroke-[#2d6a4f] dark:stroke-green-400 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
       </svg>
-      <span class="text-sm font-bold text-[#1a3b22] dark:text-green-400 leading-none">Mapa zoo</span>
+      <span class="text-sm font-bold text-[#1a3b22] dark:text-green-400 leading-none">Zoo Map</span>
     </div>
 
     <!-- Fullscreen toggle (top-right) -->
@@ -34,7 +34,7 @@
       </span>
     </button>
 
-    <!-- Mapa -->
+    <!-- Map -->
     <Map
       :highlighted-enclosure="hoveredEnclosureKey"
       :enclosure-data="enclosureData"
@@ -55,12 +55,12 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          <span class="text-[#1a3b22] font-semibold">Ładowanie mapy…</span>
+          <span class="text-[#1a3b22] font-semibold">Loading map…</span>
         </div>
       </div>
     </Transition>
 
-    <!-- ══ MODAL WYBRANEGO WYBIEGU ══ -->
+    <!-- ══ SELECTED ENCLOSURE MODAL ══ -->
     <Transition name="slide-up" mode="out-in">
       <div v-if="selectedEnclosure" :key="selectedEnclosure.id" class="absolute bottom-8 right-8 z-30">
         <div class="bg-white rounded-[2rem] shadow-2xl w-[380px] border border-gray-100 overflow-hidden">
@@ -84,16 +84,16 @@
             </button>
           </div>
 
-          <!-- Lista zwierząt -->
+          <!-- Animal list -->
           <div class="px-6 pb-5">
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
-              Zwierzęta w wybiegu
+              Animals in enclosure
               <span class="ml-1.5 px-1.5 py-0.5 bg-[#f0faf5] text-[#2d6a4f] rounded-full text-[10px]">
                 {{ selectedEnclosure.animals?.length ?? 0 }}
               </span>
             </p>
 
-            <!-- Brak zwierząt -->
+            <!-- No animals -->
             <div
               v-if="!selectedEnclosure.animals || selectedEnclosure.animals.length === 0"
               class="flex flex-col items-center justify-center py-5 rounded-2xl bg-gray-50 border border-dashed border-gray-200 text-gray-400"
@@ -101,11 +101,11 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
               </svg>
-              <span class="text-sm font-medium">Brak zwierząt</span>
-              <span class="text-xs mt-0.5">Przeciągnij zwierzę na ten wybieg</span>
+              <span class="text-sm font-medium">No animals</span>
+              <span class="text-xs mt-0.5">Drag an animal to this enclosure</span>
             </div>
 
-            <!-- Lista -->
+            <!-- List -->
             <ul v-else class="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
               <li
                 @click="navigateToAnimal(animal.id)"
@@ -113,7 +113,7 @@
                 :key="animal.id"
                 class="flex cursor-pointer items-center gap-3 p-2.5 rounded-xl bg-[#f8faf8] hover:bg-[#f0f7f2] border border-transparent hover:border-[#c8e6d0] transition-all group"
               >
-                <!-- Ikona zwierzęcia -->
+                <!-- Animal icon -->
                 <div class="w-9 h-9 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
                   <img
                     v-if="animalIconUrls[animal.id]"
@@ -131,13 +131,13 @@
                   <p class="text-[10px] text-gray-400 truncate">{{ animal.raceName }}</p>
                 </div>
 
-                <!-- Przycisk odpięcia -->
+                <!-- Unassign button -->
                 <button
                   v-if="authStore.hasRole('Manager')"
                   @click.stop="handleUnassign(selectedEnclosure.id, animal)"
                   :disabled="unassigningId === animal.id"
                   class="opacity-0 group-hover:opacity-100 transition-all w-7 h-7 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-400 hover:text-red-600 disabled:opacity-40 shrink-0"
-                  title="Usuń z wybiegu"
+                  title="Remove from enclosure"
                 >
                   <svg v-if="unassigningId === animal.id" class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -152,12 +152,12 @@
       </div>
     </Transition>
 
-    <!-- ══ PANEL MANAGERA ══ -->
+    <!-- ══ MANAGER PANEL ══ -->
     <div
       v-if="authStore.hasRole('Manager')"
       class="absolute bottom-0 left-0 right-0 z-40 flex flex-col"
     >
-      <!-- Pasek nagłówkowy -->
+      <!-- Header bar -->
       <button
         @click="panelOpen = !panelOpen"
         class="w-full flex items-center justify-between px-6 py-3 cursor-pointer select-none transition-colors duration-200"
@@ -169,8 +169,8 @@
               <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
           </span>
-          <span class="text-white text-sm font-bold tracking-wide">Tryb Managera</span>
-          <span class="text-green-300/70 text-xs font-medium">— Przeciągnij zwierzę na wybieg</span>
+          <span class="text-white text-sm font-bold tracking-wide">Manager Mode</span>
+          <span class="text-green-300/70 text-xs font-medium">— Drag animal to enclosure</span>
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -182,25 +182,25 @@
         </svg>
       </button>
 
-      <!-- Panel wysuwany -->
+      <!-- Sliding panel -->
       <Transition name="panel-slide">
         <div v-if="panelOpen" class="bg-[#0f2016]/95 backdrop-blur-md overflow-hidden" style="height: 33vh">
           <div class="h-full flex flex-col py-3 gap-2">
 
-            <!-- Info o aktualnie przeciąganym -->
+            <!-- Info about currently dragged -->
             <Transition name="fade-quick">
               <div v-if="draggingAnimal" class="shrink-0 mx-4 flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-2">
                 <img v-if="draggingAnimal.iconUrl" :src="draggingAnimal.iconUrl" class="w-6 h-6 object-contain rounded-full" draggable="false" />
                 <div v-else class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/40 text-xs">?</div>
                 <span class="text-green-300 text-xs font-semibold">{{ draggingAnimal.name }}</span>
-                <span class="text-white/40 text-xs ml-auto">Upuść na wybieg na mapie…</span>
+                <span class="text-white/40 text-xs ml-auto">Drop on enclosure on the map…</span>
               </div>
               <div v-else class="shrink-0 mx-5 flex items-center gap-2">
-                <span class="text-white/30 text-xs">Przeciągnij kafelek na wybieg</span>
+                <span class="text-white/30 text-xs">Drag tile to enclosure</span>
               </div>
             </Transition>
 
-            <!-- Kafelki zwierząt — poziomy scroll -->
+            <!-- Animal tiles — horizontal scroll -->
             <div
               class="flex gap-3 overflow-x-auto flex-1 min-h-0 px-4 scrollbar-panel"
               style="scrollbar-gutter: stable"
@@ -210,7 +210,7 @@
                 v-if="isLoadingAnimals"
                 class="flex-1 flex items-center justify-center text-white/30 text-sm"
               >
-                Ładowanie zwierząt…
+                Loading animals…
               </div>
 
               <div
@@ -230,7 +230,7 @@
               >
                 <div class="absolute inset-0 bg-white/[0.03] group-hover:bg-white/[0.07] transition-colors rounded-2xl" />
 
-                <!-- Ikona -->
+                <!-- Icon -->
                 <div class="w-3/5 aspect-square relative z-10 flex items-center justify-center">
                   <img
                     v-if="animal.iconUrl"
@@ -245,16 +245,16 @@
                   >🐾</div>
                 </div>
 
-                <!-- Nazwa -->
+                <!-- Name -->
                 <span class="text-[11px] font-bold text-white/50 group-hover:text-white/80 transition-colors text-center leading-tight px-2 relative z-10 w-full truncate">
                   {{ animal.name }}
                 </span>
 
-                <!-- Zielona kropka jeśli przypisane -->
+                <!-- Green dot if assigned -->
                 <span
                   v-if="isAssigned(animal.id)"
                   class="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full shadow-[0_0_6px_rgba(74,222,128,0.8)]"
-                  title="Umieszczone na mapie"
+                  title="Placed on map"
                 />
               </div>
             </div>
@@ -294,11 +294,11 @@ function onFullscreenChange() {
   isFullscreen.value = !!document.fullscreenElement;
 }
 
-// ── Stan ─────────────────────────────────────────
+// ── State ─────────────────────────────────────────
 const isLoading       = ref(false);
 const isLoadingAnimals = ref(false);
-const rawEnclosures   = ref([]); // lista z API (z .animals)
-const allAnimals      = ref([]); // wszystkie zwierzęta z API
+const rawEnclosures   = ref([]); // list from API (with .animals)
+const allAnimals      = ref([]); // all animals from API
 const animalIconUrls  = reactive({}); // animalId → blob URL
 
 // ── Panel Managera ────────────────────────────────
@@ -308,17 +308,17 @@ const hoveredEnclosureKey = ref(null);
 const unassigningId  = ref(null);
 let   _panelWasOpen  = false; // zapamiętuje stan panelu przed drag
 
-// ── Modal wybranego wybiegu ───────────────────────
+// ── Selected Enclosure Modal ───────────────────────
 const selectedEnclosure = ref(null);
 
 const navigateToAnimal = (animalId) => {
   router.push(`/animals/${animalId}`);
 };
 
-// ── Dane dla Map.vue ──────────────────────────────
+// ── Data for Map.vue ──────────────────────────────
 /**
  * enclosureData: mapKey → { id, name, type, animals: [{ id, name, raceName, iconUrl }] }
- * Reaktywna — aktualizowana po D&D bez przeładowania strony.
+ * Reactive — updated after D&D without reloading the page.
  */
 const enclosureData = computed(() => {
   const map = {};
@@ -339,7 +339,7 @@ const enclosureData = computed(() => {
   return map;
 });
 
-// ── Zwierzęta w panelu managera (wszystkie, bez filtra) ──
+// ── Animals in manager panel (all, without filter) ──
 const panelAnimals = computed(() =>
   allAnimals.value.map(a => ({
     id:      a.id,
@@ -350,21 +350,21 @@ const panelAnimals = computed(() =>
   }))
 );
 
-/** Sprawdza czy zwierzę jest już przypisane do jakiegoś wybiegu z mapKey */
+/** Checks if animal is already assigned to some enclosure with mapKey */
 const isAssigned = (animalId) => {
   return rawEnclosures.value
     .filter(e => e.mapKey)
     .some(e => (e.animals ?? []).some(a => a.id === animalId));
 };
 
-// ── Pobieranie danych ─────────────────────────────
+// ── Fetching data ─────────────────────────────
 const loadIconForAnimal = async (animal) => {
   if (!animal.iconId || animalIconUrls[animal.id]) return;
   try {
     const url = await iconService.getById(animal.iconId);
     animalIconUrls[animal.id] = url;
   } catch {
-    // brak ikony — zostaje null
+    // no icon — remains null
   }
 };
 
@@ -373,7 +373,7 @@ const fetchEnclosures = async () => {
     const data = await enclosureService.getAll();
     rawEnclosures.value = Array.isArray(data) ? data : [data];
 
-    // Załaduj ikony dla zwierząt w wybiegach
+    // Load icons for animals in enclosures
     for (const enc of rawEnclosures.value) {
       for (const animal of enc.animals ?? []) {
         loadIconForAnimal(animal);
@@ -390,7 +390,7 @@ const fetchAnimals = async () => {
     const data = await animalService.getAll();
     allAnimals.value = Array.isArray(data) ? data : [data];
 
-    // Załaduj ikony dla wszystkich zwierząt
+    // Load icons for all animals
     for (const animal of allAnimals.value) {
       loadIconForAnimal(animal);
     }
@@ -412,11 +412,11 @@ onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', onFullscreenChange);
 });
 
-// ── Kliknięcie wybiegu na mapie ───────────────────
+// ── Click on enclosure on map ───────────────────
 const handleSelectEnclosure = (mapKey) => {
   const enc = rawEnclosures.value.find(e => e.mapKey === mapKey);
   if (!enc) return;
-  // Odśwież ikonki zwierząt wybranego wybiegu
+  // Refresh animal icons for the selected enclosure
   for (const animal of enc.animals ?? []) {
     loadIconForAnimal(animal);
   }
@@ -429,7 +429,7 @@ const handleSelectEnclosure = (mapKey) => {
   };
 };
 
-// Synchronizuj modal gdy animalIconUrls się zaktualizuje
+// Synchronize modal when animalIconUrls updates
 watch(animalIconUrls, () => {
   if (!selectedEnclosure.value) return;
   selectedEnclosure.value = {
@@ -446,7 +446,7 @@ const onAnimalDragStart = (event, animal) => {
   draggingAnimal.value = animal;
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', String(animal.id));
-  // Chowaj panel żeby mapa była widoczna
+  // Hide panel so the map is visible
   _panelWasOpen = panelOpen.value;
   panelOpen.value = false;
 };
@@ -454,7 +454,7 @@ const onAnimalDragStart = (event, animal) => {
 const onAnimalDragEnd = () => {
   draggingAnimal.value = null;
   hoveredEnclosureKey.value = null;
-  // Przywróć stan panelu sprzed drag
+  // Restore panel state from before drag
   panelOpen.value = _panelWasOpen;
 };
 
@@ -472,38 +472,38 @@ const onEnclosureDrop = async (mapKey) => {
   draggingAnimal.value = null;
   hoveredEnclosureKey.value = null;
 
-  // Znajdź wybieg po mapKey
+  // Find enclosure by mapKey
   const enc = rawEnclosures.value.find(e => e.mapKey === mapKey);
   if (!enc) {
-    console.warn('[MapView] Brak wybiegu dla mapKey:', mapKey);
+    console.warn('[MapView] Missing enclosure for mapKey:', mapKey);
     return;
   }
 
-  // Sprawdź czy zwierzę już jest w tym wybiegu
+  // Check if the animal is already in this enclosure
   if ((enc.animals ?? []).some(a => a.id === animal.id)) return;
 
   try {
     await enclosureService.assignAnimal(enc.id, animal.id);
-    // Odśwież dane — przeładuj wybiegi żeby dostać aktualną listę
+    // Refresh data — reload enclosures to get current list
     await fetchEnclosures();
 
-    // Jeśli modal był otwarty na tym wybiegu — odśwież go
+    // If modal was open for this enclosure — refresh it
     if (selectedEnclosure.value?.mapKey === mapKey) {
       handleSelectEnclosure(mapKey);
     }
   } catch (err) {
-    console.error('[MapView] Błąd przypisania zwierzęcia:', err);
+    console.error('[MapView] Error assigning animal:', err);
   }
 };
 
-// ── Odpinanie zwierzęcia z wybiegu ───────────────
+// ── Unassigning animal from enclosure ───────────────
 const handleUnassign = async (enclosureId, animal) => {
   unassigningId.value = animal.id;
   try {
     await enclosureService.unassignAnimal(enclosureId, animal.id);
     await fetchEnclosures();
 
-    // Odśwież modal — usuń zwierzę z listy
+    // Refresh modal — remove animal from list
     if (selectedEnclosure.value?.id === enclosureId) {
       selectedEnclosure.value = {
         ...selectedEnclosure.value,
@@ -511,7 +511,7 @@ const handleUnassign = async (enclosureId, animal) => {
       };
     }
   } catch (err) {
-    console.error('[MapView] Błąd odpięcia zwierzęcia:', err);
+    console.error('[MapView] Error unassigning animal:', err);
   } finally {
     unassigningId.value = null;
   }

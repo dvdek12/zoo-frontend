@@ -9,8 +9,8 @@
       <!-- Header -->
       <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center shrink-0">
         <div>
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Dodaj nowe zwierzę</h3>
-          <p class="text-sm text-gray-400 mt-0.5">Wypełnij dane i przypisz wybieg</p>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Add a new animal</h3>
+          <p class="text-sm text-gray-400 mt-0.5">Fill in the details and assign an enclosure</p>
         </div>
         <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,24 +25,20 @@
         <!-- Name -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Nazwa <span class="text-red-400">*</span>
+            Name <span class="text-red-400">*</span>
           </label>
           <input
             v-model="form.name"
             type="text"
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
-            placeholder="np. Lion, Elephant… (po angielsku)"
+            placeholder="e.g. Lion, Elephant..."
           />
-          <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-            Wpisz po angielsku — gatunki zostaną załadowane automatycznie
-          </p>
         </div>
 
         <!-- RaceName — dynamic species picker -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Gatunek (RaceName)
+            Species (RaceName)
             <span v-if="form.raceName" class="ml-2 text-xs font-normal text-[#2d6a4f] dark:text-green-400 bg-[#f0f9f4] dark:bg-[#132a1e] px-2 py-0.5 rounded-full">
               ✓ {{ form.raceName }}
             </span>
@@ -54,7 +50,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            <span class="text-sm text-gray-400">Szukam gatunków dla „{{ form.name }}"…</span>
+            <span class="text-sm text-gray-400">Searching for species for "{{ form.name }}"...</span>
           </div>
 
           <!-- Error -->
@@ -94,27 +90,27 @@
             v-if="speciesResults.length === 0 && !isSearching"
             v-model="form.raceName"
             type="text"
-            :placeholder="form.name.trim().length >= 2 ? 'Brak wyników — wpisz ręcznie, np. Panthera leo' : 'Wpisz nazwę wyżej aby wyszukać gatunek…'"
+            :placeholder="form.name.trim().length >= 2 ? 'No results — type manually, e.g. Panthera leo' : 'Type the name above to search for species...'"
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
           />
         </div>
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Opis (Description)</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
           <textarea
             v-model="form.description"
             rows="3"
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all resize-none"
-            placeholder="Krótki opis zwierzęcia, jego charakteru, historii..."
+            placeholder="Short description of the animal, its character, history..."
           />
         </div>
 
         <!-- Icon Upload -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Ikonka zwierzęcia
-            <span class="ml-1 text-xs font-normal text-gray-400">(opcjonalnie)</span>
+            Animal icon
+            <span class="ml-1 text-xs font-normal text-gray-400">(optional)</span>
           </label>
           <div
             class="relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer p-5"
@@ -139,7 +135,7 @@
             <!-- Preview -->
             <div v-if="iconPreview" class="flex flex-col items-center gap-2">
               <div class="relative">
-                <img :src="iconPreview" alt="Podgląd ikonki" class="w-20 h-20 rounded-2xl object-cover shadow-md border-2 border-[#2d6a4f]/30" />
+                <img :src="iconPreview" alt="Icon preview" class="w-20 h-20 rounded-2xl object-cover shadow-md border-2 border-[#2d6a4f]/30" />
                 <button
                   type="button"
                   @click.stop="removeIcon"
@@ -159,8 +155,8 @@
                 </svg>
               </div>
               <div class="text-center">
-                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Przeciągnij plik lub <span class="text-[#2d6a4f] dark:text-green-400 underline underline-offset-2">kliknij</span></p>
-                <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WebP — maks. 5 MB</p>
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Drag a file or <span class="text-[#2d6a4f] dark:text-green-400 underline underline-offset-2">click</span></p>
+                <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WebP — max 5 MB</p>
               </div>
             </template>
 
@@ -175,16 +171,16 @@
         <!-- Origin + DateOfArrival -->
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Pochodzenie (Origin)</label>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Origin</label>
             <input
               v-model="form.origin"
               type="text"
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
-              placeholder="np. Afryka, hodowla"
+              placeholder="e.g. Africa, breeding"
             />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Data przybycia (DateOfArrival)</label>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Date of arrival</label>
             <input
               v-model="form.dateOfArrival"
               type="date"
@@ -196,15 +192,15 @@
         <!-- Animal Type Picker -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Typ zwierzęcia
-            <span class="ml-1 text-xs font-normal text-gray-400">(opcjonalnie)</span>
+            Animal type
+            <span class="ml-1 text-xs font-normal text-gray-400">(optional)</span>
           </label>
           <div v-if="isLoadingTypes" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-400">
             <svg class="animate-spin h-4 w-4 text-[#2d6a4f]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            Ładowanie typów…
+            Loading types...
           </div>
           <div v-else class="flex flex-wrap gap-2">
             <button
@@ -224,7 +220,7 @@
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
             </button>
-            <span v-if="animalTypes.length === 0" class="text-sm text-gray-400 italic">Brak typów — dodaj je w sekcji Typy zwierząt.</span>
+            <span v-if="animalTypes.length === 0" class="text-sm text-gray-400 italic">No types — add them in the Animal Types section.</span>
           </div>
         </div>
       </div>
@@ -238,7 +234,7 @@
       <!-- Footer -->
       <div class="p-5 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700 shrink-0">
         <button type="button" :disabled="isSaving" @click="$emit('close')" class="px-5 py-2 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
-          Anuluj
+          Cancel
         </button>
         <button
           type="submit"
@@ -251,7 +247,7 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
           <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-          {{ isSaving ? 'Zapisywanie…' : 'Zapisz zwierzę' }}
+          {{ isSaving ? 'Saving...' : 'Save animal' }}
         </button>
       </div>
     </form>
@@ -276,7 +272,7 @@ onMounted(async () => {
   try {
     animalTypes.value = await animalTypeService.getAll();
   } catch {
-    // cicho ignoruj
+    // silently ignore
   } finally {
     isLoadingTypes.value = false;
   }
@@ -303,11 +299,11 @@ const onIconDrop = (e) => {
 const setIconFile = (file) => {
   iconUploadError.value = null;
   if (!file.type.startsWith('image/')) {
-    iconUploadError.value = 'Dozwolone są tylko pliki graficzne (PNG, JPG, WebP).';
+    iconUploadError.value = 'Only image files are allowed (PNG, JPG, WebP).';
     return;
   }
   if (file.size > 5 * 1024 * 1024) {
-    iconUploadError.value = 'Plik jest zbyt duży. Maksymalny rozmiar to 5 MB.';
+    iconUploadError.value = 'File is too large. Maximum size is 5 MB.';
     return;
   }
   iconFile.value = file;
@@ -332,7 +328,7 @@ const form = reactive({
   animalTypeId: null,
 });
 
-// Stan zapisu
+// Save state
 const isSaving = ref(false);
 const saveError = ref(null);
 
@@ -359,18 +355,18 @@ const handleSave = async () => {
   saveError.value = null;
 
   try {
-    // Krok 1: jeśli wybrano ikonkę — wyślij ją najpierw i pobierz iconId
+    // Step 1: if icon selected — upload it first and get iconId
     let iconId = null;
     if (iconFile.value) {
       const iconResult = await iconService.upload(iconFile.value);
-      // Backend zwraca obiekt z polem id lub iconId
+      // Backend returns an object with id or iconId field
       iconId = iconResult?.id ?? iconResult?.iconId ?? null;
       console.log('[AddAnimalModal] Icon uploaded, iconId:', iconId);
     }
 
-    // Krok 2: utwórz zwierzę, dołączając IconId (jeśli dostępne)
-    // UWAGA: EnclosureId usuniete tymczasowo — kolumna nie istnieje w DB (brakujaca migracja).
-    // Przywroc po uruchomieniu: dotnet ef database update
+    // Step 2: create animal, including IconId (if available)
+    // NOTE: EnclosureId removed temporarily — column doesn't exist in DB (missing migration).
+    // Restore after running: dotnet ef database update
     const dto = {
       Name: form.name,
       RaceName: form.raceName || '',
@@ -389,7 +385,7 @@ const handleSave = async () => {
     saveError.value =
       err?.response?.data?.message ??
       err?.response?.data ??
-      'Nie udało się zapisać zwierzęcia. Sprawdź połączenie z API.';
+      'Failed to save the animal. Check API connection.';
   } finally {
     isSaving.value = false;
   }

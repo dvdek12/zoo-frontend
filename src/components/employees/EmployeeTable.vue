@@ -6,7 +6,7 @@
     :clickable="true"
     @row-click="router.push({ name: 'employeeDetail', params: { id: $event } })"
   >
-    <!-- Ikona -->
+    <!-- Icon -->
     <template #cell-icon="{ row }">
       <EmployeeIconCell
         :icon-id="row.iconId"
@@ -15,7 +15,7 @@
       />
     </template>
 
-    <!-- Imię i Nazwisko -->
+    <!-- Full Name -->
     <template #cell-fullName="{ row }">
       <span
         class="font-bold text-gray-900 dark:text-white"
@@ -31,7 +31,7 @@
       />
     </template>
 
-    <!-- Telefon -->
+    <!-- Phone number -->
     <template #cell-phoneNumber="{ row }">
       <span
         class="text-gray-500 dark:text-gray-400 text-sm"
@@ -39,17 +39,17 @@
       />
     </template>
 
-    <!-- Data urodzenia -->
+    <!-- Date of birth -->
     <template #cell-birthDay="{ row }">
       <span class="text-gray-500 dark:text-gray-400 text-sm">{{ formatDate(row.birthDay) }}</span>
     </template>
 
-    <!-- Rola -->
+    <!-- Role -->
     <template #cell-roleName="{ row }">
       <span
         :style="themeStore.getRoleBadgeStyle(row.roleName)"
         class="text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm"
-        v-html="highlight(row.roleName ?? 'Pracownik', query)"
+        v-html="highlight(row.roleName ?? 'Employee', query)"
       />
     </template>
 
@@ -60,9 +60,9 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
       </div>
-      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">Brak pracowników</p>
+      <p class="text-lg font-semibold text-gray-400 dark:text-gray-500 mb-1">No employees</p>
       <p class="text-sm text-gray-300 dark:text-gray-600 text-center max-w-xs">
-        Nie znaleziono żadnych pracowników.<br>Zarejestruj pierwszego, klikając przycisk powyżej.
+        No employees found.<br>Register the first one by clicking the button above.
       </p>
     </template>
   </DataTable>
@@ -92,25 +92,25 @@ const { highlight } = useHighlight();
 const themeStore = useThemeStore();
 
 const columns = [
-  { key: 'icon',        label: 'Ikona',          width: 'w-16',  align: 'center' },
-  { key: 'fullName',    label: 'Imię i Nazwisko' },
+  { key: 'icon',        label: 'Icon',          width: 'w-16',  align: 'center' },
+  { key: 'fullName',    label: 'Full Name' },
   { key: 'email',       label: 'Email' },
-  { key: 'phoneNumber', label: 'Telefon' },
-  { key: 'birthDay',    label: 'Data urodzenia' },
-  { key: 'roleName',    label: 'Rola' },
+  { key: 'phoneNumber', label: 'Phone number' },
+  { key: 'birthDay',    label: 'Date of birth' },
+  { key: 'roleName',    label: 'Role' },
 ];
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '—';
   try {
-    return new Date(dateStr).toLocaleDateString('pl-PL', { year: 'numeric', month: 'short', day: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   } catch {
     return dateStr;
   }
 };
 
 /**
- * Subkomponent ikonki pracownika — fallback: inicjały.
+ * Employee icon subcomponent — fallback: initials.
  */
 const EmployeeIconCell = defineComponent({
   name: 'EmployeeIconCell',

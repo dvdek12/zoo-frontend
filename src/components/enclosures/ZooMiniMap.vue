@@ -1,22 +1,22 @@
 <template>
   <div class="zoo-minimap-wrapper">
-    <!-- Etykieta wybranego wybiegu -->
+    <!-- Label of the selected enclosure -->
     <div class="minimap-label">
       <template v-if="modelValue">
         <span class="label-dot" />
-        <span class="label-text">Wybrano: <strong>{{ ENCLOSURE_LABELS[modelValue] ?? modelValue }}</strong></span>
-        <button type="button" class="label-clear" @click="$emit('update:modelValue', null)" title="Odznacz">
+        <span class="label-text">Selected: <strong>{{ ENCLOSURE_LABELS[modelValue] ?? modelValue }}</strong></span>
+        <button type="button" class="label-clear" @click="$emit('update:modelValue', null)" title="Deselect">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
           </svg>
         </button>
       </template>
       <template v-else>
-        <span class="label-hint">Kliknij obszar na mapie aby wybrać lokalizację</span>
+        <span class="label-hint">Click an area on the map to select a location</span>
       </template>
     </div>
 
-    <!-- Mapa SVG -->
+    <!-- SVG Map -->
     <div class="minimap-container">
       <svg
         class="minimap-svg"
@@ -25,10 +25,10 @@
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <!-- Tło mapy -->
+        <!-- Map background -->
         <image :href="mapBg" x="0" y="0" width="1274" height="717" />
 
-        <!-- Wybiegi — klikalne (zajęte są zablokowane) -->
+        <!-- Enclosures — clickable (taken are blocked) -->
         <path
           v-for="enc in ENCLOSURES"
           :key="enc.key"
@@ -44,7 +44,7 @@
           @click="toggle(enc.key)"
         />
 
-        <!-- Lock icon nad zajętymi wybiegami -->
+        <!-- Lock icon over taken enclosures -->
         <g v-for="enc in ENCLOSURES" :key="'lock-' + enc.key" pointer-events="none">
           <template v-if="isTaken(enc.key) && modelValue !== enc.key">
             <circle
@@ -53,7 +53,7 @@
               r="14"
               fill="rgba(239,68,68,0.85)"
             />
-            <!-- Ikona kłódki (uproszczona) -->
+            <!-- Lock icon (simplified) -->
             <text
               :x="enc.iconPos.x + 32"
               :y="enc.iconPos.y + 37"
@@ -64,7 +64,7 @@
           </template>
         </g>
 
-        <!-- Checkmark na wybranym wybiegu -->
+        <!-- Checkmark on the selected enclosure -->
         <g v-if="modelValue" pointer-events="none">
           <template v-for="enc in ENCLOSURES" :key="'ck-' + enc.key">
             <g v-if="enc.key === modelValue">
@@ -98,7 +98,7 @@ import mapBg from '../../assets/map.png';
 
 const props = defineProps({
   modelValue: { type: String, default: null },
-  /** Klucze zajętych już wybiegów (zostaną oznaczone inaczej) */
+  /** Keys of already taken enclosures (will be marked differently) */
   takenKeys:  { type: Array,  default: () => [] },
 });
 
@@ -106,35 +106,35 @@ const emit = defineEmits(['update:modelValue']);
 
 const hovered = ref(null);
 
-/** Czy dany key jest zajęty (i nie jest aktualnie edytowanym) */
+/** Whether a given key is taken (and not currently edited) */
 const isTaken = (key) => props.takenKeys.includes(key);
 
 const toggle = (key) => {
-  // Blokuj kliknięcie na zajęty wybieg (chyba że to aktualnie wybrany)
+  // Block click on a taken enclosure (unless it's currently selected)
   if (isTaken(key) && props.modelValue !== key) return;
   emit('update:modelValue', props.modelValue === key ? null : key);
 };
 
-/** Czytelne nazwy dla etykiety */
+/** Readable names for the label */
 const ENCLOSURE_LABELS = {
-  parrot:  'Woliera (Papuga)',
-  snake:   'Dom gadów (Wąż)',
-  spider:  'Insektarium (Pająk)',
-  croco:   'Bagno (Krokodyl)',
-  zebra:   'Sawanna (Zebra)',
-  giraffe: 'Sawanna (Żyrafa)',
-  monkey:  'Wyspa Małp',
-  sealion: 'Basen (Uchatka)',
-  bear:    'Dolina Niedźwiedzia',
-  lion:    'Skała Lwa',
-  panda:   'Sanktuarium Pandy',
-  penguin: 'Zatoka Pingwinów',
-  rhino:   'Rezerwat (Nosorożec)',
-  tiger:   'Habitat Tygrysa',
-  gazelle: 'Równiny (Gazela)',
+  parrot:  'Aviary (Parrot)',
+  snake:   'Reptile House (Snake)',
+  spider:  'Insectarium (Spider)',
+  croco:   'Swamp (Crocodile)',
+  zebra:   'Savanna (Zebra)',
+  giraffe: 'Savanna (Giraffe)',
+  monkey:  'Monkey Island',
+  sealion: 'Pool (Sea Lion)',
+  bear:    'Bear Valley',
+  lion:    'Lion Rock',
+  panda:   'Panda Sanctuary',
+  penguin: 'Penguin Bay',
+  rhino:   'Reserve (Rhino)',
+  tiger:   'Tiger Habitat',
+  gazelle: 'Plains (Gazelle)',
 };
 
-/** Klucze wybiegów z ENCLOSURE_SHAPES (zamiast duplikowania) */
+/** Enclosure keys from ENCLOSURE_SHAPES (instead of duplicating) */
 import { ENCLOSURE_SHAPES } from '../../data/enclosureShapes.js';
 const ENCLOSURES = ENCLOSURE_SHAPES;
 </script>
@@ -146,7 +146,7 @@ const ENCLOSURES = ENCLOSURE_SHAPES;
   gap: 8px;
 }
 
-/* ── Etykieta ── */
+/* ── Label ── */
 .minimap-label {
   display: flex;
   align-items: center;
@@ -187,7 +187,7 @@ const ENCLOSURES = ENCLOSURE_SHAPES;
   font-style: italic;
 }
 
-/* ── Kontener mapy ── */
+/* ── Map Container ── */
 .minimap-container {
   position: relative;
   width: 100%;
@@ -207,7 +207,7 @@ const ENCLOSURES = ENCLOSURE_SHAPES;
   aspect-ratio: 1274 / 717;
 }
 
-/* ── Paths wybiegów ── */
+/* ── Enclosure Paths ── */
 .enc-path {
   fill: transparent;
   stroke: none;

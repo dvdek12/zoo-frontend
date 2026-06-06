@@ -41,9 +41,9 @@
 
             <!-- Price -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Price (PLN)</label>
+              <label class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Price (USD)</label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">zł</span>
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">$</span>
                 <input
                   v-model.number="typeForm.price"
                   id="entry-type-price"
@@ -365,7 +365,7 @@ const entryTypeDelete = useDeleteConfirm(async (et) => {
   showToast('Entry type deleted.');
 });
 
-// Destrukturyzacja refs dla template
+// Destructuring refs for template
 const { showConfirm: etShowConfirm, pendingDelete: etPendingDelete, isDeleting: etIsDeleting } = entryTypeDelete;
 
 watch(entryTypeDelete.deleteError, (err) => {
@@ -405,7 +405,7 @@ const ticketDelete = useDeleteConfirm(async (ticket) => {
   showToast('Ticket deleted.');
 });
 
-// Destrukturyzacja refs dla template
+// Destructuring refs for template
 const { showConfirm: tkShowConfirm, pendingDelete: tkPendingDelete, isDeleting: tkIsDeleting } = ticketDelete;
 
 watch(ticketDelete.deleteError, (err) => {

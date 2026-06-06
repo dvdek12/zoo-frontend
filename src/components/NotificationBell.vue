@@ -4,7 +4,7 @@
     <button
       @click="togglePanel"
       class="relative w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-[#1a3b22] dark:hover:text-green-400 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors"
-      title="Powiadomienia"
+      title="Notifications"
     >
       <Bell class="w-4 h-4" />
 
@@ -29,21 +29,21 @@
         >
           <!-- Nagłówek panelu -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
-            <span class="text-[13px] font-bold text-gray-800 dark:text-white">Powiadomienia</span>
+            <span class="text-[13px] font-bold text-gray-800 dark:text-white">Notifications</span>
             <div class="flex items-center gap-1.5">
               <button
                 v-if="notifStore.unreadCount > 0"
                 @click="notifStore.markAllAsRead()"
                 class="text-[10px] font-semibold text-[#2d6a4f] dark:text-green-400 hover:underline"
               >
-                Oznacz jako przeczytane
+                Mark all as read
               </button>
               <button
                 v-if="notifStore.notifications.length > 0"
                 @click="notifStore.clearAll()"
                 class="text-[10px] font-semibold text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
               >
-                Wyczyść
+                Clear all
               </button>
             </div>
           </div>
@@ -82,7 +82,7 @@
             <!-- Brak powiadomień -->
             <li v-if="notifStore.notifications.length === 0" class="px-4 py-8 text-center">
               <Bell class="w-7 h-7 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-              <p class="text-[12px] text-gray-400 dark:text-gray-500">Brak powiadomień</p>
+              <p class="text-[12px] text-gray-400 dark:text-gray-500">No notifications</p>
             </li>
           </ul>
         </div>
@@ -127,11 +127,11 @@ function formatDate(iso) {
   const date = new Date(iso);
   const now = new Date();
   const diffMin = Math.floor((now - date) / 60000);
-  if (diffMin < 1)  return 'przed chwilą';
-  if (diffMin < 60) return `${diffMin} min temu`;
+  if (diffMin < 1)  return 'just now';
+  if (diffMin < 60) return `${diffMin} min ago`;
   const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24)   return `${diffH} godz. temu`;
-  return date.toLocaleDateString('pl-PL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  if (diffH < 24)   return `${diffH} hrs ago`;
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 </script>
 

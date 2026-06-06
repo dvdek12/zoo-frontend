@@ -12,18 +12,18 @@
       <!-- Content -->
       <div class="relative z-10 text-center px-6 max-w-4xl text-white">
         <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight drop-shadow-xl text-white">
-          Odkryj Dziki Świat <br/><span class="text-green-400">Natury</span>
+          Discover the Wild World <br/><span class="text-green-400">of Nature</span>
         </h1>
         <p class="text-lg md:text-xl font-light leading-relaxed text-gray-200 mb-10 max-w-2xl mx-auto drop-shadow-md">
-          ZooNe to miejsce, w którym rytm natury spotyka się z dbałością o każdy detal.
-          Zaplanuj swoją wizytę, kup bilet online i przeżyj niezapomnianą przygodę pełną wiedzy, relaksu i fascynujących odkryć.
+          ZooNe is a place where the rhythm of nature meets attention to every detail.
+          Plan your visit, buy a ticket online, and experience an unforgettable adventure full of knowledge, relaxation, and fascinating discoveries.
         </p>
         <div class="flex items-center justify-center gap-4">
           <a href="#tickets" class="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-lg transition-all transform hover:scale-105 duration-200">
-            Kup Bilet
+            Buy Ticket
           </a>
           <a href="#contact" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-full font-bold shadow-lg transition-all duration-200">
-            Jak dojechać?
+            How to get there?
           </a>
         </div>
       </div>
@@ -33,8 +33,8 @@
     <section id="tickets" class="py-24 bg-[#fbfbfa] dark:bg-[#111315]">
       <div class="max-w-6xl mx-auto px-6">
         <div class="text-center mb-16">
-          <h2 class="text-4xl font-extrabold text-[#1a3b22] dark:text-green-400 mb-4">Cennik Biletów</h2>
-          <p class="text-gray-500 dark:text-gray-400">Kupując online unikasz stania w kolejkach do kas. Bilety zachowują ważność 30 dni.</p>
+          <h2 class="text-4xl font-extrabold text-[#1a3b22] dark:text-green-400 mb-4">Ticket Prices</h2>
+          <p class="text-gray-500 dark:text-gray-400">Buying online helps you avoid standing in queues at the ticket office. Tickets are valid for 30 days.</p>
         </div>
 
         <!-- Loading state -->
@@ -43,7 +43,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          <p class="text-gray-400 text-sm">Ładowanie biletów…</p>
+          <p class="text-gray-400 text-sm">Loading tickets…</p>
         </div>
 
         <!-- Error state -->
@@ -53,13 +53,13 @@
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <p class="text-gray-600 dark:text-gray-300 font-semibold">Nie udało się załadować cennika</p>
+          <p class="text-gray-600 dark:text-gray-300 font-semibold">Failed to load ticket prices</p>
           <p class="text-gray-400 text-sm text-center max-w-xs">{{ fetchError }}</p>
           <button
             @click="fetchEntryTypes"
             class="mt-2 px-6 py-2.5 bg-[#1a3b22] hover:bg-[#112918] text-white font-bold rounded-full text-sm transition-colors"
           >
-            Spróbuj ponownie
+            Try again
           </button>
         </div>
 
@@ -70,8 +70,8 @@
               <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
             </svg>
           </div>
-          <p class="text-gray-500 font-semibold">Brak dostępnych biletów</p>
-          <p class="text-gray-400 text-sm text-center">Aktualnie nie ma dostępnych typów biletów. Sprawdź wkrótce!</p>
+          <p class="text-gray-500 font-semibold">No tickets available</p>
+          <p class="text-gray-400 text-sm text-center">Currently, there are no ticket types available. Check back soon!</p>
         </div>
 
         <!-- Ticket Cards Grid -->
@@ -89,14 +89,14 @@
               v-if="index === featuredIndex"
               class="absolute top-0 right-8 transform -translate-y-1/2 bg-green-400 text-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
             >
-              Najpopularniejszy
+              Most popular
             </div>
 
             <h3 class="text-xl font-bold mb-2" :class="index === featuredIndex ? 'text-white' : 'text-gray-800 dark:text-gray-100'">
               {{ et.name }}
             </h3>
             <p class="text-sm mb-6" :class="index === featuredIndex ? 'text-green-200' : 'text-gray-500 dark:text-gray-400'">
-              Bilet wstępu — {{ et.name }}
+              Entry ticket — {{ et.name }}
             </p>
 
             <div class="mb-8">
@@ -109,15 +109,15 @@
             <ul class="text-sm space-y-3 mb-8 flex-1" :class="index === featuredIndex ? 'text-green-100' : 'text-gray-600 dark:text-gray-300'">
               <li class="flex items-center gap-2">
                 <span :class="index === featuredIndex ? 'text-green-400' : 'text-green-500'">✔</span>
-                Ważny cały dzień
+                Valid all day
               </li>
               <li class="flex items-center gap-2">
                 <span :class="index === featuredIndex ? 'text-green-400' : 'text-green-500'">✔</span>
-                Dostęp do wszystkich stref
+                Access to all zones
               </li>
               <li class="flex items-center gap-2">
                 <span :class="index === featuredIndex ? 'text-green-400' : 'text-green-500'">✔</span>
-                Darmowy audioprzewodnik (app)
+                Free audio guide (app)
               </li>
             </ul>
 
@@ -129,7 +129,7 @@
                 ? 'bg-green-500 hover:bg-green-400 text-black'
                 : 'bg-[#1a3b22] hover:bg-[#112918] dark:bg-green-600 dark:hover:bg-green-500 text-white'"
             >
-              {{ auth.isLoggedIn ? 'Kup bilet' : 'Zaloguj się aby kupić' }}
+              {{ auth.isLoggedIn ? 'Buy ticket' : 'Log in to buy' }}
             </button>
           </div>
         </div>
@@ -140,9 +140,9 @@
     <section id="contact" class="py-24 bg-white dark:bg-[#0d0f10] border-t border-gray-100 dark:border-gray-800">
       <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         <div>
-          <h2 class="text-4xl font-extrabold text-[#1a3b22] dark:text-green-400 mb-6">Odwiedź nas</h2>
+          <h2 class="text-4xl font-extrabold text-[#1a3b22] dark:text-green-400 mb-6">Visit us</h2>
           <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-            ZooNe znajduje się na obrzeżach miasta, z doskonałym dojazdem komunikacją miejską. Ogród jest otwarty przez cały rok, a my dbamy o najwyższy standard życia naszych zwierząt i wspaniałe doświadczenia dla naszych gości.
+            ZooNe is located on the outskirts of the city, with excellent public transport access. The zoo is open all year round, and we provide the highest standard of living for our animals and wonderful experiences for our guests.
           </p>
           
           <div class="space-y-6">
@@ -151,8 +151,8 @@
                 <MapPin class="w-6 h-6 text-green-700 dark:text-green-400" />
               </div>
               <div>
-                <h4 class="font-bold text-gray-900 dark:text-gray-100">Adres</h4>
-                <p class="text-gray-500 dark:text-gray-400 text-sm">ul. Przyrodnicza 15<br/>45-000 Zielone Miasto</p>
+                <h4 class="font-bold text-gray-900 dark:text-gray-100">Address</h4>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">15 Przyrodnicza St<br/>45-000 Green City</p>
               </div>
             </div>
             
@@ -161,8 +161,8 @@
                 <Clock class="w-6 h-6 text-green-700 dark:text-green-400" />
               </div>
               <div>
-                <h4 class="font-bold text-gray-900 dark:text-gray-100">Godziny otwarcia</h4>
-                <p class="text-gray-500 dark:text-gray-400 text-sm">Codziennie: 9:00 - 18:00<br/>Kasy czynne do 17:00</p>
+                <h4 class="font-bold text-gray-900 dark:text-gray-100">Opening hours</h4>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Everyday: 9:00 - 18:00<br/>Ticket offices open until 17:00</p>
               </div>
             </div>
 
@@ -171,7 +171,7 @@
                 <Phone class="w-6 h-6 text-green-700 dark:text-green-400" />
               </div>
               <div>
-                <h4 class="font-bold text-gray-900 dark:text-gray-100">Kontakt</h4>
+                <h4 class="font-bold text-gray-900 dark:text-gray-100">Contact</h4>
                 <p class="text-gray-500 dark:text-gray-400 text-sm">+48 123 456 789<br/>kontakt@zoone.pl</p>
               </div>
             </div>
@@ -182,7 +182,7 @@
         <div class="w-full h-[400px] bg-gray-100 dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 overflow-hidden relative group">
           <div class="absolute inset-0 bg-[#e8eedd] dark:bg-[#1e2a1e] flex flex-col items-center justify-center transition-transform duration-500 group-hover:scale-105">
             <MapIcon class="w-16 h-16 text-[#8ea785] dark:text-green-600 mb-4 drop-shadow-sm" />
-            <span class="font-bold text-[#5c7255] dark:text-green-500">Mapa Dojazdu</span>
+            <span class="font-bold text-[#5c7255] dark:text-green-500">Location Map</span>
           </div>
         </div>
       </div>
@@ -208,8 +208,8 @@
           <div class="bg-gradient-to-br from-[#1a3b22] to-[#2d6a4f] px-8 py-6 text-white">
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="text-2xl font-extrabold">Kup Bilet</h2>
-                <p class="text-green-200 text-sm mt-1">Wybierz ilości i potwierdź zamówienie</p>
+                <h2 class="text-2xl font-extrabold">Buy Ticket</h2>
+                <p class="text-green-200 text-sm mt-1">Select quantities and confirm order</p>
               </div>
               <button @click="closePurchaseModal" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer">
                 <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -224,7 +224,7 @@
 
             <!-- Ticket quantities -->
             <div class="flex flex-col gap-3">
-              <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Typy biletów</h3>
+              <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket types</h3>
               <div
                 v-for="et in entryTypes"
                 :key="et.id"
@@ -232,7 +232,7 @@
               >
                 <div>
                   <p class="font-semibold text-gray-800 dark:text-gray-100 text-sm">{{ et.name }}</p>
-                  <p class="text-[#2d6a4f] dark:text-green-400 font-bold text-sm">{{ formatPrice(et.price) }} PLN / szt.</p>
+                  <p class="text-[#2d6a4f] dark:text-green-400 font-bold text-sm">{{ formatPrice(et.price) }} PLN / pcs.</p>
                 </div>
                 <!-- Quantity stepper -->
                 <div class="flex items-center gap-3">
@@ -253,7 +253,7 @@
 
             <!-- Total -->
             <div class="flex items-center justify-between px-4 py-3 rounded-2xl bg-[#1a3b22]/5 dark:bg-green-400/5 border border-[#1a3b22]/10 dark:border-green-400/10">
-              <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm">Suma</span>
+              <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm">Total</span>
               <span class="text-2xl font-extrabold text-[#1a3b22] dark:text-green-400">
                 {{ formatPrice(totalPrice) }} <span class="text-sm font-medium text-gray-400">PLN</span>
               </span>
@@ -274,10 +274,10 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                Przetwarzanie…
+                Processing…
               </span>
               <span v-else>
-                {{ totalItems === 0 ? 'Wybierz co najmniej 1 bilet' : `Potwierdź zakup — ${formatPrice(totalPrice)} PLN` }}
+                {{ totalItems === 0 ? 'Select at least 1 ticket' : `Confirm purchase — ${formatPrice(totalPrice)} PLN` }}
               </span>
             </button>
           </div>
@@ -304,27 +304,27 @@
                 <polyline points="20,6 9,17 4,12"/>
               </svg>
             </div>
-            <h2 class="text-2xl font-extrabold">Bilet zakupiony!</h2>
-            <p class="text-green-200 text-sm">Dziękujemy za zakup. Miłej wizyty!</p>
+            <h2 class="text-2xl font-extrabold">Ticket purchased!</h2>
+            <p class="text-green-200 text-sm">Thank you for your purchase. Enjoy your visit!</p>
           </div>
 
           <!-- Details -->
           <div class="px-8 py-6 flex flex-col gap-4">
             <div v-if="purchaseResult" class="flex flex-col gap-3">
               <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Numer biletu</span>
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Ticket number</span>
                 <span class="font-bold text-[#1a3b22] dark:text-green-400">#{{ purchaseResult.id ?? '—' }}</span>
               </div>
               <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Data zakupu</span>
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Purchase date</span>
                 <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">{{ formatDateTime(purchaseResult.purchaseDate) }}</span>
               </div>
               <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Ważny do</span>
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Valid until</span>
                 <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">{{ formatDateTime(purchaseResult.validUntil) }}</span>
               </div>
               <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Łączna kwota</span>
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total amount</span>
                 <span class="text-xl font-extrabold text-[#1a3b22] dark:text-green-400">{{ formatPrice(purchaseResult.price) }} PLN</span>
               </div>
             </div>
@@ -334,7 +334,7 @@
               id="btn-close-success"
               class="w-full py-3 rounded-2xl bg-gradient-to-br from-[#2d6a4f] to-[#1a3b22] text-white font-bold hover:opacity-90 transition-all cursor-pointer mt-2"
             >
-              Gotowe
+              Done
             </button>
           </div>
         </div>
@@ -377,7 +377,7 @@ async function fetchEntryTypes() {
     console.error('[ClientHomeView] fetchEntryTypes:', err);
     fetchError.value = err?.response?.data?.message
       ?? err?.message
-      ?? 'Nie można połączyć się z serwerem. Sprawdź połączenie i spróbuj ponownie.';
+      ?? 'Cannot connect to the server. Check your connection and try again.';
   } finally {
     isLoadingTypes.value = false;
   }
@@ -426,14 +426,14 @@ function incQty(id) { quantities.value[id] = (quantities.value[id] ?? 0) + 1; }
 function decQty(id) { quantities.value[id] = Math.max(0, (quantities.value[id] ?? 0) - 1); }
 
 /**
- * Wyciąga clientId z JWT (custom claim: "clientId" — int z tabeli Clients).
+ * Extracts clientId from JWT (custom claim: "clientId" — int from Clients table).
  */
 function getClientIdFromToken() {
   try {
     const token = localStorage.getItem('jwt');
     if (!token) return null;
     const decoded = jwtDecode(token);
-    // Custom claim dodany przez backend podczas logowania klienta
+    // Custom claim added by backend during client login
     const id = decoded['clientId'];
     return id ? Number(id) : null;
   } catch {
@@ -447,7 +447,7 @@ async function confirmPurchase() {
 
   const clientId = getClientIdFromToken();
   if (!clientId) {
-    purchaseError.value = 'Nie można określić ID klienta. Spróbuj zalogować się ponownie.';
+    purchaseError.value = 'Cannot determine client ID. Try logging in again.';
     return;
   }
 
@@ -465,7 +465,7 @@ async function confirmPurchase() {
     showSuccessModal.value  = true;
   } catch (err) {
     console.error('[ClientHomeView] confirmPurchase:', err);
-    purchaseError.value = err?.response?.data?.message ?? 'Nie udało się zakupić biletu. Spróbuj ponownie.';
+    purchaseError.value = err?.response?.data?.message ?? 'Failed to purchase the ticket. Try again.';
   } finally {
     isPurchasing.value = false;
   }

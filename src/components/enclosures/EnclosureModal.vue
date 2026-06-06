@@ -9,10 +9,10 @@
       <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center shrink-0">
         <div>
           <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
-            {{ isEdit ? 'Edytuj wybieg' : 'Dodaj nowy wybieg' }}
+            {{ isEdit ? 'Edit enclosure' : 'Add new enclosure' }}
           </h3>
           <p class="text-sm text-gray-400 mt-0.5">
-            {{ isEdit ? 'Zaktualizuj dane wybiegu' : 'Wypełnij dane wybiegu' }}
+            {{ isEdit ? 'Update enclosure data' : 'Fill enclosure data' }}
           </p>
         </div>
         <button type="button" @click="$emit('close')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -27,27 +27,27 @@
         <!-- Name -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Nazwa wybiegu <span class="text-red-400">*</span>
+            Enclosure name <span class="text-red-400">*</span>
           </label>
           <input
             v-model="form.name"
             type="text"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
-            placeholder="np. Duży wybieg dla lwów"
+            placeholder="e.g. Large lion enclosure"
           />
         </div>
 
         <!-- Type -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Typ wybiegu
+            Enclosure type
           </label>
           <select
             v-model="form.typeId"
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all appearance-none"
           >
-            <option :value="null">Wybierz typ...</option>
+            <option :value="null">Select type...</option>
             <option v-for="t in enclosureTypes" :key="t.id" :value="t.id">
               {{ t.typeName }}
             </option>
@@ -56,20 +56,20 @@
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Opis</label>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
           <textarea
             v-model="form.description"
             rows="3"
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all resize-none"
-            placeholder="Dodatkowe informacje..."
+            placeholder="Additional information..."
           />
         </div>
 
-        <!-- Lokalizacja na mapie -->
+        <!-- Location on map -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Lokalizacja na mapie
-            <span class="text-gray-400 font-normal ml-1">(opcjonalne)</span>
+            Location on map
+            <span class="text-gray-400 font-normal ml-1">(optional)</span>
           </label>
           <ZooMiniMap v-model="form.mapKey" :taken-keys="effectiveTakenKeys" />
         </div>
@@ -84,7 +84,7 @@
       <!-- Footer -->
       <div class="p-5 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700 shrink-0">
         <button type="button" :disabled="isSaving" @click="$emit('close')" class="px-5 py-2 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
-          Anuluj
+          Cancel
         </button>
         <button
           type="submit"
@@ -96,7 +96,7 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
           <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-          {{ isSaving ? 'Zapisywanie…' : 'Zapisz' }}
+          {{ isSaving ? 'Saving…' : 'Save' }}
         </button>
       </div>
     </form>
@@ -117,7 +117,7 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  /** Klucze mapKey już przypisanych wybiegów */
+  /** MapKey keys of already assigned enclosures */
   takenKeys: {
     type: Array,
     default: () => [],
@@ -131,8 +131,8 @@ const isSaving = ref(false);
 const saveError = ref(null);
 
 /**
- * Przy edycji wyłączamy własny mapKey z listy zajętych,
- * żeby użytkownik mógł zachować lub zmienić ten sam wybieg.
+ * When editing, we exclude our own mapKey from the taken list,
+ * so the user can keep or change the same enclosure.
  */
 const effectiveTakenKeys = computed(() => {
   if (isEdit.value && props.enclosure?.mapKey) {
@@ -184,7 +184,7 @@ const handleSave = async () => {
     saveError.value =
       err?.response?.data?.message ||
       err?.response?.data ||
-      'Wystąpił błąd podczas zapisywania.';
+      'An error occurred while saving.';
   } finally {
     isSaving.value = false;
   }

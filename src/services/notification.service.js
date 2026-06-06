@@ -1,4 +1,5 @@
 import * as signalR from '@microsoft/signalr';
+import http from '../api/http';
 
 const HUB_URL = `${import.meta.env.VITE_API_BASE}/hubs/notifications`;
 
@@ -25,3 +26,7 @@ export async function stopNotificationHub() {
     connection = null;
   }
 }
+
+export const notificationApi = {
+  getForEmployee: () => http.get('/notifications/forEmployee').then(r => r.data),
+};

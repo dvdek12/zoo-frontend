@@ -55,7 +55,7 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                {{ loading ? 'Usuwanie…' : confirmLabel }}
+                {{ loading ? 'Deleting…' : confirmLabel }}
               </button>
             </div>
           </div>
@@ -68,10 +68,10 @@
 <script setup>
 defineProps({
   modelValue:   { type: Boolean, required: true },
-  title:        { type: String,  default: 'Potwierdź akcję' },
-  message:      { type: String,  default: 'Tej operacji nie można cofnąć.' },
-  confirmLabel: { type: String,  default: 'Usuń' },
-  cancelLabel:  { type: String,  default: 'Anuluj' },
+  title:        { type: String,  default: 'Confirm action' },
+  message:      { type: String,  default: 'This operation cannot be undone.' },
+  confirmLabel: { type: String,  default: 'Delete' },
+  cancelLabel:  { type: String,  default: 'Cancel' },
   loading:      { type: Boolean, default: false },
 });
 

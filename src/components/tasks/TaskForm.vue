@@ -9,10 +9,10 @@
       </div>
       <div>
         <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400 leading-tight">
-          {{ editingTask ? 'Edytuj zadanie' : 'Nowe zadanie' }}
+          {{ editingTask ? 'Edit task' : 'New task' }}
         </h2>
         <p class="text-xs text-gray-400 mt-0.5">
-          {{ editingTask ? 'Modyfikuj wybrane zadanie' : 'Utwórz i skonfiguruj zadanie dla pracowników zoo' }}
+          {{ editingTask ? 'Modify selected task' : 'Create and configure a task for zoo employees' }}
         </p>
       </div>
     </div>
@@ -25,13 +25,13 @@
           <svg class="w-3.5 h-3.5 stroke-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
-          Nazwa zadania *
+          Task name *
         </label>
         <input
           v-model="form.name"
           id="task-name"
           type="text"
-          placeholder="np. Karmienie lwów, Czyszczenie wybiegu..."
+          placeholder="e.g., Feeding lions, Cleaning enclosure..."
           required
           class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all"
         />
@@ -43,12 +43,12 @@
           <svg class="w-3.5 h-3.5 stroke-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/>
           </svg>
-          Opis *
+          Description *
         </label>
         <textarea
           v-model="form.description"
           id="task-description"
-          placeholder="Szczegółowy opis zadania..."
+          placeholder="Detailed task description..."
           required
           rows="3"
           class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all resize-none font-[inherit]"
@@ -62,7 +62,7 @@
             <svg class="w-3.5 h-3.5 stroke-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            Termin *
+            Deadline *
           </label>
           <input
             v-model="form.deadline"
@@ -77,14 +77,14 @@
             <svg class="w-3.5 h-3.5 stroke-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
             </svg>
-            Kategoria
+            Category
           </label>
           <select
             v-model="form.categoryId"
             id="task-category"
             class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all cursor-pointer"
           >
-            <option :value="null">Bez kategorii</option>
+            <option :value="null">Uncategorized</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
         </div>
@@ -97,14 +97,14 @@
             <svg class="w-3.5 h-3.5 stroke-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
-            Pracownik
+            Employee
           </label>
           <select
             v-model="form.assignedEmployeeId"
             id="task-employee"
             class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all cursor-pointer"
           >
-            <option :value="null">Nie przypisano</option>
+            <option :value="null">Unassigned</option>
             <option v-for="emp in employees" :key="emp.id" :value="emp.id">
               {{ emp.firstName }} {{ emp.lastName }}
             </option>
@@ -116,24 +116,24 @@
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
             </svg>
-            Rola
+            Role
           </label>
           <select
             v-model="form.roleId"
             id="task-role"
             class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-2xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2d6a4f]/20 focus:border-[#2d6a4f] dark:focus:border-green-400 transition-all cursor-pointer"
           >
-            <option :value="null">Dowolna rola</option>
+            <option :value="null">Any role</option>
             <option v-for="role in roles" :key="role.id" :value="role.id">{{ role.name }}</option>
           </select>
         </div>
       </div>
 
-      <!-- Ukończone (edycja) -->
+      <!-- Completed (editing) -->
       <div v-if="editingTask">
         <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
           <input type="checkbox" v-model="form.isCompleted" id="task-completed" class="w-4 h-4 accent-[#2d6a4f] cursor-pointer" />
-          Oznacz jako ukończone
+          Mark as completed
         </label>
       </div>
 
@@ -154,7 +154,7 @@
           @click="$emit('cancel')"
           class="px-5 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all cursor-pointer"
         >
-          Anuluj
+          Cancel
         </button>
         <button
           type="submit"
@@ -177,7 +177,7 @@
               <line x1="8" y1="12" x2="16" y2="12"/>
             </template>
           </svg>
-          {{ editingTask ? 'Zapisz zmiany' : 'Utwórz zadanie' }}
+          {{ editingTask ? 'Save changes' : 'Create task' }}
         </button>
       </div>
     </form>
@@ -188,7 +188,7 @@
 import { reactive, watch } from 'vue';
 
 const props = defineProps({
-  /** Zadanie w trybie edycji (null = tworzenie) */
+  /** Task in edit mode (null = creating) */
   editingTask: {
     type: Object,
     default: null,
@@ -217,7 +217,7 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel']);
 
-// Wewnętrzny stan formularza
+// Internal form state
 const form = reactive({
   name: '',
   description: '',
@@ -228,7 +228,7 @@ const form = reactive({
   isCompleted: false,
 });
 
-/** Wypełnia formularz danymi edytowanego zadania */
+/** Fills the form with data from the edited task */
 function fillFromTask(task) {
   if (!task) {
     Object.assign(form, { name: '', description: '', deadline: '', categoryId: null, assignedEmployeeId: null, roleId: null, isCompleted: false });
@@ -247,7 +247,7 @@ function fillFromTask(task) {
   form.isCompleted        = task.isCompleted ?? false;
 }
 
-// Synchronizuj formularz ze zmianą editingTask z zewnątrz
+// Synchronize form with external editingTask changes
 watch(() => props.editingTask, fillFromTask, { immediate: true });
 
 function handleSubmit() {

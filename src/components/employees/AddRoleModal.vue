@@ -16,9 +16,9 @@
         <div class="px-8 pt-7 pb-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0">
           <div>
             <h2 id="add-role-title" class="text-xl font-bold text-[#1a3b22] dark:text-green-400 tracking-tight">
-              Dodaj nową rolę
+              Add new role
             </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Zdefiniuj rolę pracowniczą w systemie</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Define an employee role in the system</p>
           </div>
           <button
             id="close-add-role-modal"
@@ -35,10 +35,10 @@
         <form @submit.prevent="submit" class="overflow-y-auto flex-1 custom-scrollbar">
           <div class="px-8 py-6 flex flex-col gap-5">
 
-            <!-- Nazwa -->
+            <!-- Name -->
             <div class="flex flex-col gap-1.5">
               <label for="role-name" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                Nazwa *
+                Name *
               </label>
               <input
                 id="role-name"
@@ -46,17 +46,17 @@
                 type="text"
                 required
                 maxlength="100"
-                placeholder="np. Opiekun zwierząt"
+                placeholder="e.g. Zookeeper"
                 class="input-field"
                 :class="{ 'border-red-400': errors.name }"
               />
               <span v-if="errors.name" class="text-xs text-red-500">{{ errors.name }}</span>
             </div>
 
-            <!-- Opis -->
+            <!-- Description -->
             <div class="flex flex-col gap-1.5">
               <label for="role-description" class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
-                Opis *
+                Description *
               </label>
               <textarea
                 id="role-description"
@@ -64,7 +64,7 @@
                 required
                 maxlength="500"
                 rows="3"
-                placeholder="Opisz zakres obowiązków tej roli…"
+                placeholder="Describe the responsibilities of this role…"
                 class="input-field resize-none"
                 :class="{ 'border-red-400': errors.description }"
               />
@@ -74,7 +74,7 @@
               </div>
             </div>
 
-            <!-- Rola menedżerska -->
+            <!-- Managerial role -->
             <div class="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/40 rounded-xl">
               <button
                 type="button"
@@ -91,8 +91,8 @@
                 />
               </button>
               <div>
-                <p class="text-sm font-semibold text-gray-800 dark:text-white">Rola menedżerska</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Pracownicy z tą rolą mają uprawnienia menedżerskie</p>
+                <p class="text-sm font-semibold text-gray-800 dark:text-white">Managerial role</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Employees with this role have managerial privileges</p>
               </div>
             </div>
 
@@ -109,7 +109,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              Rola została dodana pomyślnie!
+              Role added successfully!
             </div>
           </div>
         </form>
@@ -122,7 +122,7 @@
             @click="$emit('close')"
             class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-medium text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            Anuluj
+            Cancel
           </button>
           <button
             id="submit-add-role"
@@ -135,7 +135,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            <span>{{ isLoading ? 'Dodawanie…' : 'Dodaj rolę' }}</span>
+            <span>{{ isLoading ? 'Adding…' : 'Add role' }}</span>
           </button>
         </div>
       </div>
@@ -165,8 +165,8 @@ const errors = reactive({
 });
 
 const validate = () => {
-  errors.name        = form.name.trim()        ? '' : 'Nazwa jest wymagana';
-  errors.description = form.description.trim() ? '' : 'Opis jest wymagany';
+  errors.name        = form.name.trim()        ? '' : 'Name is required';
+  errors.description = form.description.trim() ? '' : 'Description is required';
   return !errors.name && !errors.description;
 };
 
@@ -191,7 +191,7 @@ const submit = async () => {
     serverError.value =
       err?.response?.data?.message ??
       (typeof err?.response?.data === 'string' ? err.response.data : null) ??
-      'Nie udało się dodać roli. Spróbuj ponownie.';
+      'Failed to add role. Please try again.';
   } finally {
     isLoading.value = false;
   }
