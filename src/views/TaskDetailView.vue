@@ -80,15 +80,18 @@
       <div class="flex gap-4 border-t pt-8 border-gray-100 dark:border-gray-700">
         <button
           v-if="!task.isCompleted"
-          class="px-6 py-3 bg-[#2d6a4f] text-white rounded-lg font-bold hover:bg-[#1a3b22] transition-colors shadow-md flex items-center gap-2"
+          :disabled="isCompleting"
+          @click="markCompleted"
+          class="px-6 py-3 bg-[#2d6a4f] text-white rounded-lg font-bold hover:bg-[#1a3b22] transition-colors shadow-md flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg v-if="isCompleting" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
-          Mark as completed
-        </button>
-        <button class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm">
-          Report a problem / Request help
+          {{ isCompleting ? 'Saving…' : 'Mark as completed' }}
         </button>
       </div>
     </div>
@@ -103,9 +106,23 @@ import taskService from '../services/task.service';
 const route  = useRoute();
 const taskId = route.params.taskId;
 
-const task      = ref(null);
-const isLoading = ref(false);
-const error     = ref(null);
+const task        = ref(null);
+const isLoading   = ref(false);
+const isCompleting = ref(false);
+const error       = ref(null);
+
+async function markCompleted() {
+  if (!task.value || isCompleting.value) return;
+  isCompleting.value = true;
+  try {
+    await taskService.update(task.value.id, { ...task.value, isCompleted: true });
+    task.value.isCompleted = true;
+  } catch (err) {
+    console.error('[TaskDetailView] markCompleted error:', err);
+  } finally {
+    isCompleting.value = false;
+  }
+}
 
 const todayStr = new Date().toISOString().slice(0, 10);
 const isToday   = (d) => !!d && d.slice(0, 10) === todayStr;

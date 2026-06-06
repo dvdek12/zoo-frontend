@@ -218,9 +218,10 @@ async function fetchAttributes() {
   try {
     const data      = await animalService.getAllAttributes();
     attributes.value = toArray(data).map(a => ({
-      id:   a.id || a.attributeId || Math.random(),
-      name: a.attributeName || a.name || 'Unknown',
-      type: ATTRIBUTE_TYPE_LABELS[a.attributeType ?? a.type] ?? String(a.attributeType ?? a.type ?? 'Unknown type'),
+      id:         a.id || a.attributeId || Math.random(),
+      name:       a.attributeName || a.name || 'Unknown',
+      type:       ATTRIBUTE_TYPE_LABELS[a.attributeType ?? a.type] ?? String(a.attributeType ?? a.type ?? 'Unknown type'),
+      animalType: (a.animalType && a.animalType !== 'Unknown') ? a.animalType : null,
     }));
   } catch {}
 }
@@ -251,7 +252,9 @@ const onAnimalTypeSaved = async () => { showAnimalTypeModal.value = false; await
 const showAnimalTypeDeleteError = ref(false);
 const animalTypeDelete = useDeleteConfirm(async (type) => {
   await animalTypeService.remove(type.id);
+  const deletedName = type.animalTypeName ?? type.name;
   animalTypes.value = animalTypes.value.filter(t => t.id !== type.id);
+  attributes.value = attributes.value.filter(a => a.animalType !== deletedName);
 });
 const { showConfirm: animalTypeShowConfirm, pendingDelete: animalTypePendingDelete, isDeleting: animalTypeIsDeleting, deleteError: animalTypeDeleteError } = animalTypeDelete;
 const requestDeleteAnimalType = (id) => animalTypeDelete.requestDelete(animalTypes.value.find(t => t.id === id) ?? { id, animalTypeName: '' });

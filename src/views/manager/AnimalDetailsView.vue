@@ -163,7 +163,6 @@
             class="w-44 px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors"
           >
             <option :value="null">All types</option>
-            <option value="global">Global only</option>
             <option v-for="type in animalTypes" :key="type.id" :value="type.id">
               {{ type.animalTypeName ?? type.name }}
             </option>
@@ -413,9 +412,11 @@ const availableAttributes = computed(() => {
   let filtered = allAttributes.value.filter(a => !assignedIds.has(a.id));
 
   if (selectedAnimalTypeFilter.value === 'global') {
-    filtered = filtered.filter(a => (a.animalTypeId ?? a.AnimalTypeId) == null);
+    filtered = filtered.filter(a => !a.animalType || a.animalType === 'Unknown');
   } else if (selectedAnimalTypeFilter.value !== null) {
-    filtered = filtered.filter(a => (a.animalTypeId ?? a.AnimalTypeId) === selectedAnimalTypeFilter.value);
+    const selectedType = animalTypes.value.find(t => t.id === selectedAnimalTypeFilter.value);
+    const selectedName = selectedType?.animalTypeName ?? selectedType?.name;
+    filtered = filtered.filter(a => a.animalType === selectedName);
   }
 
   return filtered;

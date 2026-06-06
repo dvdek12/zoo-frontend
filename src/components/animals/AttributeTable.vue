@@ -14,10 +14,10 @@
       </div>
     </template>
 
-    <!-- Data type -->
-    <template #cell-type="{ row }">
+    <!-- Animal type -->
+    <template #cell-animalType="{ row }">
       <span class="inline-block px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded text-xs">
-        {{ row.type }}
+        {{ row.animalType ?? '—' }}
       </span>
     </template>
 
@@ -54,8 +54,8 @@ defineProps({
 defineEmits(['delete']);
 
 const columns = [
-  { key: 'name',    label: 'Attribute name' },
-  { key: 'type',    label: 'Data type' },
-  { key: 'actions', label: 'Actions', width: 'w-24', align: 'right' },
+  { key: 'name',       label: 'Attribute name' },
+  { key: 'animalType', label: 'Animal type' },
+  { key: 'actions',    label: 'Actions', width: 'w-24', align: 'right' },
 ];
 </script>
