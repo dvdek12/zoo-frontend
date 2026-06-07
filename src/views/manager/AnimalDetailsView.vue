@@ -411,6 +411,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { useTitle } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import animalService from '../../services/animal.service';
 import animalTypeService from '../../services/animalType.service';
@@ -425,6 +426,7 @@ const { load: loadConditions, labelFor: conditionLabel, colorFor: conditionColor
 const route           = useRoute();
 const router          = useRouter();
 const breadcrumbStore = useBreadcrumbStore();
+const title           = useTitle();
 
 const animal    = ref(null);
 const isLoading = ref(false);
@@ -642,6 +644,7 @@ watch(
       const data = await animalService.getById(id);
       animal.value = data;
       breadcrumbStore.setLabel(data?.name ?? `Animal #${id}`);
+      title.value = data?.name ? `${data.name} | ZooNe` : `Animal #${id} | ZooNe`;
 
       const iconId = data?.iconId ?? data?.IconId ?? null;
       if (iconId) {

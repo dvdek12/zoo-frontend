@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useTitle } from '@vueuse/core'
 import DashboardView from '../views/DashboardView.vue'
 import TaskDetailView from '../views/TaskDetailView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -146,6 +147,14 @@ router.beforeEach((to) => {
     if (!auth.isLoggedIn) return { name: 'login' }
     if (!isManager) return { name: 'dashboard' } // Employee bez uprawnień → z powrotem do dashboard
   }
+})
+
+const title = useTitle('ZooNe')
+
+router.afterEach((to) => {
+  const breadcrumb = to.meta.breadcrumb
+  const label = typeof breadcrumb === 'function' ? breadcrumb(to) : breadcrumb
+  title.value = label ? `${label} | ZooNe` : 'ZooNe'
 })
 
 export default router

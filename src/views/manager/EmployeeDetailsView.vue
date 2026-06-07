@@ -268,6 +268,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useTitle } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import employeeService from '../../services/employee.service';
 import iconService from '../../services/icon.service';
@@ -277,6 +278,7 @@ import { useBreadcrumbStore } from '../../stores/breadcrumb';
 const route           = useRoute();
 const router          = useRouter();
 const breadcrumbStore = useBreadcrumbStore();
+const title           = useTitle();
 
 const employee   = ref(null);
 const isLoading  = ref(false);
@@ -382,6 +384,7 @@ onMounted(async () => {
     const fullName = [data?.firstName ?? data?.FirstName, data?.lastName ?? data?.LastName]
       .filter(Boolean).join(' ');
     breadcrumbStore.setLabel(fullName || `Employee #${route.params.id}`);
+    title.value = fullName ? `${fullName} | ZooNe` : `Employee #${route.params.id} | ZooNe`;
     // Załaduj ikonkę jeśli istnieje
     const iconId = data?.iconId ?? data?.IconId ?? null;
     if (iconId) {
