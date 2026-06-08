@@ -153,14 +153,27 @@ export function useReports() {
       return;
     }
     try {
-      await reportService.create({
-        Title:       form.value.title,
-        Type:        parseInt(form.value.type, 10),
-        AuthorId:    currentAuthorId.value,
-        EmployeeId:  form.value.employeeId  ? parseInt(form.value.employeeId,  10) : null,
-        AnimalId:    form.value.animalId    ? parseInt(form.value.animalId,    10) : null,
-        EnclosureId: form.value.enclosureId ? parseInt(form.value.enclosureId, 10) : null,
-      });
+      console.log(auth.hasRole('Employee'))
+      if(auth.hasRole('Manager')) {
+        await reportService.createForManager({
+          Title:       form.value.title,
+          Type:        parseInt(form.value.type, 10),
+          AuthorId:    currentAuthorId.value,
+          EmployeeId:  form.value.employeeId  ? parseInt(form.value.employeeId,  10) : null,
+          AnimalId:    form.value.animalId    ? parseInt(form.value.animalId,    10) : null,
+          EnclosureId: form.value.enclosureId ? parseInt(form.value.enclosureId, 10) : null,
+        });
+      }else{
+        await reportService.createForEmployee({
+          Title:       form.value.title,
+          Type:        parseInt(form.value.type, 10),
+          AuthorId:    currentAuthorId.value,
+          EmployeeId:  form.value.employeeId  ? parseInt(form.value.employeeId,  10) : null,
+          AnimalId:    form.value.animalId    ? parseInt(form.value.animalId,    10) : null,
+          EnclosureId: form.value.enclosureId ? parseInt(form.value.enclosureId, 10) : null,
+        });
+      }
+      
       resetForm();
       showToast('Report created successfully!');
       await fetchReports();
@@ -240,6 +253,6 @@ export function useReports() {
     initData, fetchReports, resetForm, toggleSort,
     handleCreate, handleGeneratePDF, handlePreviewPDF, closePreview,
     confirmDelete, handleDelete,
-    formatType, formatDateShort, getAuthorName, highlightText, showToast,
+    formatType, formatDate: formatDateShort, getAuthorName, highlightText, showToast,
   };
 }
