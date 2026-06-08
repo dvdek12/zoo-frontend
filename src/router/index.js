@@ -77,7 +77,7 @@ const router = createRouter({
       path: '/animals/:id',
       name: 'animalDetail',
       component: AnimalDetailView,
-      meta: { requiresManager: true, breadcrumb: (route) => `Animal #${route.params.id}` }
+      meta: { requiresEmployee: true, breadcrumb: (route) => `Animal #${route.params.id}` }
     },
     {
       path: '/employees',

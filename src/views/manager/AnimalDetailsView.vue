@@ -44,9 +44,9 @@
           <!-- Avatar / Ikonka z możliwością edycji -->
           <div class="shrink-0">
             <div
-              class="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl cursor-pointer group"
-              @click="iconFileInput?.click()"
-              title="Click to change icon"
+              :class="['relative w-32 h-32 md:w-36 md:h-36 rounded-2xl', isManager ? 'cursor-pointer group' : '']"
+              @click="isManager && iconFileInput?.click()"
+              :title="isManager ? 'Click to change icon' : undefined"
             >
               <!-- Aktualna ikonka lub placeholder -->
               <img
@@ -64,7 +64,7 @@
                 </svg>
               </div>
               <!-- Overlay: aparat -->
-              <div class="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+              <div v-if="isManager" class="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
                 <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -94,38 +94,40 @@
             </div>
             <!-- Name inline edit -->
             <h1
-              :contenteditable="true"
+              :contenteditable="isManager"
               spellcheck="false"
-              @blur="onFieldBlur('name', $event)"
-              @keydown.enter.prevent="$event.target.blur()"
-              class="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1 outline-none rounded-lg px-1 -mx-1 cursor-text hover:bg-white/10 focus:bg-white/20 transition-colors"
+              @blur="isManager && onFieldBlur('name', $event)"
+              @keydown.enter.prevent="isManager && $event.target.blur()"
+              :class="['text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow mb-1 outline-none rounded-lg px-1 -mx-1 transition-colors', isManager ? 'cursor-text hover:bg-white/10 focus:bg-white/20' : '']"
             >{{ animal.name }}</h1>
             <!-- RaceName inline edit -->
             <p
-              :contenteditable="true"
+              :contenteditable="isManager"
               spellcheck="false"
-              @blur="onFieldBlur('raceName', $event)"
-              @keydown.enter.prevent="$event.target.blur()"
-              class="text-green-200 dark:text-cyan-300 italic text-lg outline-none rounded-lg px-1 -mx-1 cursor-text hover:bg-white/10 focus:bg-white/20 transition-colors"
+              @blur="isManager && onFieldBlur('raceName', $event)"
+              @keydown.enter.prevent="isManager && $event.target.blur()"
+              :class="['text-green-200 dark:text-cyan-300 italic text-lg outline-none rounded-lg px-1 -mx-1 transition-colors', isManager ? 'cursor-text hover:bg-white/10 focus:bg-white/20' : '']"
             >{{ animal.raceName ?? animal.species ?? 'Unknown species' }}</p>
             <!-- Origin inline edit -->
             <p
-              :contenteditable="true"
+              :contenteditable="isManager"
               spellcheck="false"
-              @blur="onFieldBlur('origin', $event)"
-              @keydown.enter.prevent="$event.target.blur()"
-              class="text-green-100/70 text-sm mt-1 outline-none rounded-lg px-1 -mx-1 cursor-text hover:bg-white/10 focus:bg-white/20 transition-colors min-w-[80px]"
+              @blur="isManager && onFieldBlur('origin', $event)"
+              @keydown.enter.prevent="isManager && $event.target.blur()"
+              :class="['text-green-100/70 text-sm mt-1 outline-none rounded-lg px-1 -mx-1 transition-colors min-w-[80px]', isManager ? 'cursor-text hover:bg-white/10 focus:bg-white/20' : '']"
             >{{ animal.origin ?? '' }}</p>
           </div>
           <!-- Date badge -->
           <div class="shrink-0 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center text-white">
             <p class="text-xs text-green-200 dark:text-cyan-300 mb-1 uppercase tracking-wider font-semibold">Date of arrival</p>
             <input
+              v-if="isManager"
               type="date"
               :value="animal.dateOfArrival ? animal.dateOfArrival.slice(0,10) : ''"
               @change="onFieldBlur('dateOfArrival', $event)"
               class="text-xl font-bold bg-transparent text-white text-center outline-none cursor-pointer hover:bg-white/10 rounded-lg px-2 py-0.5 transition-colors w-full"
             />
+            <span v-else class="text-xl font-bold">{{ animal.dateOfArrival ? animal.dateOfArrival.slice(0,10) : '—' }}</span>
           </div>
         </div>
       </div>
@@ -137,10 +139,10 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Description</h2>
           <p
-            :contenteditable="true"
+            :contenteditable="isManager"
             spellcheck="false"
-            @blur="onFieldBlur('description', $event)"
-            class="text-gray-700 dark:text-gray-200 leading-relaxed outline-none rounded-lg px-2 py-1 -mx-2 cursor-text hover:bg-gray-50 dark:hover:bg-gray-700/50 focus:bg-gray-50 dark:focus:bg-gray-700/50 transition-colors min-h-[2rem] empty:before:content-['Click_to_add_description…'] empty:before:text-gray-400 empty:before:italic empty:before:text-sm"
+            @blur="isManager && onFieldBlur('description', $event)"
+            :class="['text-gray-700 dark:text-gray-200 leading-relaxed outline-none rounded-lg px-2 py-1 -mx-2 transition-colors min-h-[2rem]', isManager ? 'cursor-text hover:bg-gray-50 dark:hover:bg-gray-700/50 focus:bg-gray-50 dark:focus:bg-gray-700/50 empty:before:content-[\'Click_to_add_description…\'] empty:before:text-gray-400 empty:before:italic empty:before:text-sm' : '']"
           >{{ animal.description ?? '' }}</p>
         </div>
 
@@ -151,32 +153,34 @@
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Species</dt>
               <dd
-                :contenteditable="true"
+                :contenteditable="isManager"
                 spellcheck="false"
-                @blur="onFieldBlur('raceName', $event)"
-                @keydown.enter.prevent="$event.target.blur()"
-                class="text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 cursor-text hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 transition-colors"
+                @blur="isManager && onFieldBlur('raceName', $event)"
+                @keydown.enter.prevent="isManager && $event.target.blur()"
+                :class="['text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 transition-colors', isManager ? 'cursor-text hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700' : '']"
               >{{ animal.raceName ?? animal.species ?? '' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Origin</dt>
               <dd
-                :contenteditable="true"
+                :contenteditable="isManager"
                 spellcheck="false"
-                @blur="onFieldBlur('origin', $event)"
-                @keydown.enter.prevent="$event.target.blur()"
-                class="text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 cursor-text hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 transition-colors"
+                @blur="isManager && onFieldBlur('origin', $event)"
+                @keydown.enter.prevent="isManager && $event.target.blur()"
+                :class="['text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 transition-colors', isManager ? 'cursor-text hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700' : '']"
               >{{ animal.origin ?? '' }}</dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
               <dt class="text-sm text-gray-500 dark:text-gray-400">Date of arrival</dt>
               <dd class="text-sm font-semibold text-gray-800 dark:text-white">
                 <input
+                  v-if="isManager"
                   type="date"
                   :value="animal.dateOfArrival ? animal.dateOfArrival.slice(0,10) : ''"
                   @change="onFieldBlur('dateOfArrival', $event)"
                   class="bg-transparent text-sm font-semibold text-gray-800 dark:text-white outline-none rounded px-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 />
+                <span v-else>{{ animal.dateOfArrival ? animal.dateOfArrival.slice(0,10) : '—' }}</span>
               </dd>
             </div>
             <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
@@ -200,7 +204,7 @@
         <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Attributes</h2>
 
         <!-- Assign control -->
-        <div class="flex items-center gap-3 mb-5 flex-wrap">
+        <div v-if="isManager" class="flex items-center gap-3 mb-5 flex-wrap">
           <!-- Filter by AnimalType -->
           <select
             v-model="selectedAnimalTypeFilter"
@@ -267,6 +271,7 @@
               {{ attr.attributeValue ?? attr.value }}
             </span>
             <button
+              v-if="isManager"
               @click="unassignAttr(attr)"
               :id="`remove-attr-${attr.id ?? attr.attributeId}`"
               class="w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 opacity-0 group-hover:opacity-100 transition-all ml-1 cursor-pointer"
@@ -298,6 +303,7 @@
             {{ history.length }} entries
           </span>
           <button
+            v-if="isManager"
             type="button"
             @click="showHealthModal = true"
             class="ml-2 flex items-center gap-1.5 bg-[#2d6a4f] hover:bg-[#1a3b22] text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md shrink-0"
@@ -419,9 +425,13 @@ import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
 import { useAnimalConditions } from '../../composables/useAnimalConditions';
 import { useBreadcrumbStore } from '../../stores/breadcrumb';
+import { useAuthStore } from '../../stores/auth';
 import AddHealthRecordModal from '../../components/animals/AddHealthRecordModal.vue';
 
 const { load: loadConditions, labelFor: conditionLabel, colorFor: conditionColor } = useAnimalConditions();
+
+const authStore = useAuthStore();
+const isManager = computed(() => authStore.hasRole('Manager'));
 
 const route           = useRoute();
 const router          = useRouter();
