@@ -225,17 +225,9 @@
               </div>
             </div>
 
-            <!-- Server error -->
-            <div v-if="serverError" class="flex items-start gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-              <span>{{ serverError }}</span>
-            </div>
-
-            <!-- Success -->
-            <div v-if="success" class="flex items-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-sm text-green-700 dark:text-green-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-              Employee registered successfully!
-            </div>
+            <!-- Server error / success -->
+            <FormError :error="serverError" />
+            <FormError :error="success ? 'Employee registered successfully!' : null" variant="success" />
           </div>
         </form>
 
@@ -272,6 +264,8 @@
 import { ref, reactive } from 'vue';
 import employeeService from '../../services/employee.service';
 import iconService from '../../services/icon.service';
+import FormError from '../FormError.vue';
+import { parseApiError } from '../../utils/parseApiError';
 
 const emit = defineEmits(['close', 'save']);
 
@@ -389,10 +383,7 @@ const submit = async () => {
     // Emit event after a short delay (so the user can see the success)
     setTimeout(() => emit('save'), 1200);
   } catch (err) {
-    serverError.value =
-      err?.response?.data?.message ??
-      (typeof err?.response?.data === 'string' ? err.response.data : null) ??
-      'Failed to register employee. Please try again.';
+    serverError.value = parseApiError(err, 'Failed to register employee. Please try again.');
   } finally {
     isLoading.value = false;
   }

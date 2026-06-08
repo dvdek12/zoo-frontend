@@ -55,14 +55,7 @@
         </template>
       </button>
 
-      <Transition name="msg-fade">
-        <div
-          v-if="errorMessage"
-          class="mt-4 px-4 py-3 rounded-lg text-sm font-medium bg-red-50 border border-red-200 text-red-800"
-        >
-          {{ errorMessage }}
-        </div>
-      </Transition>
+      <FormError :error="errorMessage" class="mt-4" />
     </form>
   </div>
 </template>
@@ -72,6 +65,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Mail, KeyRound, Eye, EyeOff, ArrowRight } from 'lucide-vue-next';
 import { useAuthStore } from '../../../stores/auth';
+import FormError from '../../FormError.vue';
 
 const email = ref('');
 const password = ref('');

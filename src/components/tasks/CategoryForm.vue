@@ -22,10 +22,7 @@
         />
       </div>
 
-      <div v-if="error" class="flex items-center gap-2 px-3.5 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl text-xs text-red-600 dark:text-red-400">
-        <svg class="w-4 h-4 stroke-red-500 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        {{ error }}
-      </div>
+      <FormError :error="error" />
 
       <div class="flex justify-end pt-1">
         <button
@@ -43,6 +40,8 @@
 </template>
 
 <script setup>
+import FormError from '../FormError.vue';
+
 defineProps({
   modelValue:   { type: String,  default: '' },
   error:        { type: String,  default: null },

@@ -9,8 +9,8 @@
       <span class="text-sm">Loading profile...</span>
     </div>
 
-    <div v-else-if="loadError" class="mb-6 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
-      {{ loadError }}
+    <div v-else-if="loadError" class="mb-6">
+      <FormError :error="loadError" />
     </div>
 
     <template v-else>
@@ -69,20 +69,8 @@
         />
       </div>
 
-      <transition name="fade">
-        <div v-if="saveError" class="mb-6 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
-          {{ saveError }}
-        </div>
-      </transition>
-
-      <transition name="fade">
-        <div v-if="successMessage" class="mb-6 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200 flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-          </svg>
-          <span class="font-medium">{{ successMessage }}</span>
-        </div>
-      </transition>
+      <FormError :error="saveError" class="mb-6" />
+      <FormError :error="successMessage || null" variant="success" class="mb-6" />
 
       <div class="pt-4 border-t border-gray-100 flex gap-4">
         <button
@@ -106,6 +94,8 @@
 import { useAuthStore } from '../../stores/auth';
 import { ref, reactive, computed, onMounted } from 'vue';
 import employeeService from '../../services/employee.service';
+import FormError from '../FormError.vue';
+import { parseApiError } from '../../utils/parseApiError';
 
 const auth = useAuthStore();
 
@@ -187,23 +177,10 @@ const saveProfile = async () => {
     }, 3000);
   } catch (err) {
     console.error('[EditProfileForm] save error:', err);
-    saveError.value =
-      err?.response?.data?.message ??
-      (typeof err?.response?.data === 'string' ? err.response.data : null) ??
-      'Failed to save changes. Please try again.';
+    saveError.value = parseApiError(err, 'Failed to save changes. Please try again.');
   } finally {
     isSaving.value = false;
   }
 };
 </script>
 
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

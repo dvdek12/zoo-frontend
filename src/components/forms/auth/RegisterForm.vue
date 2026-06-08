@@ -123,19 +123,11 @@
       </button>
 
       <!-- Response messages -->
-      <Transition name="msg-fade">
-        <div v-if="messages.length > 0" :class="[
-          'mt-4 px-4 py-3 rounded-lg text-sm font-medium',
-          isSuccess
-            ? 'bg-green-50 border border-green-200 text-green-800'
-            : 'bg-red-50 border border-red-200 text-red-800'
-        ]">
-          <ul v-if="messages.length > 1" class="list-disc list-inside space-y-1">
-            <li v-for="(msg, i) in messages" :key="i">{{ msg }}</li>
-          </ul>
-          <span v-else>{{ messages[0] }}</span>
-        </div>
-      </Transition>
+      <FormError
+        :error="messages.length > 0 ? messages : null"
+        :variant="isSuccess ? 'success' : 'error'"
+        class="mt-4"
+      />
     </form>
   </div>
 </template>
@@ -145,6 +137,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../../stores/auth';
 import { Mail, KeyRound, ArrowRight, Eye, EyeOff, User as UserIcon, Calendar as CalendarIcon, Phone as PhoneIcon } from 'lucide-vue-next';
+import FormError from '../../FormError.vue';
+import { parseApiError } from '../../../utils/parseApiError';
 
 const auth = useAuthStore();
 
@@ -161,38 +155,6 @@ const isSuccess = ref(false);
 
 const router = useRouter();
 
-/**
- * Extracts a list of messages from various backend error response formats.
- * Backend returns: [ { code, description }, ... ]  (root level array)
- */
-function parseErrors(error) {
-  const data = error?.response?.data;
-  if (!data) return ['An unexpected error occurred. Please try again.'];
-
-  // ✅ ASP.NET Identity: root-level array [ { code, description } ]
-  if (Array.isArray(data)) {
-    const msgs = data.map(e => (typeof e === 'object' ? e.description ?? e.message ?? JSON.stringify(e) : String(e)));
-    if (msgs.length) return msgs;
-  }
-
-  // ASP.NET Identity wrapped: { errors: [ { code, description } ] }
-  if (Array.isArray(data.errors)) {
-    const msgs = data.errors.map(e => (typeof e === 'object' ? e.description ?? e.message ?? JSON.stringify(e) : String(e)));
-    if (msgs.length) return msgs;
-  }
-
-  // ModelState / ProblemDetails: { errors: { field: ['msg'] } }
-  if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
-    const msgs = Object.values(data.errors).flat().map(String);
-    if (msgs.length) return msgs;
-  }
-
-  if (data.message) return [String(data.message)];
-  if (data.title)   return [String(data.title)];
-  if (typeof data === 'string' && data.trim()) return [data.trim()];
-
-  return ['An unexpected error occurred. Please try again.'];
-}
 
 const handleRegister = async () => {
   messages.value = [];
@@ -214,7 +176,8 @@ const handleRegister = async () => {
 
   } catch (error) {
     isSuccess.value = false;
-    messages.value = parseErrors(error);
+    const parsed = parseApiError(error, 'An unexpected error occurred. Please try again.');
+    messages.value = Array.isArray(parsed) ? parsed : [parsed];
     console.error('[RegisterForm] full error object:', error);
   } finally {
     isLoading.value = false;
@@ -222,14 +185,3 @@ const handleRegister = async () => {
 };
 </script>
 
-<style scoped>
-.msg-fade-enter-active,
-.msg-fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.msg-fade-enter-from,
-.msg-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-</style>
