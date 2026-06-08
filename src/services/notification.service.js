@@ -29,4 +29,5 @@ export async function stopNotificationHub() {
 
 export const notificationApi = {
   getForEmployee: () => http.get('/notifications/forEmployee').then(r => r.data),
+  markAsRead:     (id) => http.put(`/notifications/${id}/read`).then(r => r.data),
 };

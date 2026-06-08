@@ -11,6 +11,7 @@ export const useNotificationToast = defineStore('notificationToast', () => {
 
     notifications.value.unshift({
       id,
+      backendId: notification.id ?? notification.Id ?? null,
       title: notification.title ?? notification.Title,
       message: notification.message ?? notification.Message,
       createdAt: notification.createdAt ?? notification.CreatedAt ?? new Date().toISOString(),
@@ -25,6 +26,12 @@ export const useNotificationToast = defineStore('notificationToast', () => {
   /** Usuwa toast z kolejki (ręcznie lub po timeout). */
   function dismissToast(id) {
     toasts.value = toasts.value.filter(t => t.id !== id);
+  }
+
+  /** Oznacza jedno powiadomienie jako przeczytane (po backendowym ID). */
+  function markOneAsRead(backendId) {
+    const n = notifications.value.find(n => n.backendId === backendId);
+    if (n) n.read = true;
   }
 
   /** Oznacza wszystkie powiadomienia jako przeczytane. */
@@ -43,6 +50,7 @@ export const useNotificationToast = defineStore('notificationToast', () => {
     unreadCount,
     add,
     dismissToast,
+    markOneAsRead,
     markAllAsRead,
     clearAll,
   };
