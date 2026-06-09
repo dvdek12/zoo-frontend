@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue';
 import reportService from '../services/report.service';
 import employeeService from '../services/employee.service';
+import animalService from '../services/animal.service';
+import enclosureService from '../services/enclosure.service';
 import { useAuthStore } from '../stores/auth';
 import { toArray, getErrorMessage } from '../utils/normalize';
 import { formatDateShort, camelToWords, highlight } from '../utils/formatters';
@@ -11,6 +13,8 @@ export function useReports() {
   const reports           = ref([]);
   const reportTypes       = ref([]);
   const employees         = ref([]);
+  const animals           = ref([]);
+  const enclosures        = ref([]);
   const searchQuery       = ref('');
   const sortOrder         = ref('desc');
   const currentAuthorId   = ref(null);
@@ -99,7 +103,10 @@ export function useReports() {
   async function fetchTypes() {
     loadingTypes.value = true;
     try {
-      const raw = await reportService.getTypes();
+      const isEmployeeOnly = auth.hasRole('Employee') && !auth.hasRole('Manager');
+      const raw = isEmployeeOnly
+        ? await reportService.getTypesForEmployee()
+        : await reportService.getTypes();
       if (Array.isArray(raw)) {
         reportTypes.value = raw.map((item, idx) => {
           if (typeof item === 'string') return { value: idx, label: camelToWords(item) };
@@ -130,6 +137,26 @@ export function useReports() {
     } catch {}
   }
 
+  async function fetchAnimals() {
+    try {
+      const raw = await animalService.getAll();
+      animals.value = (Array.isArray(raw) ? raw : []).map(a => ({
+        id:   a.id   ?? a.Id,
+        name: a.name ?? a.Name ?? `Animal ${a.id ?? a.Id}`,
+      }));
+    } catch {}
+  }
+
+  async function fetchEnclosures() {
+    try {
+      const raw = await enclosureService.getAll();
+      enclosures.value = (Array.isArray(raw) ? raw : []).map(e => ({
+        id:   e.id   ?? e.Id,
+        name: e.name ?? e.Name ?? `Enclosure ${e.id ?? e.Id}`,
+      }));
+    } catch {}
+  }
+
   async function fetchCurrentAuthorId() {
     try {
       const list  = employees.value.length ? employees.value : await employeeService.getAll();
@@ -140,7 +167,7 @@ export function useReports() {
   }
 
   async function initData() {
-    await Promise.all([fetchReports(), fetchTypes(), fetchEmployees()]);
+    await Promise.all([fetchReports(), fetchTypes(), fetchEmployees(), fetchAnimals(), fetchEnclosures()]);
     await fetchCurrentAuthorId();
   }
 
@@ -244,7 +271,7 @@ export function useReports() {
   }
 
   return {
-    reports, reportTypes, searchQuery, sortOrder, loadingReports, loadingTypes,
+    reports, reportTypes, employees, animals, enclosures, searchQuery, sortOrder, loadingReports, loadingTypes,
     creating, createError, form,
     pdfLoadingId, previewLoadingId, previewReport, previewBlobUrl, showPreview,
     reportToDelete, showDeleteModal, deleting,

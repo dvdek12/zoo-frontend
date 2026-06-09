@@ -61,16 +61,27 @@
             </div>
 
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Employee ID <span class="normal-case font-normal text-gray-400">(optional)</span></label>
-              <input v-model.number="form.employeeId" type="number" min="1" placeholder="optional" class="w-full px-4 py-2.5 bg-[#f6f5f0] rounded-xl text-sm font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a3b22]/30 transition" />
+              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Employee <span class="normal-case font-normal text-gray-400">(optional)</span></label>
+              <select v-model="form.employeeId" class="w-full px-4 py-2.5 bg-[#f6f5f0] rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a3b22]/30 transition appearance-none cursor-pointer">
+                <option :value="null">— none —</option>
+                <option v-for="emp in employees" :key="emp.id ?? emp.Id" :value="emp.id ?? emp.Id">
+                  {{ (emp.firstName ?? emp.FirstName ?? '') + ' ' + (emp.lastName ?? emp.LastName ?? '') }}
+                </option>
+              </select>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Animal ID <span class="normal-case font-normal text-gray-400">(optional)</span></label>
-              <input v-model.number="form.animalId" type="number" min="1" placeholder="optional" class="w-full px-4 py-2.5 bg-[#f6f5f0] rounded-xl text-sm font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a3b22]/30 transition" />
+              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Animal <span class="normal-case font-normal text-gray-400">(optional)</span></label>
+              <select v-model="form.animalId" class="w-full px-4 py-2.5 bg-[#f6f5f0] rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a3b22]/30 transition appearance-none cursor-pointer">
+                <option :value="null">— none —</option>
+                <option v-for="animal in animals" :key="animal.id" :value="animal.id">{{ animal.name }}</option>
+              </select>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Enclosure ID <span class="normal-case font-normal text-gray-400">(optional)</span></label>
-              <input v-model.number="form.enclosureId" type="number" min="1" placeholder="optional" class="w-full px-4 py-2.5 bg-[#f6f5f0] rounded-xl text-sm font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a3b22]/30 transition" />
+              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Enclosure <span class="normal-case font-normal text-gray-400">(optional)</span></label>
+              <select v-model="form.enclosureId" class="w-full px-4 py-2.5 bg-[#f6f5f0] rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1a3b22]/30 transition appearance-none cursor-pointer">
+                <option :value="null">— none —</option>
+                <option v-for="enc in enclosures" :key="enc.id" :value="enc.id">{{ enc.name }}</option>
+              </select>
             </div>
           </div>
 
@@ -210,7 +221,7 @@ import ConfirmDialog    from '../components/ConfirmDialog.vue';
 import { useReports }   from '../composables/useReports';
 
 const {
-  reports, reportTypes, searchQuery, sortOrder, loadingReports, loadingTypes,
+  reports, reportTypes, employees, animals, enclosures, searchQuery, sortOrder, loadingReports, loadingTypes,
   creating, createError, form,
   pdfLoadingId, previewLoadingId, previewReport, previewBlobUrl, showPreview,
   reportToDelete, showDeleteModal, deleting,
