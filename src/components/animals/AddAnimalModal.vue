@@ -223,6 +223,102 @@
             <span v-if="animalTypes.length === 0" class="text-sm text-gray-400 italic">No types — add them in the Animal Types section.</span>
           </div>
         </div>
+
+        <!-- Feedings (collapsible) -->
+        <div class="border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            @click="feedingsOpen = !feedingsOpen"
+            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+          >
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#2d6a4f] dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+              </svg>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Feedings</span>
+              <span class="text-xs font-normal text-gray-400">(optional)</span>
+              <span v-if="hasFeedingData" class="inline-flex items-center gap-1 text-xs font-medium text-[#2d6a4f] dark:text-green-400 bg-[#f0f9f4] dark:bg-[#132a1e] px-2 py-0.5 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                configured
+              </span>
+            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 text-gray-400 transition-transform duration-200"
+              :class="feedingsOpen ? 'rotate-180' : ''"
+              viewBox="0 0 20 20" fill="currentColor"
+            >
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+
+          <div v-if="feedingsOpen" class="p-4 space-y-4 border-t border-gray-200 dark:border-gray-600">
+
+            <!-- Feeding employee -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Feeding employee</label>
+              <div v-if="isLoadingFeeding" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-400">
+                <svg class="animate-spin h-4 w-4 text-[#2d6a4f]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                Loading...
+              </div>
+              <select
+                v-else
+                v-model.number="form.feedingEmployeeId"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
+              >
+                <option :value="null">— None —</option>
+                <option v-for="emp in employees" :key="emp.id" :value="emp.id">
+                  {{ emp.firstName }} {{ emp.lastName }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Food -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Food</label>
+              <select
+                v-model.number="form.foodId"
+                :disabled="isLoadingFeeding"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all disabled:opacity-50"
+              >
+                <option :value="null">— None —</option>
+                <option v-for="food in foodTypes" :key="food.id" :value="food.id">
+                  {{ food.foodName ?? food.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Feedings per day + Amount per feeding -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Feedings per day</label>
+                <input
+                  v-model.number="form.feedingsPerDay"
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 3"
+                  class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Amount per feeding (kg)</label>
+                <input
+                  v-model.number="form.amountPerFeeding"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  placeholder="e.g. 2.5"
+                  class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent focus:bg-white dark:focus:bg-gray-600 outline-none transition-all"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
       <!-- Save error banner -->
@@ -254,11 +350,13 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, onMounted } from 'vue';
+import { reactive, ref, watch, computed, onMounted } from 'vue';
 import { useAnimalSearch } from '../../composables/useAnimalSearch';
 import animalService from '../../services/animal.service';
 import iconService from '../../services/icon.service';
 import animalTypeService from '../../services/animalType.service';
+import employeeService from '../../services/employee.service';
+import foodService from '../../services/food.service';
 import FormError from '../FormError.vue';
 import { parseApiError } from '../../utils/parseApiError';
 
@@ -268,14 +366,31 @@ const emit = defineEmits(['save', 'close']);
 const animalTypes    = ref([]);
 const isLoadingTypes = ref(false);
 
+// --- FEEDINGS ---
+const feedingsOpen    = ref(false);
+const employees       = ref([]);
+const foodTypes       = ref([]);
+const isLoadingFeeding = ref(false);
+
+const hasFeedingData = computed(() =>
+  form.feedingEmployeeId != null || form.foodId != null ||
+  form.feedingsPerDay != null || form.amountPerFeeding != null
+);
+
 onMounted(async () => {
   isLoadingTypes.value = true;
+  isLoadingFeeding.value = true;
   try {
-    animalTypes.value = await animalTypeService.getAll();
+    [animalTypes.value, employees.value, foodTypes.value] = await Promise.all([
+      animalTypeService.getAll(),
+      employeeService.getAll(),
+      foodService.getAllFoodTypes(),
+    ]);
   } catch {
     // silently ignore
   } finally {
     isLoadingTypes.value = false;
+    isLoadingFeeding.value = false;
   }
 });
 
@@ -327,6 +442,10 @@ const form = reactive({
   origin: '',
   dateOfArrival: '',
   animalTypeId: null,
+  feedingEmployeeId: null,
+  foodId: null,
+  feedingsPerDay: null,
+  amountPerFeeding: null,
 });
 
 // Save state
@@ -334,7 +453,11 @@ const isSaving = ref(false);
 const saveError = ref(null);
 
 const resetForm = () => {
-  Object.assign(form, { name: '', raceName: '', description: '', origin: '', dateOfArrival: '', animalTypeId: null });
+  Object.assign(form, {
+    name: '', raceName: '', description: '', origin: '', dateOfArrival: '',
+    animalTypeId: null, feedingEmployeeId: null, foodId: null, feedingsPerDay: null, amountPerFeeding: null,
+  });
+  feedingsOpen.value = false;
   clearResults();
   saveError.value = null;
   removeIcon();
@@ -376,6 +499,10 @@ const handleSave = async () => {
       DateOfArrival: form.dateOfArrival ? new Date(form.dateOfArrival).toISOString() : null,
       ...(iconId !== null && { IconId: iconId }),
       ...(form.animalTypeId !== null && { AnimalTypeId: form.animalTypeId }),
+      ...(form.feedingEmployeeId != null && { FeedingEmployeeId: form.feedingEmployeeId }),
+      ...(form.foodId != null && { FoodId: form.foodId }),
+      ...(form.feedingsPerDay != null && { FeedingsPerDay: form.feedingsPerDay }),
+      ...(form.amountPerFeeding != null && { AmountPerFeeding: form.amountPerFeeding }),
     };
 
     const saved = await animalService.create(dto);

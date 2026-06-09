@@ -286,6 +286,126 @@
         <p v-else class="text-gray-400 italic text-sm">This animal has no assigned attributes.</p>
       </div>
 
+      <!-- Feedings -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Feedings</h2>
+          <button
+            v-if="isManager && !isEditingFeedings"
+            type="button"
+            @click="startFeedingEdit"
+            class="flex items-center gap-1.5 text-xs font-semibold text-[#2d6a4f] dark:text-green-400 hover:text-[#1a3b22] dark:hover:text-green-300 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+
+        <!-- View mode -->
+        <dl v-if="!isEditingFeedings" class="space-y-3">
+          <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+            <dt class="text-sm text-gray-500 dark:text-gray-400">Feeding employee</dt>
+            <dd class="text-sm font-semibold text-gray-800 dark:text-white">
+              {{ feedingEmployeeName ?? '—' }}
+            </dd>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+            <dt class="text-sm text-gray-500 dark:text-gray-400">Food</dt>
+            <dd class="text-sm font-semibold text-gray-800 dark:text-white">
+              {{ feedingFoodName ?? '—' }}
+            </dd>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+            <dt class="text-sm text-gray-500 dark:text-gray-400">Feedings per day</dt>
+            <dd class="text-sm font-semibold text-gray-800 dark:text-white">
+              {{ animal.feedingsPerDay ?? '—' }}
+            </dd>
+          </div>
+          <div class="flex justify-between items-center py-2">
+            <dt class="text-sm text-gray-500 dark:text-gray-400">Amount per feeding</dt>
+            <dd class="text-sm font-semibold text-gray-800 dark:text-white">
+              {{ animal.amountPerFeeding != null ? animal.amountPerFeeding + ' kg' : '—' }}
+            </dd>
+          </div>
+        </dl>
+
+        <!-- Edit mode (Manager only) -->
+        <div v-else class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Feeding employee</label>
+            <select
+              v-model.number="feedingEdit.feedingEmployeeId"
+              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent outline-none transition-all"
+            >
+              <option :value="null">— None —</option>
+              <option v-for="emp in feedingEmployees" :key="emp.id" :value="emp.id">
+                {{ emp.firstName }} {{ emp.lastName }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Food</label>
+            <select
+              v-model.number="feedingEdit.foodId"
+              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent outline-none transition-all"
+            >
+              <option :value="null">— None —</option>
+              <option v-for="food in feedingFoodTypes" :key="food.id" :value="food.id">
+                {{ food.foodName ?? food.name }}
+              </option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Feedings per day</label>
+              <input
+                v-model.number="feedingEdit.feedingsPerDay"
+                type="number"
+                min="1"
+                placeholder="e.g. 3"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent outline-none transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Amount per feeding (kg)</label>
+              <input
+                v-model.number="feedingEdit.amountPerFeeding"
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="e.g. 2.5"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#2d6a4f] focus:border-transparent outline-none transition-all"
+              />
+            </div>
+          </div>
+          <p v-if="feedingEditError" class="text-xs text-red-500">{{ feedingEditError }}</p>
+          <div class="flex justify-end gap-3 pt-1">
+            <button
+              type="button"
+              :disabled="isSavingFeeding"
+              @click="cancelFeedingEdit"
+              class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              :disabled="isSavingFeeding"
+              @click="saveFeedingEdit"
+              class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold text-white bg-[#2d6a4f] hover:bg-[#1a3b22] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              <svg v-if="isSavingFeeding" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              {{ isSavingFeeding ? 'Saving…' : 'Save' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Historia zdrowia -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
         <!-- Header -->
@@ -421,6 +541,8 @@ import { useTitle } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import animalService from '../../services/animal.service';
 import animalTypeService from '../../services/animalType.service';
+import employeeService from '../../services/employee.service';
+import foodService from '../../services/food.service';
 import iconService from '../../services/icon.service';
 import { invalidateIcon } from '../../composables/useIcon';
 import { useAnimalConditions } from '../../composables/useAnimalConditions';
@@ -592,6 +714,81 @@ async function onFieldBlur(field, event) {
   }
 }
 
+// --- FEEDINGS ---
+const feedingEmployees  = ref([]);
+const feedingFoodTypes  = ref([]);
+const isEditingFeedings = ref(false);
+const isSavingFeeding   = ref(false);
+const feedingEditError  = ref(null);
+const feedingEdit       = ref({ feedingEmployeeId: null, foodId: null, feedingsPerDay: null, amountPerFeeding: null });
+
+const feedingEmployeeName = computed(() => {
+  const id = animal.value?.feedingEmployeeId ?? animal.value?.FeedingEmployeeId ?? null;
+  if (!id) return null;
+  const emp = feedingEmployees.value.find(e => e.id === id);
+  return emp ? `${emp.firstName} ${emp.lastName}` : `#${id}`;
+});
+
+const feedingFoodName = computed(() => {
+  const id = animal.value?.foodId ?? animal.value?.FoodId ?? null;
+  if (!id) return null;
+  const food = feedingFoodTypes.value.find(f => f.id === id);
+  return food ? (food.foodName ?? food.name) : `#${id}`;
+});
+
+async function loadFeedingLookups() {
+  try {
+    [feedingEmployees.value, feedingFoodTypes.value] = await Promise.all([
+      employeeService.getAll(),
+      foodService.getAllFoodTypes(),
+    ]);
+  } catch (e) {
+    console.error('[AnimalDetailsView] loadFeedingLookups:', e);
+  }
+}
+
+function startFeedingEdit() {
+  feedingEdit.value = {
+    feedingEmployeeId: animal.value?.feedingEmployeeId ?? animal.value?.FeedingEmployeeId ?? null,
+    foodId:            animal.value?.foodId            ?? animal.value?.FoodId            ?? null,
+    feedingsPerDay:    animal.value?.feedingsPerDay    ?? animal.value?.FeedingsPerDay    ?? null,
+    amountPerFeeding:  animal.value?.amountPerFeeding  ?? animal.value?.AmountPerFeeding  ?? null,
+  };
+  feedingEditError.value = null;
+  isEditingFeedings.value = true;
+}
+
+function cancelFeedingEdit() {
+  isEditingFeedings.value = false;
+  feedingEditError.value = null;
+}
+
+async function saveFeedingEdit() {
+  if (isSavingFeeding.value) return;
+  isSavingFeeding.value = true;
+  feedingEditError.value = null;
+  try {
+    await animalService.update(route.params.id, {
+      Name:              animal.value.name ?? '',
+      RaceName:          animal.value.raceName ?? null,
+      Origin:            animal.value.origin ?? null,
+      DateOfArrival:     animal.value.dateOfArrival ?? null,
+      Description:       animal.value.description ?? null,
+      FeedingEmployeeId: feedingEdit.value.feedingEmployeeId ?? null,
+      FoodId:            feedingEdit.value.foodId ?? null,
+      FeedingsPerDay:    feedingEdit.value.feedingsPerDay ?? null,
+      AmountPerFeeding:  feedingEdit.value.amountPerFeeding ?? null,
+    });
+    animal.value = { ...animal.value, ...feedingEdit.value };
+    isEditingFeedings.value = false;
+  } catch (err) {
+    console.error('[AnimalDetailsView] saveFeedingEdit error:', err);
+    feedingEditError.value = err?.response?.data?.message ?? 'Failed to save feeding settings.';
+  } finally {
+    isSavingFeeding.value = false;
+  }
+}
+
 // --- HISTORIA ---
 const history          = ref([]);
 const isLoadingHistory = ref(false);
@@ -674,6 +871,7 @@ watch(
     fetchAllAttributes();
     fetchAssignedAttributes(id);
     fetchAnimalTypes();
+    loadFeedingLookups();
   },
   { immediate: true }
 );
