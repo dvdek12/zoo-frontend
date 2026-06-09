@@ -872,6 +872,7 @@ watch(
     fetchAssignedAttributes(id);
     fetchAnimalTypes();
     loadFeedingLookups();
+    loadConditions();
   },
   { immediate: true }
 );

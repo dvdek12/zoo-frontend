@@ -60,12 +60,24 @@
         />
         <AnimalTypeTable :animal-types="filteredAnimalTypes" @delete="requestDeleteAnimalType" />
       </section>
+
+      <!-- Animal Conditions Section -->
+      <section class="flex flex-col min-h-[320px]">
+        <SectionHeader
+          title="Animal Conditions"
+          button-label="Add"
+          button-variant="outline"
+          @action="showConditionModal = true"
+        />
+        <AnimalConditionTable :conditions="filteredConditions" @delete="requestDeleteCondition" />
+      </section>
     </div>
 
     <!-- Modals -->
-    <AddAnimalModal     v-if="showAnimalModal"     @save="onAnimalSaved"     @close="showAnimalModal = false" />
-    <AddAttributeModal  v-if="showAttrModal"       @save="onAttributeSaved"  @close="showAttrModal = false" />
-    <AddAnimalTypeModal v-if="showAnimalTypeModal" @save="onAnimalTypeSaved" @close="showAnimalTypeModal = false" />
+    <AddAnimalModal          v-if="showAnimalModal"     @save="onAnimalSaved"     @close="showAnimalModal = false" />
+    <AddAttributeModal       v-if="showAttrModal"       @save="onAttributeSaved"  @close="showAttrModal = false" />
+    <AddAnimalTypeModal      v-if="showAnimalTypeModal" @save="onAnimalTypeSaved" @close="showAnimalTypeModal = false" />
+    <AddAnimalConditionModal v-if="showConditionModal"  @save="onConditionSaved"  @close="showConditionModal = false" />
 
     <!-- Delete dialogs -->
     <ConfirmDialog
@@ -130,6 +142,27 @@
       @confirm="showAnimalTypeDeleteError = false"
       @cancel="showAnimalTypeDeleteError = false"
     />
+
+    <ConfirmDialog
+      :model-value="conditionShowConfirm"
+      @update:model-value="conditionShowConfirm = $event"
+      title="Delete animal condition"
+      :message="`Are you sure you want to delete condition '${conditionPendingDelete?.condition ?? conditionPendingDelete?.name ?? ''}'? This action cannot be undone.`"
+      confirm-label="Delete"
+      cancel-label="Cancel"
+      :loading="conditionIsDeleting"
+      @confirm="conditionDelete.confirmDelete"
+      @cancel="conditionDelete.cancelDelete"
+    />
+    <ConfirmDialog
+      v-model="showConditionDeleteError"
+      title="Delete error"
+      :message="conditionDeleteError ?? 'Failed to delete condition.'"
+      confirm-label="OK"
+      cancel-label=""
+      @confirm="showConditionDeleteError = false"
+      @cancel="showConditionDeleteError = false"
+    />
   </div>
 </template>
 
@@ -140,12 +173,14 @@ import PageBanner         from '../../components/PageBanner.vue';
 import SearchBar          from '../../components/SearchBar.vue';
 import SectionHeader      from '../../components/SectionHeader.vue';
 import DataStateWrapper   from '../../components/DataStateWrapper.vue';
-import AnimalTable        from '../../components/animals/AnimalTable.vue';
-import AttributeTable     from '../../components/animals/AttributeTable.vue';
-import AnimalTypeTable    from '../../components/animals/AnimalTypeTable.vue';
-import AddAnimalModal     from '../../components/animals/AddAnimalModal.vue';
-import AddAttributeModal  from '../../components/animals/AddAttributeModal.vue';
-import AddAnimalTypeModal from '../../components/animals/AddAnimalTypeModal.vue';
+import AnimalTable             from '../../components/animals/AnimalTable.vue';
+import AttributeTable          from '../../components/animals/AttributeTable.vue';
+import AnimalTypeTable         from '../../components/animals/AnimalTypeTable.vue';
+import AnimalConditionTable    from '../../components/animals/AnimalConditionTable.vue';
+import AddAnimalModal          from '../../components/animals/AddAnimalModal.vue';
+import AddAttributeModal       from '../../components/animals/AddAttributeModal.vue';
+import AddAnimalTypeModal      from '../../components/animals/AddAnimalTypeModal.vue';
+import AddAnimalConditionModal from '../../components/animals/AddAnimalConditionModal.vue';
 import ConfirmDialog      from '../../components/ConfirmDialog.vue';
 import animalService      from '../../services/animal.service';
 import animalTypeService  from '../../services/animalType.service';
@@ -157,6 +192,7 @@ const router = useRouter();
 const showAnimalModal     = ref(false);
 const showAttrModal       = ref(false);
 const showAnimalTypeModal = ref(false);
+const showConditionModal  = ref(false);
 const searchQuery         = ref('');
 
 const goToAnimal = (id) => router.push({ name: 'animalDetail', params: { id } });
@@ -284,10 +320,38 @@ const filteredAnimalTypes = computed(() => {
   return animalTypes.value.filter(t => (t.animalTypeName ?? t.name ?? '').toLowerCase().includes(q));
 });
 
+// --- ANIMAL CONDITIONS ---
+const conditions = ref([]);
+
+async function fetchConditions() {
+  try {
+    const data = await animalService.getAnimalConditions();
+    conditions.value = Array.isArray(data) ? data : (data ? [data] : []);
+  } catch {}
+}
+
+const onConditionSaved = async () => { showConditionModal.value = false; await fetchConditions(); };
+
+const showConditionDeleteError = ref(false);
+const conditionDelete = useDeleteConfirm(async (cond) => {
+  await animalService.deleteCondition(cond.id);
+  conditions.value = conditions.value.filter(c => c.id !== cond.id);
+});
+const { showConfirm: conditionShowConfirm, pendingDelete: conditionPendingDelete, isDeleting: conditionIsDeleting, deleteError: conditionDeleteError } = conditionDelete;
+const requestDeleteCondition = (id) => conditionDelete.requestDelete(conditions.value.find(c => c.id === id) ?? { id });
+watch(conditionDeleteError, (err) => { if (err) showConditionDeleteError.value = true; });
+
+const filteredConditions = computed(() => {
+  const q = searchQuery.value.toLowerCase().trim();
+  if (!q) return conditions.value;
+  return conditions.value.filter(c => (c.condition ?? c.name ?? '').toLowerCase().includes(q));
+});
+
 function initData() {
   fetchAnimals();
   fetchAttributes();
   fetchAnimalTypes();
+  fetchConditions();
 }
 onMounted(initData);
 onActivated(initData);

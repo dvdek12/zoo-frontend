@@ -106,7 +106,7 @@ export function useReports() {
       const isEmployeeOnly = auth.hasRole('Employee') && !auth.hasRole('Manager');
       const raw = isEmployeeOnly
         ? await reportService.getTypesForEmployee()
-        : await reportService.getTypes();
+        : await reportService.getTypesForManager();
       if (Array.isArray(raw)) {
         reportTypes.value = raw.map((item, idx) => {
           if (typeof item === 'string') return { value: idx, label: camelToWords(item) };

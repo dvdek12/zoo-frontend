@@ -8,6 +8,8 @@ export default {
   getAll:               ()                          => http.get(BASE).then(r => r.data),
   getById:              (id)                        => http.get(`${BASE}/${id}`).then(r => r.data),
   getAnimalConditions:  ()                          => http.get(COND_BASE).then(r => r.data),
+  createCondition:      (condition)                 => http.post(COND_BASE, { condition }).then(r => r.data),
+  deleteCondition:      (id)                        => http.delete(`${COND_BASE}/${id}`).then(r => r.data),
   getHistory:           (id)                        => http.get(`${BASE}/${id}/getHistory`).then(r => r.data),
   addHistory:           (id, dto)                   => http.post(`${BASE}/${id}/addHistory`, dto).then(r => r.data),
   create:               (dto)                       => http.post(BASE, dto).then(r => r.data),
