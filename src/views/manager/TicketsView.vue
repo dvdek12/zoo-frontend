@@ -121,7 +121,7 @@
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ et.name }}</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ et.typeName }}</p>
                     <p class="text-xs text-gray-400">Entry Type #{{ et.id }}</p>
                   </div>
                 </div>
@@ -149,7 +149,7 @@
       </div>
 
       <!-- ═══ ALL TICKETS PANEL ═══ -->
-      <div v-if="activeTab === 'all'" class="flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto">
+      <div v-if="activeTab === 'all'" class="flex-1 min-h-0 flex flex-col gap-4">
 
         <!-- Header bar -->
         <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 shrink-0">
@@ -157,6 +157,18 @@
             <h2 class="text-lg font-bold text-[#1a3b22] dark:text-green-400">All Tickets</h2>
             <p class="text-xs text-gray-400">{{ tickets.length }} ticket{{ tickets.length !== 1 ? 's' : '' }} purchased</p>
           </div>
+          <div class="flex items-center gap-3">
+          <button
+            @click="fetchTickets"
+            :disabled="isLoadingTickets"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors cursor-pointer"
+            title="Odśwież listę biletów"
+          >
+            <svg class="w-3.5 h-3.5" :class="{ 'animate-spin': isLoadingTickets }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Odśwież
+          </button>
           <div class="relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
@@ -169,8 +181,10 @@
               class="pl-9 pr-3 py-2 text-xs border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-[#2d6a4f] dark:focus:border-green-400 transition-colors w-52"
             />
           </div>
+          </div>
         </div>
 
+        <div class="flex-1 min-h-0 overflow-y-auto">
         <DataStateWrapper
           :loading="isLoadingTickets"
           :error="ticketsError"
@@ -197,18 +211,19 @@
                   <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Ticket ID</th>
                   <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Client ID</th>
                   <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Entry Types</th>
+                  <th class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Status</th>
                   <th class="text-right text-xs font-semibold text-gray-400 uppercase tracking-wider px-5 py-3.5">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="ticket in filteredTickets"
-                  :key="ticket.id"
+                  v-for="(ticket, i) in filteredTickets"
+                  :key="ticket.id ?? ticket.ticketId ?? i"
                   class="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
                 >
                   <td class="px-5 py-4">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1a3b22]/5 dark:bg-green-400/10 text-[#1a3b22] dark:text-green-400 text-xs font-bold">
-                      #{{ ticket.id }}
+                      #{{ ticket.id ?? ticket.ticketId }}
                     </span>
                   </td>
                   <td class="px-5 py-4">
@@ -221,20 +236,44 @@
                         :key="name"
                         class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                       >
-                        {{ name }}
+                        Entry ticket — {{ entryTypeName(name) }}
                         <span class="bg-[#2d6a4f] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">{{ qty }}</span>
                       </span>
                     </div>
                   </td>
+                  <td class="px-5 py-4">
+                    <span
+                      v-if="ticket.isUsed || ticket.IsUsed"
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                    >
+                      <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                      </svg>
+                      Użyty
+                    </span>
+                    <span
+                      v-else
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-green-50 dark:bg-green-400/10 text-green-700 dark:text-green-400"
+                    >
+                      <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      Aktywny
+                    </span>
+                  </td>
                   <td class="px-5 py-4 text-right">
                     <button
-                      @click="ticketDelete.requestDelete(ticket)"
-                      :id="`delete-ticket-${ticket.id}`"
-                      class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
-                      title="Delete ticket"
+                      @click="ticketUse.requestDelete(ticket)"
+                      :id="`use-ticket-${ticket.id}`"
+                      :disabled="ticket.isUsed || ticket.IsUsed"
+                      class="w-8 h-8 inline-flex items-center justify-center rounded-lg transition-all"
+                      :class="(ticket.isUsed || ticket.IsUsed)
+                        ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                        : 'text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer'"
+                      title="Kasuj bilet"
                     >
                       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                        <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     </button>
                   </td>
@@ -243,6 +282,7 @@
             </table>
           </div>
         </DataStateWrapper>
+        </div>
       </div>
 
     </div>
@@ -260,17 +300,17 @@
       @cancel="entryTypeDelete.cancelDelete"
     />
 
-    <!-- Confirm Delete — Ticket -->
+    <!-- Confirm Use — Ticket -->
     <ConfirmDialog
       :model-value="tkShowConfirm"
       @update:model-value="tkShowConfirm = $event"
-      title="Delete Ticket"
-      :message="`Are you sure you want to delete ticket #${tkPendingDelete?.id}? This cannot be undone.`"
-      confirm-label="Delete"
-      cancel-label="Cancel"
+      title="Kasuj bilet"
+      :message="`Czy na pewno chcesz skasować bilet #${tkPendingDelete?.id}? Operacja jest nieodwracalna.`"
+      confirm-label="Kasuj"
+      cancel-label="Anuluj"
       :loading="tkIsDeleting"
-      @confirm="ticketDelete.confirmDelete"
-      @cancel="ticketDelete.cancelDelete"
+      @confirm="ticketUse.confirmDelete"
+      @cancel="ticketUse.cancelDelete"
     />
 
     <!-- Toast -->
@@ -398,17 +438,18 @@ async function fetchTickets() {
   }
 }
 
-// ── DELETE — Tickets ─────────────────────────────────
-const ticketDelete = useDeleteConfirm(async (ticket) => {
-  await ticketService.remove(ticket.id);
-  tickets.value = tickets.value.filter(t => t.id !== ticket.id);
-  showToast('Ticket deleted.');
+// ── USE — Tickets ─────────────────────────────────────
+const ticketUse = useDeleteConfirm(async (ticket) => {
+  await ticketService.use(ticket.id ?? ticket.ticketId);
+  const idx = tickets.value.findIndex(t => (t.id ?? t.ticketId) === (ticket.id ?? ticket.ticketId));
+  if (idx !== -1) tickets.value[idx] = { ...tickets.value[idx], isUsed: true };
+  showToast('Bilet skasowany.');
 });
 
 // Destructuring refs for template
-const { showConfirm: tkShowConfirm, pendingDelete: tkPendingDelete, isDeleting: tkIsDeleting } = ticketDelete;
+const { showConfirm: tkShowConfirm, pendingDelete: tkPendingDelete, isDeleting: tkIsDeleting } = ticketUse;
 
-watch(ticketDelete.deleteError, (err) => {
+watch(ticketUse.deleteError, (err) => {
   if (err) showToast(err, 'error');
 });
 
@@ -416,6 +457,11 @@ watch(ticketDelete.deleteError, (err) => {
 function formatPrice(price) {
   if (price == null) return '—';
   return Number(price).toFixed(2);
+}
+
+function entryTypeName(key) {
+  const byId = entryTypes.value.find(et => String(et.id) === String(key));
+  return byId ? byId.name : key;
 }
 
 // ── INIT ─────────────────────────────────────────────────────────

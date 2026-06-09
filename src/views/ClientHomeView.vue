@@ -96,7 +96,7 @@
               {{ et.name }}
             </h3>
             <p class="text-sm mb-6" :class="index === featuredIndex ? 'text-green-200' : 'text-gray-500 dark:text-gray-400'">
-              Entry ticket — {{ et.name }}
+              Entry ticket — {{ et.typeName }}
             </p>
 
             <div class="mb-8">
@@ -231,8 +231,8 @@
                 class="flex items-center justify-between p-4 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
               >
                 <div>
-                  <p class="font-semibold text-gray-800 dark:text-gray-100 text-sm">{{ et.name }}</p>
-                  <p class="text-[#2d6a4f] dark:text-green-400 font-bold text-sm">{{ formatPrice(et.price) }} PLN / pcs.</p>
+                  <p class="font-semibold text-gray-800 dark:text-gray-100 text-sm">Entry ticket — {{ et.typeName }}</p>
+                  <p class="text-[#2d6a4f] dark:text-green-400 font-bold text-sm">{{ formatPrice(et.price) }} PLN / szt.</p>
                 </div>
                 <!-- Quantity stepper -->
                 <div class="flex items-center gap-3">
@@ -310,22 +310,28 @@
 
           <!-- Details -->
           <div class="px-8 py-6 flex flex-col gap-4">
-            <div v-if="purchaseResult" class="flex flex-col gap-3">
-              <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Ticket number</span>
-                <span class="font-bold text-[#1a3b22] dark:text-green-400">#{{ purchaseResult.id ?? '—' }}</span>
-              </div>
-              <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Purchase date</span>
-                <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">{{ formatDateTime(purchaseResult.purchaseDate) }}</span>
-              </div>
-              <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Valid until</span>
-                <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm">{{ formatDateTime(purchaseResult.validUntil) }}</span>
+            <div class="flex flex-col gap-3">
+              <div class="flex flex-col gap-2 py-2 border-b border-gray-100 dark:border-gray-700">
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide text-left">Zakupione bilety</span>
+                <div class="flex flex-col gap-1.5 mt-1">
+                  <div
+                    v-for="et in entryTypes.filter(e => (quantities[e.id] ?? 0) > 0)"
+                    :key="et.id"
+                    class="flex items-center justify-between"
+                  >
+                    <span class="text-sm text-gray-700 dark:text-gray-200">
+                      Entry ticket — {{ et.typeName }}
+                      <span class="text-xs text-gray-400 ml-1">× {{ quantities[et.id] }}</span>
+                    </span>
+                    <span class="text-sm font-bold text-[#1a3b22] dark:text-green-400">
+                      {{ formatPrice((quantities[et.id] ?? 0) * et.price) }} PLN
+                    </span>
+                  </div>
+                </div>
               </div>
               <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total amount</span>
-                <span class="text-xl font-extrabold text-[#1a3b22] dark:text-green-400">{{ formatPrice(purchaseResult.price) }} PLN</span>
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Łączna kwota</span>
+                <span class="text-xl font-extrabold text-[#1a3b22] dark:text-green-400">{{ formatPrice(totalPrice) }} PLN</span>
               </div>
             </div>
 
@@ -349,7 +355,6 @@ import { useRouter } from 'vue-router';
 import { MapPin, Clock, Phone, Map as MapIcon } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/auth';
 import ticketService from '../services/ticket.service.js';
-import { jwtDecode } from 'jwt-decode';
 
 const router = useRouter();
 const auth   = useAuthStore();
@@ -425,31 +430,9 @@ function closePurchaseModal() {
 function incQty(id) { quantities.value[id] = (quantities.value[id] ?? 0) + 1; }
 function decQty(id) { quantities.value[id] = Math.max(0, (quantities.value[id] ?? 0) - 1); }
 
-/**
- * Extracts clientId from JWT (custom claim: "clientId" — int from Clients table).
- */
-function getClientIdFromToken() {
-  try {
-    const token = localStorage.getItem('jwt');
-    if (!token) return null;
-    const decoded = jwtDecode(token);
-    // Custom claim added by backend during client login
-    const id = decoded['clientId'];
-    return id ? Number(id) : null;
-  } catch {
-    return null;
-  }
-}
-
 async function confirmPurchase() {
   purchaseError.value = null;
   if (totalItems.value === 0) return;
-
-  const clientId = getClientIdFromToken();
-  if (!clientId) {
-    purchaseError.value = 'Cannot determine client ID. Try logging in again.';
-    return;
-  }
 
   // Build entryTypeIds: { id: qty } — only non-zero
   const entryTypeIds = {};
@@ -459,7 +442,7 @@ async function confirmPurchase() {
 
   isPurchasing.value = true;
   try {
-    const result = await ticketService.purchase({ clientId, entryTypeIds });
+    const result = await ticketService.purchase({ entryTypeIds });
     purchaseResult.value    = result;
     showPurchaseModal.value = false;
     showSuccessModal.value  = true;

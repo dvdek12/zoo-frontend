@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import ThemeToggle from '../components/ThemeToggle.vue';
-import { LogOut, UserCircle2 } from 'lucide-vue-next';
+import { LogOut, UserCircle2, LayoutDashboard } from 'lucide-vue-next';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -33,6 +33,17 @@ function handleLogout() {
         <!-- Right side -->
         <div class="flex items-center gap-4">
           <ThemeToggle />
+
+          <!-- Przycisk Dashboard dla pracownika/managera -->
+          <template v-if="auth.isLoggedIn && auth.hasAnyRole('Employee', 'Manager')">
+            <router-link
+              to="/dashboard"
+              class="flex items-center gap-2 bg-green-600/30 hover:bg-green-500/50 border border-green-400/40 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+            >
+              <LayoutDashboard class="w-4 h-4" />
+              Dashboard
+            </router-link>
+          </template>
 
           <!-- Zalogowany klient -->
           <template v-if="auth.isLoggedIn">
